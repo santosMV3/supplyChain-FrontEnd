@@ -50,7 +50,6 @@ function CardsHeader() {
             setBilledValues(totalValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
           }).catch(console.error);
           api.get('/logMapAnalitic').then((analitic) => {
-            console.log(analitic.data.total);
             setBilledOrders(analitic.data.total - response.data.length);
           }).catch(console.error);
 
@@ -76,11 +75,10 @@ function CardsHeader() {
                 if(orders.count === 0) return setBilledOrdersLoged(orders.count);
                 else {
                   let count = orders.count;
-                  console.log(orders);
                   setBilledOrdersLoged(count);
                 }
               }).catch(console.error);
-            }).catch(console.log);
+            }).catch(console.error);
           }).catch(console.error);
         }).catch(console.error);
       }).catch(console.error);

@@ -63,7 +63,6 @@ function Register() {
 
   const handlerInput = (e) => {
     setUserRegister({...userRegister, [e.target.id]: e.target.value});
-    console.log(userRegister);
   };
 
   const registerExecute = async (e) => {

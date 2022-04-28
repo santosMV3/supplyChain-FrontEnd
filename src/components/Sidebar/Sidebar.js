@@ -142,7 +142,6 @@ function Sidebar({ toggleSidenav, sidenavOpen, routes, logo, rtlActive }) {
           </NavItem>
         );
       } else {
-        // console.log(prop.name);
         api.get(`user-permission?idUser=${localStorage.getItem("AUTHOR_ID")}`).then((response) => {
           if(response.data.length === 0) {
             api.get(`/users/${localStorage.getItem("AUTHOR_ID")}`).then((response) => {
@@ -156,12 +155,10 @@ function Sidebar({ toggleSidenav, sidenavOpen, routes, logo, rtlActive }) {
               let permissions = response.data;
               api.get(`/pages?name=${prop.name.toLowerCase()}`).then((responsePage => {
                 if(responsePage.data.length < 1){
-                  // console.log(prop.name);
                   let page = pageState;
                   page.push(prop.name);
                   setPageState(page);
                 } else {
-                  // console.log(responsePage.data[0].idPage);
                   if(permissions.idPages.indexOf(responsePage.data[0].idPage) === -1){
                     let page = pageState;
                     page.push(prop.name);

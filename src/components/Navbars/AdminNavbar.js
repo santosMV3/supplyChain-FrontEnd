@@ -57,10 +57,9 @@ function AdminNavbar({ theme, sidenavOpen, toggleSidenav }) {
       try {
         api.get(`/users/${localStorage.getItem('AUTHOR_ID')}/`).then((response) => {
           setUserData(response.data);
-          console.log(userData);
         }).catch(console.error);
       } catch (error) {
-        console.log(error)
+        console.error(error);
       }
    }
 

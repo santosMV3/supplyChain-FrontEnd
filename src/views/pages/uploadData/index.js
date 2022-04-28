@@ -775,11 +775,11 @@ const ListLogMap = () => {
                         return false;
                     }).catch(console.error);
                 } catch (error) {
-                    console.log(error);
+                    console.error(error);
                 }
             }
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
     };
 
@@ -793,7 +793,7 @@ const ListLogMap = () => {
                 setRequisitionUrl(`/logisticMap/?page=${page}`);
             }).catch(console.error);
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
     }
 
@@ -808,7 +808,7 @@ const ListLogMap = () => {
                 setRequisitionUrl(`/logisticMap/?${searchFilter.field}=${searchFilter.value}`);
             }).catch(console.error);
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
     }
 

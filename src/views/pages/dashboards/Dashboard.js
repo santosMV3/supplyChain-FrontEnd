@@ -454,7 +454,6 @@ function Dashboard() {
           padding: '10px',
           justifyContent: "space-around"
         }}>
-          {console.log(chartData)}
           <h5 className="h4 mb-0">Total: {chartData.totalQuatity}</h5>
         </div>
       </div>

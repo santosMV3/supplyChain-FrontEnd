@@ -67,7 +67,7 @@ const ListPermissions = () => {
                     setPermissionState(response.data);
                 }).catch(console.error);
             } catch (error) {
-                console.log(error)
+                console.error(error);
             }
         }
 
@@ -80,7 +80,7 @@ const ListPermissions = () => {
                 setPermissionState(response.data);
             }).catch(console.error);
         } catch (error) {
-            console.log(error)
+            console.error(error);
         }
     }
 
@@ -103,7 +103,7 @@ const ListPermissions = () => {
                         return setPagesState(response.data);
                     }).catch(console.error);
                 } catch (error) {
-                    console.log(error)
+                    console.error(error);
                 }
             }
             getPage();
