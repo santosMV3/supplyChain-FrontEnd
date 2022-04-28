@@ -36,7 +36,7 @@ const CreatePermission = () => {
                     setPagesState(response.data);
                 }).catch(console.error);
             } catch (error) {
-                console.log(error)
+                console.error(error)
             }
         }
 

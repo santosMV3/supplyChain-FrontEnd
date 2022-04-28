@@ -42,9 +42,9 @@ function Admin() {
           localStorage.clear();
           return history.push('/auth/login');
         }
-        return console.log(detail);
+        return console.info(detail);
       }
-      return console.log(error);
+      return console.error(error);
     });
   }else{
     history.push('/auth/login');
@@ -74,12 +74,10 @@ function Admin() {
             let permissions = response.data;
             api.get(`/pages?name=${prop.name.toLowerCase()}`).then((responsePage => {
               if(responsePage.data.length < 1){
-                // console.log(prop.name);
                 let page = pageState;
                 page.push(prop.name);
                 setPageState(page);
               } else {
-                // console.log(responsePage.data[0].idPage);
                 if(permissions.idPages.indexOf(responsePage.data[0].idPage) === -1){
                   let page = pageState;
                   page.push(prop.name);
