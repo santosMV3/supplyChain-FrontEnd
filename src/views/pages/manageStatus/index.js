@@ -81,7 +81,7 @@ const ListStatus = () => {
                             <div style={{width:'20%',
                                 marginRight: '15px'
                             }}>
-                                <Input placeholder="Name" size='sm' type="text" id='inputName' style={{
+                                <Input placeholder="Name" bsSize='sm' type="text" id='inputName' style={{
                                     marginTop: '16px',
                                     transition: '0.5s',
                                 }}/>
@@ -96,7 +96,7 @@ const ListStatus = () => {
                                     Insert the name of the status!
                                 </div>
                             </div>
-                            <Input placeholder="Description" size='sm' type="text" id='inputDescription' style={{
+                            <Input placeholder="Description" bsSize='sm' type="text" id='inputDescription' style={{
                                 marginTop: '16px',
                                 transition: '0.5s',
                                 width: '75%'
@@ -196,7 +196,7 @@ const ListStatus = () => {
                     <Media className="align-items-center" style={{textAlign: 'center'}}>
                         <Media>
                             {editStatus===true?(
-                                <Input defaultValue={post.name} id="updateName" size='sm' type="text" style={{
+                                <Input defaultValue={post.name} id="updateName" bsSize='sm' type="text" style={{
                                     width: '100px',
                                     textAlign: 'center'
                                 }}/>
@@ -225,7 +225,7 @@ const ListStatus = () => {
                     <Media className="align-items-center">
                         <Media>
                             {editStatus===true?(
-                                <Input defaultValue={post.description} id="updateDescription" size='sm' type="text" style={{
+                                <Input defaultValue={post.description} id="updateDescription" bsSize='sm' type="text" style={{
                                     width: '40vw',
                                     textAlign: 'center'
                                 }}/>

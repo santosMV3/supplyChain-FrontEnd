@@ -153,63 +153,63 @@ const FactoryItem = ({deleteFactory, post, getFactory}) => {
             ):(
                 <>
                     <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                        <Input size="sm" id={"PC" + post.id} name="PC" onChange={handlerInput} max="9999" min="0" type="number" defaultValue={post.PC} style={{
+                        <Input bsSize="sm" id={"PC" + post.id} name="PC" onChange={handlerInput} max="9999" min="0" type="number" defaultValue={post.PC} style={{
                             width: '70px',
                             margin: '0 auto'
                         }}/>
                     </td>
                     <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                        <Input size="sm" id={"fabrica" + post.id} name="fabrica" onChange={handlerInput} defaultValue={post.fabrica} type="text" style={{
+                        <Input bsSize="sm" id={"fabrica" + post.id} name="fabrica" onChange={handlerInput} defaultValue={post.fabrica} type="text" style={{
                             width: '150px',
                             margin: '0 auto',
                             textAlign: 'center'
                         }}/>
                     </td>
                     <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                        <Input size="sm" id={"dataEmbarque" + post.id} name="dataEmbarque" onChange={handlerInput} defaultValue={post.dataEmbarque} type="text" style={{
+                        <Input bsSize="sm" id={"dataEmbarque" + post.id} name="dataEmbarque" onChange={handlerInput} defaultValue={post.dataEmbarque} type="text" style={{
                             width: '150px',
                             margin: '0 auto',
                             textAlign: 'center'
                         }}/>
                     </td>
                     <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                        <Input size="sm" type="number" className={"inputFieldEdit" + post.id} onChange={handlerFields} defaultValue={fields[0]} min="0" max="100" style={{
+                        <Input bsSize="sm" type="number" className={"inputFieldEdit" + post.id} onChange={handlerFields} defaultValue={fields[0]} min="0" max="100" style={{
                             width: '60px',
                             margin: '0 auto'
                         }}/>
                     </td>
                     <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                        <Input size="sm" type="number" className={"inputFieldEdit" + post.id} onChange={handlerFields} defaultValue={fields[1]} min="0" max="100" style={{
+                        <Input bsSize="sm" type="number" className={"inputFieldEdit" + post.id} onChange={handlerFields} defaultValue={fields[1]} min="0" max="100" style={{
                             width: '60px',
                             margin: '0 auto'
                         }}/>
                     </td>
                     <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                        <Input size="sm" type="number" className={"inputFieldEdit" + post.id} onChange={handlerFields} defaultValue={fields[2]} min="0" max="100" style={{
+                        <Input bsSize="sm" type="number" className={"inputFieldEdit" + post.id} onChange={handlerFields} defaultValue={fields[2]} min="0" max="100" style={{
                             width: '60px',
                             margin: '0 auto'
                         }}/>
                     </td>
                     <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                        <Input size="sm" type="number" className={"inputFieldEdit" + post.id} onChange={handlerFields} defaultValue={fields[3]} min="0" max="100" style={{
+                        <Input bsSize="sm" type="number" className={"inputFieldEdit" + post.id} onChange={handlerFields} defaultValue={fields[3]} min="0" max="100" style={{
                             width: '60px',
                             margin: '0 auto'
                         }}/>
                     </td>
                     <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                        <Input size="sm" type="number" className={"inputFieldEdit" + post.id} onChange={handlerFields} defaultValue={fields[4]} min="0" max="100" style={{
+                        <Input bsSize="sm" type="number" className={"inputFieldEdit" + post.id} onChange={handlerFields} defaultValue={fields[4]} min="0" max="100" style={{
                             width: '60px',
                             margin: '0 auto'
                         }}/>
                     </td>
                     <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                        <Input size="sm" type="number" className={"inputFieldEdit" + post.id} onChange={handlerFields} defaultValue={fields[5]} min="0" max="100" style={{
+                        <Input bsSize="sm" type="number" className={"inputFieldEdit" + post.id} onChange={handlerFields} defaultValue={fields[5]} min="0" max="100" style={{
                             width: '60px',
                             margin: '0 auto'
                         }}/>
                     </td>
                     <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                        <Input size="sm" type="number" className={"inputFieldEdit" + post.id} onChange={handlerFields} defaultValue={fields[6]} min="0" max="100" style={{
+                        <Input bsSize="sm" type="number" className={"inputFieldEdit" + post.id} onChange={handlerFields} defaultValue={fields[6]} min="0" max="100" style={{
                             width: '60px',
                             margin: '0 auto'
                         }}/>
@@ -447,61 +447,61 @@ const FactoryPage = () => {
                     {registerState?
                         (<tr>
                             <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                                <Input size="sm" id="PC" max="9999" min="0" type="number" onChange={handlerInput} style={{
+                                <Input bsSize="sm" id="PC" max="9999" min="0" type="number" onChange={handlerInput} style={{
                                     width: '70px',
                                     margin: '0 auto'
                                 }}/>
                             </td>
                             <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                                <Input size="sm" id="fabrica" onChange={handlerInput} type="text" style={{
+                                <Input bsSize="sm" id="fabrica" onChange={handlerInput} type="text" style={{
                                     width: '150px',
                                     margin: '0 auto'
                                 }}/>
                             </td>
                             <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                                <Input size="sm" id="dataEmbarque" onChange={handlerInput} type="text" style={{
+                                <Input bsSize="sm" id="dataEmbarque" onChange={handlerInput} type="text" style={{
                                     width: '150px',
                                     margin: '0 auto'
                                 }}/>
                             </td>
                             <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                                <Input size="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
+                                <Input bsSize="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
                                     width: '60px',
                                     margin: '0 auto'
                                 }}/>
                             </td>
                             <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                                <Input size="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
+                                <Input bsSize="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
                                     width: '60px',
                                     margin: '0 auto'
                                 }}/>
                             </td>
                             <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                                <Input size="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
+                                <Input bsSize="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
                                     width: '60px',
                                     margin: '0 auto'
                                 }}/>
                             </td>
                             <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                                <Input size="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
+                                <Input bsSize="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
                                     width: '60px',
                                     margin: '0 auto'
                                 }}/>
                             </td>
                             <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                                <Input size="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
+                                <Input bsSize="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
                                     width: '60px',
                                     margin: '0 auto'
                                 }}/>
                             </td>
                             <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                                <Input size="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
+                                <Input bsSize="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
                                     width: '60px',
                                     margin: '0 auto'
                                 }}/>
                             </td>
                             <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                                <Input size="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
+                                <Input bsSize="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
                                     width: '60px',
                                     margin: '0 auto',
                                 }}/>

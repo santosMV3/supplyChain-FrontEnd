@@ -78,19 +78,19 @@ const ImportationLine = ({post, deleteExt, getExtData}) => {
             ):(
                 <tr>
                     <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                        <Input size="sm" name="documentNumber" defaultValue={post.documentNumber} onChange={handlerInput} type="text" style={{
+                        <Input bsSize="sm" name="documentNumber" defaultValue={post.documentNumber} onChange={handlerInput} type="text" style={{
                             width: '150px',
                             margin: '0 auto'
                         }}/>
                     </td>
                     <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                        <Input size="sm" name="SSKProject" defaultValue={post.SSKProject} onChange={handlerInput} type="text" style={{
+                        <Input bsSize="sm" name="SSKProject" defaultValue={post.SSKProject} onChange={handlerInput} type="text" style={{
                             width: '150px',
                             margin: '0 auto'
                         }}/>
                     </td>
                     <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                        <Input size="sm" type="checkbox" defaultChecked={post.externalServices} onClick={handlerInput} name="externalServices" style={{
+                        <Input bsSize="sm" type="checkbox" defaultChecked={post.externalServices} onClick={handlerInput} name="externalServices" style={{
                             position: 'relative',
                             margin: 'auto',
                             display: 'block'
@@ -245,19 +245,19 @@ const ExternalServices = () => {
                         {registerState?(
                         <tr>
                             <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                                <Input size="sm" id="documentNumber" onChange={handlerInput} type="text" style={{
+                                <Input bsSize="sm" id="documentNumber" onChange={handlerInput} type="text" style={{
                                     width: '150px',
                                     margin: '0 auto'
                                 }}/>
                             </td>
                             <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                                <Input size="sm" id="SSKProject" onChange={handlerInput} type="text" style={{
+                                <Input bsSize="sm" id="SSKProject" onChange={handlerInput} type="text" style={{
                                     width: '150px',
                                     margin: '0 auto'
                                 }}/>
                             </td>
                             <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                                <Input size="sm" type="checkbox" onClick={handlerInput} id="externalServices" style={{
+                                <Input bsSize="sm" type="checkbox" onClick={handlerInput} id="externalServices" style={{
                                     position: 'relative',
                                     margin: 'auto',
                                     display: 'block'

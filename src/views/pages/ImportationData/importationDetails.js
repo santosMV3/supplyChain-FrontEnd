@@ -109,25 +109,25 @@ const ImportationLine = ({post, deleteFactory, getImp}) => {
             ):(
                 <tr>
                     <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                        <Input size="sm" onChange={handlerInput} defaultValue={post.docSap} name="docSap" max="99999" min="0" type="number" style={{
+                        <Input bsSize="sm" onChange={handlerInput} defaultValue={post.docSap} name="docSap" max="99999" min="0" type="number" style={{
                             width: '75px',
                             margin: '0 auto'
                         }}/>
                     </td>
                     <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                        <Input size="sm" onChange={handlerInput} name="imp" defaultValue={post.imp} type="text" style={{
+                        <Input bsSize="sm" onChange={handlerInput} name="imp" defaultValue={post.imp} type="text" style={{
                             width: '150px',
                             margin: '0 auto'
                         }}/>
                     </td>
                     <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                        <Input size="sm" onChange={handlerInput} name="prevChegadaTrianon" defaultValue={post.prevChegadaTrianon} type="text" style={{
+                        <Input bsSize="sm" onChange={handlerInput} name="prevChegadaTrianon" defaultValue={post.prevChegadaTrianon} type="text" style={{
                             width: '150px',
                             margin: '0 auto'
                         }}/>
                     </td>
                     <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                        <Input size="sm" onClick={handlerInput} type="checkbox" defaultChecked={post.liberadoFaturamento===true?true:false} name="liberadoFaturamento" style={{
+                        <Input bsSize="sm" onClick={handlerInput} type="checkbox" defaultChecked={post.liberadoFaturamento===true?true:false} name="liberadoFaturamento" style={{
                             position: 'relative',
                             margin: 'auto',
                             display: 'block'
@@ -302,25 +302,25 @@ const ImportationDetails = () => {
                     {registerState?(
                         <tr>
                             <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                                <Input size="sm" id="docSap" onChange={handlerInput} max="99999" min="0" type="number" style={{
+                                <Input bsSize="sm" id="docSap" onChange={handlerInput} max="99999" min="0" type="number" style={{
                                     width: '75px',
                                     margin: '0 auto'
                                 }}/>
                             </td>
                             <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                                <Input size="sm" id="imp" onChange={handlerInput} type="text" style={{
+                                <Input bsSize="sm" id="imp" onChange={handlerInput} type="text" style={{
                                     width: '150px',
                                     margin: '0 auto'
                                 }}/>
                             </td>
                             <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                                <Input size="sm" id="prevChegadaTrianon" onChange={handlerInput} type="text" style={{
+                                <Input bsSize="sm" id="prevChegadaTrianon" onChange={handlerInput} type="text" style={{
                                     width: '150px',
                                     margin: '0 auto'
                                 }}/>
                             </td>
                             <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                                <Input size="sm" type="checkbox" onClick={handlerInput} id="liberadoFaturamento" style={{
+                                <Input bsSize="sm" type="checkbox" onClick={handlerInput} id="liberadoFaturamento" style={{
                                     position: 'relative',
                                     margin: 'auto',
                                     display: 'block'
