@@ -23,7 +23,7 @@ import { Container, Row, Col } from "reactstrap";
 function AuthHeader({ title, lead }) {
   return (
     <>
-      <div className="header bg-gradient-info py-7 py-lg-8 pt-lg-9">
+      <div className="header bg-gradient-info py-7 py-lg-2 pt-lg-7">
         <Container>
           <div className="header-body text-center mb-7">
             <Row className="justify-content-center">
