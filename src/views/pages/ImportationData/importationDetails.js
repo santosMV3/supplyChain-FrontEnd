@@ -168,11 +168,13 @@ const ImportationDetails = () => {
     const closeRegister = () => setRegisterState(false);
 
     useEffect(() => {
+        let abortController = new AbortController();
         const getImp = () => {
             api.get("/importationDetails/").then((response) => setImpData(response.data)).catch(console.error);
         }
 
         getImp();
+        return () => abortController.abort();
     }, []);
 
     const getImp = () => {
@@ -286,7 +288,7 @@ const ImportationDetails = () => {
                     }}>
                         {impData.length > 0?(
                             <>
-                                {impData.map((post) => (<ImportationLine post={post} deleteFactory={deleteFactory} getImp={getImp}/>))}
+                                {impData.map((post, index) => (<ImportationLine key={`imp-${index}`} post={post} deleteFactory={deleteFactory} getImp={getImp}/>))}
                             </>
                         ):(
                             <tr>
@@ -296,69 +298,71 @@ const ImportationDetails = () => {
                             </tr>
                         )}
                     </tbody>
+                    <tbody>
                     {registerState?(
-                    <tr>
-                        <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                            <Input size="sm" id="docSap" onChange={handlerInput} max="99999" min="0" type="number" style={{
-                                width: '75px',
-                                margin: '0 auto'
-                            }}/>
-                        </td>
-                        <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                            <Input size="sm" id="imp" onChange={handlerInput} type="text" style={{
-                                width: '150px',
-                                margin: '0 auto'
-                            }}/>
-                        </td>
-                        <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                            <Input size="sm" id="prevChegadaTrianon" onChange={handlerInput} type="text" style={{
-                                width: '150px',
-                                margin: '0 auto'
-                            }}/>
-                        </td>
-                        <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                            <Input size="sm" type="checkbox" onClick={handlerInput} id="liberadoFaturamento" style={{
-                                position: 'relative',
-                                margin: 'auto',
-                                display: 'block'
-                            }}/>
-                        </td>
-                        <td style={{
-                            boxSizing: 'border-box',
-                             padding: '5px',
-                             display: 'flex',
-                             alignItems: 'center',
-                             justifyContent: 'center'
-                             }}>
-                            <Button color="success" outline size="sm" onClick={createImpDate}>
-                                Save
-                            </Button>
-                            <Button color="danger" outline size="sm" onClick={closeRegister}>
-                                Cancel
-                            </Button>
-                        </td>
-                    </tr>
-                    ):(
-                    <tr>
-                        <td style={{boxSizing: 'border-box', padding: '5px'}} colSpan="5">
-                            <div onDoubleClick={openRegister} style={{
-                                width: '100%',
-                                height: '30px',
-                                backgroundColor: 'rgb(255, 255, 255)',
-                                boxShadow: '0px 0px 2px gray',
-                                borderRadius: '5px',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                flexDirection: 'row',
-                                alignItems: 'center',
+                        <tr>
+                            <td style={{boxSizing: 'border-box', padding: '5px'}}>
+                                <Input size="sm" id="docSap" onChange={handlerInput} max="99999" min="0" type="number" style={{
+                                    width: '75px',
+                                    margin: '0 auto'
+                                }}/>
+                            </td>
+                            <td style={{boxSizing: 'border-box', padding: '5px'}}>
+                                <Input size="sm" id="imp" onChange={handlerInput} type="text" style={{
+                                    width: '150px',
+                                    margin: '0 auto'
+                                }}/>
+                            </td>
+                            <td style={{boxSizing: 'border-box', padding: '5px'}}>
+                                <Input size="sm" id="prevChegadaTrianon" onChange={handlerInput} type="text" style={{
+                                    width: '150px',
+                                    margin: '0 auto'
+                                }}/>
+                            </td>
+                            <td style={{boxSizing: 'border-box', padding: '5px'}}>
+                                <Input size="sm" type="checkbox" onClick={handlerInput} id="liberadoFaturamento" style={{
+                                    position: 'relative',
+                                    margin: 'auto',
+                                    display: 'block'
+                                }}/>
+                            </td>
+                            <td style={{
                                 boxSizing: 'border-box',
-                                paddingLeft: '5px'
-                            }}>
-                                Double click unlock register.
-                            </div>
-                        </td>
-                    </tr>
+                                padding: '5px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                                }}>
+                                <Button color="success" outline size="sm" onClick={createImpDate}>
+                                    Save
+                                </Button>
+                                <Button color="danger" outline size="sm" onClick={closeRegister}>
+                                    Cancel
+                                </Button>
+                            </td>
+                        </tr>
+                        ):(
+                        <tr>
+                            <td style={{boxSizing: 'border-box', padding: '5px'}} colSpan="5">
+                                <div onDoubleClick={openRegister} style={{
+                                    width: '100%',
+                                    height: '30px',
+                                    backgroundColor: 'rgb(255, 255, 255)',
+                                    boxShadow: '0px 0px 2px gray',
+                                    borderRadius: '5px',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    boxSizing: 'border-box',
+                                    paddingLeft: '5px'
+                                }}>
+                                    Double click unlock register.
+                                </div>
+                            </td>
+                        </tr>
                     )}
+                    </tbody>
                 </table>
             </div>
         </>

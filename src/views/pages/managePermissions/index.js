@@ -61,6 +61,7 @@ const ListPermissions = () => {
     const [registerState, setRegisterState] = useState(false);
 
     useEffect(() => {
+        let abortController = new AbortController();
         const getPermissions = async () => {
             try {
                 api.get('/permissions/').then((response) => {
@@ -72,6 +73,7 @@ const ListPermissions = () => {
         }
 
         getPermissions();
+        return () => abortController.abort();
     }, []);
 
     const getPermissions = () => {
@@ -97,6 +99,7 @@ const ListPermissions = () => {
         const [pageState, setPagesState] = useState([]);
           
         useEffect(() => {
+            let abortController = new AbortController();
             const getPage = async () => {
                 try {
                     api.get(`/pages/${pageData[0]}`).then((response) => {
@@ -107,6 +110,7 @@ const ListPermissions = () => {
                 }
             }
             getPage();
+            return () => abortController.abort();
         },[]);
             
     return (
@@ -209,12 +213,14 @@ const ListPermissions = () => {
             const [pagesState, setPagesState] = useState([]);
 
             useEffect(() => {
+                let abortController = new AbortController();
                 const getPages = async () => {
                     api.get('/pages').then((response) => {
                         setPagesState(response.data);
                     }).catch(console.error);
                 }
-                getPages()
+                getPages();
+                return () => abortController.abort();
             }, []);
 
             const PageInput = ({ post, data }) => {
@@ -474,7 +480,7 @@ const ListPermissions = () => {
                                         <div style={{
                                             width: '220px'
                                         }}>
-                                            {pagesState.map((data) => (<PageInput post={data} data={pageData}/>))}
+                                            {pagesState.map((data, index) => (<PageInput key={`pageinput-${index}`} post={data} data={pageData}/>))}
                                         </div>
                                     </div>
                                     <div className="text-center">
@@ -558,7 +564,7 @@ const ListPermissions = () => {
                     </AccordionSummary>
                     <AccordionDetails style={{backgroundColor: "#5e72e4"}}>
                         <BodyInfo>
-                            {pageData.map((post) => (<PageItem post={post}/>))}
+                            {pageData.map((post, index) => (<PageItem key={`pagedataitem-${index}`} post={post}/>))}
                             <OtherInfo style={{
                                 width: '100%',
                                 height: '1ch',
@@ -615,7 +621,7 @@ const ListPermissions = () => {
                         overflowX: 'hidden',
                         padding: '5px',
                     }}>
-                        {permissionsState.length>0 ? permissionsState.map((post) => (<PermissionItem post={post}/>)):(
+                        {permissionsState.length>0 ? permissionsState.map((post, index) => (<PermissionItem key={`permission-${index}`} post={post}/>)):(
                             <h2 style={{textAlign: "center", marginTop: "10px"}}>Nenhuma permissão cadastrada.</h2>
                         )}
                     </ListGroup>

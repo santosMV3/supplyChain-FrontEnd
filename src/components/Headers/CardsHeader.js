@@ -35,6 +35,9 @@ function CardsHeader() {
   const [billedValuesLogged, setBilledValuesLogged] = React.useState("R$ 0,00");
 
   React.useEffect(() => {
+
+    let abortController = new AbortController();
+
     const getFirstId = () => {
       api.get("/statusFirst/").then((status) => {
         api.get(`/statusOrder?idStatus=${status.data.idStatus}`).then((response) => {
@@ -84,6 +87,10 @@ function CardsHeader() {
       }).catch(console.error);
     }
     getFirstId();
+
+    return () => {
+      abortController.abort();
+    }
   }, []);
 
   return (

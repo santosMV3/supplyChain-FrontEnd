@@ -102,6 +102,7 @@ function Dashboard() {
   })
 
   useEffect(() => {
+    let abortController = new AbortController();
     const getCompetences = () => {
       api.get(`/statusFirst`).then((response => {
         const idStatus = response.data.idStatus;
@@ -188,6 +189,7 @@ function Dashboard() {
     }
 
     getCompetences();
+    return () => abortController.abort();
   }, []);
 
   const BilledGraphicQuantity = ({...props}) => {
@@ -225,9 +227,9 @@ function Dashboard() {
       if(index === -1){
         competenceNames.push(order.competenceName);
         competenceQuantity.push(1);
-        unvoicedQuantity.push(order.total.quantity);
+        return unvoicedQuantity.push(order.total.quantity);
       } else {
-        competenceQuantity[index] += 1;
+        return competenceQuantity[index] += 1;
       }
 
     });
@@ -335,7 +337,7 @@ function Dashboard() {
         competenceValues[index] += value;
       }
 
-      total+=value;
+      return total+=value;
     });
 
     // totalUnvoiced = 

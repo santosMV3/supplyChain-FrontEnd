@@ -39,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
 const HistoryPage = () => {
     const [historyData, setHistoryData] = useState([]);
     const [filterState, setFilterState] = useState(false);
-    const openFilterMode = () => setFilterState(true);
+    // const openFilterMode = () => setFilterState(true);
     const closeFilterMode = () => {
         const getHistoric = () => {
             api.get('/history/').then((response) => {
@@ -52,6 +52,7 @@ const HistoryPage = () => {
     }
 
     useEffect(() => {
+        let abortController = new AbortController();
         const getHistoric = () => {
             api.get('/history/').then((response) => {
                 setHistoryData(response.data);
@@ -59,6 +60,7 @@ const HistoryPage = () => {
         }
 
         getHistoric();
+        return () => abortController.abort();
     }, []);
 
     const HistoricItem = ({...props}) => {
@@ -69,6 +71,7 @@ const HistoryPage = () => {
         const closeHistory = () => setHistoryState(false);
 
         useEffect(() => {
+            let abortController = new AbortController();
             const getUser = () => {
                 api.get(`/users/${props.historic.idUser}`).then((response) => {
                     if(response.data.first_name.length > 0) {
@@ -81,6 +84,7 @@ const HistoryPage = () => {
             }
 
             getUser();
+            return () => abortController.abort();
         }, []);
 
         const formatDateTime = (datetime) => {
@@ -275,7 +279,7 @@ const HistoryPage = () => {
                         overflow: "hidden",
                         minHeight: [historyState?"5px":"0px"],
                     }}>
-                        {before.map((data, index) => (<ChangeItem data={data} index={index}/>))}
+                        {before.map((data, index) => (<ChangeItem key={`before-${index}`} data={data} index={index}/>))}
                     </div>
                 </td>
             </tr>
@@ -344,8 +348,8 @@ const HistoryPage = () => {
                         <MenuItem value={undefined}>
                             <em>None</em>
                         </MenuItem>
-                        {filters.map((fill) => (
-                            <MenuItem value={fill[1]}>
+                        {filters.map((fill, index) => (
+                            <MenuItem key={`fill-${index}`} value={fill[1]}>
                                 <em>{fill[0]}</em>
                             </MenuItem>
                         ))}
@@ -454,7 +458,7 @@ const HistoryPage = () => {
                                 ):(
                                     <>
                                         {historyData.map((historic, index) => (
-                                            <HistoricItem historic={historic} index={index}/>
+                                            <HistoricItem key={`historic-${index}`} historic={historic} index={index}/>
                                         ))}
                                     </>
                                 )}

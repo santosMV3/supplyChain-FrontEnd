@@ -41,8 +41,13 @@ function Sidebar({ toggleSidenav, sidenavOpen, routes, logo, rtlActive }) {
   const location = useLocation();
   const history = useHistory();
   React.useEffect(() => {
+
+    let abortController = new AbortController();
+
     setState(getCollapseStates(routes));
     // eslint-disable-next-line
+
+    return () => abortController.abort();
   }, []);
   // verifies if routeName is the one active (in browser input)
   const activeRoute = (routeName) => {

@@ -248,11 +248,13 @@ const FactoryPage = () => {
     const closeRegister = () => setRegisterState(false);
 
     useEffect(() => {
+        let abortController = new AbortController();
         const getFactory = () => {
             api.get('/factoryDate/').then((response) => setFactoryDataState(response.data)).catch(console.error);
         };
 
         getFactory();
+        return () => abortController.abort();
     }, []);
 
     const getFactory = () => {
@@ -427,7 +429,7 @@ const FactoryPage = () => {
                     }}>
                         {factoryDataState.length > 0?(
                             <>
-                                {factoryDataState.map((post) => (<FactoryItem deleteFactory={deleteFactory} getFactory={getFactory} post={post}/>))}
+                                {factoryDataState.map((post, index) => (<FactoryItem key={`factory-${index}`} deleteFactory={deleteFactory} getFactory={getFactory} post={post}/>))}
                             </>
                         ): (
                             <tr>
@@ -441,100 +443,104 @@ const FactoryPage = () => {
                             </tr>
                         )}
                     </tbody>
-                    {registerState?(<tr>
-                        <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                            <Input size="sm" id="PC" max="9999" min="0" type="number" onChange={handlerInput} style={{
-                                width: '70px',
-                                margin: '0 auto'
-                            }}/>
-                        </td>
-                        <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                            <Input size="sm" id="fabrica" onChange={handlerInput} type="text" style={{
-                                width: '150px',
-                                margin: '0 auto'
-                            }}/>
-                        </td>
-                        <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                            <Input size="sm" id="dataEmbarque" onChange={handlerInput} type="text" style={{
-                                width: '150px',
-                                margin: '0 auto'
-                            }}/>
-                        </td>
-                        <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                            <Input size="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
-                                width: '60px',
-                                margin: '0 auto'
-                            }}/>
-                        </td>
-                        <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                            <Input size="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
-                                width: '60px',
-                                margin: '0 auto'
-                            }}/>
-                        </td>
-                        <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                            <Input size="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
-                                width: '60px',
-                                margin: '0 auto'
-                            }}/>
-                        </td>
-                        <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                            <Input size="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
-                                width: '60px',
-                                margin: '0 auto'
-                            }}/>
-                        </td>
-                        <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                            <Input size="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
-                                width: '60px',
-                                margin: '0 auto'
-                            }}/>
-                        </td>
-                        <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                            <Input size="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
-                                width: '60px',
-                                margin: '0 auto'
-                            }}/>
-                        </td>
-                        <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                            <Input size="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
-                                width: '60px',
-                                margin: '0 auto',
-                            }}/>
-                        </td>
-                        <td style={{
-                            boxSizing: 'border-box',
-                             padding: '5px',
-                             display: 'flex',
-                             alignItems: 'center',
-                             justifyContent: 'center'
-                             }}>
-                            <Button onClick={saveFactory} size='sm' color='success' outline>
-                                Save
-                            </Button>
-                            <Button onClick={closeRegister} size='sm' color='danger' outline>
-                                Cancel
-                            </Button>
-                        </td>
-                    </tr>):(<tr>
-                        <td style={{boxSizing: 'border-box', padding: '5px'}} colSpan="11">
-                        <div onDoubleClick={openRegister} style={{
-                                width: '100%',
-                                height: '30px',
-                                backgroundColor: 'rgb(255, 255, 255)',
-                                boxShadow: '0px 0px 2px gray',
-                                borderRadius: '5px',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                flexDirection: 'row',
-                                alignItems: 'center',
+                    <tbody>
+                    {registerState?
+                        (<tr>
+                            <td style={{boxSizing: 'border-box', padding: '5px'}}>
+                                <Input size="sm" id="PC" max="9999" min="0" type="number" onChange={handlerInput} style={{
+                                    width: '70px',
+                                    margin: '0 auto'
+                                }}/>
+                            </td>
+                            <td style={{boxSizing: 'border-box', padding: '5px'}}>
+                                <Input size="sm" id="fabrica" onChange={handlerInput} type="text" style={{
+                                    width: '150px',
+                                    margin: '0 auto'
+                                }}/>
+                            </td>
+                            <td style={{boxSizing: 'border-box', padding: '5px'}}>
+                                <Input size="sm" id="dataEmbarque" onChange={handlerInput} type="text" style={{
+                                    width: '150px',
+                                    margin: '0 auto'
+                                }}/>
+                            </td>
+                            <td style={{boxSizing: 'border-box', padding: '5px'}}>
+                                <Input size="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
+                                    width: '60px',
+                                    margin: '0 auto'
+                                }}/>
+                            </td>
+                            <td style={{boxSizing: 'border-box', padding: '5px'}}>
+                                <Input size="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
+                                    width: '60px',
+                                    margin: '0 auto'
+                                }}/>
+                            </td>
+                            <td style={{boxSizing: 'border-box', padding: '5px'}}>
+                                <Input size="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
+                                    width: '60px',
+                                    margin: '0 auto'
+                                }}/>
+                            </td>
+                            <td style={{boxSizing: 'border-box', padding: '5px'}}>
+                                <Input size="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
+                                    width: '60px',
+                                    margin: '0 auto'
+                                }}/>
+                            </td>
+                            <td style={{boxSizing: 'border-box', padding: '5px'}}>
+                                <Input size="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
+                                    width: '60px',
+                                    margin: '0 auto'
+                                }}/>
+                            </td>
+                            <td style={{boxSizing: 'border-box', padding: '5px'}}>
+                                <Input size="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
+                                    width: '60px',
+                                    margin: '0 auto'
+                                }}/>
+                            </td>
+                            <td style={{boxSizing: 'border-box', padding: '5px'}}>
+                                <Input size="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
+                                    width: '60px',
+                                    margin: '0 auto',
+                                }}/>
+                            </td>
+                            <td style={{
                                 boxSizing: 'border-box',
-                                paddingLeft: '5px'
-                            }}>
-                                Double click unlock register.
-                            </div>
-                        </td>
-                    </tr>)}
+                                padding: '5px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                                }}>
+                                <Button onClick={saveFactory} size='sm' color='success' outline>
+                                    Save
+                                </Button>
+                                <Button onClick={closeRegister} size='sm' color='danger' outline>
+                                    Cancel
+                                </Button>
+                            </td>
+                        </tr>):(<tr>
+                            <td style={{boxSizing: 'border-box', padding: '5px'}} colSpan="11">
+                            <div onDoubleClick={openRegister} style={{
+                                    width: '100%',
+                                    height: '30px',
+                                    backgroundColor: 'rgb(255, 255, 255)',
+                                    boxShadow: '0px 0px 2px gray',
+                                    borderRadius: '5px',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    boxSizing: 'border-box',
+                                    paddingLeft: '5px'
+                                }}>
+                                    Double click unlock register.
+                                </div>
+                            </td>
+                        </tr>
+                        )}
+                    </tbody>
                 </table>
             </div>
         </>
