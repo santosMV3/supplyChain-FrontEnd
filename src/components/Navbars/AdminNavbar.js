@@ -1,19 +1,3 @@
-/*!
-
-=========================================================
-* Argon Dashboard PRO React - v1.2.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/argon-dashboard-pro-react
-* Copyright 2021 Creative Tim (https://www.creative-tim.com)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
 import React, {useEffect, useState} from "react";
 // nodejs library that concatenates classes
 import classnames from "classnames";
@@ -26,22 +10,11 @@ import {
   DropdownItem,
   UncontrolledDropdown,
   DropdownToggle,
-  FormGroup,
-  Form,
-  Input,
-  InputGroupAddon,
-  InputGroupText,
-  InputGroup,
-  ListGroupItem,
-  ListGroup,
   Media,
   Navbar,
   NavItem,
-  NavLink,
   Nav,
   Container,
-  Row,
-  Col,
 } from "reactstrap";
 
 import {api} from "../../services/api";
@@ -53,6 +26,7 @@ function AdminNavbar({ theme, sidenavOpen, toggleSidenav }) {
   const history = useHistory();
 
   useEffect(() => {
+    let abortController = new AbortController();
    const getUserLogedData = async () => {
       try {
         api.get(`/users/${localStorage.getItem('AUTHOR_ID')}/`).then((response) => {
@@ -64,6 +38,8 @@ function AdminNavbar({ theme, sidenavOpen, toggleSidenav }) {
    }
 
    getUserLogedData();
+
+   return () => abortController.abort();
   }, []);
 
 

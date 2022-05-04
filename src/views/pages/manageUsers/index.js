@@ -1,12 +1,10 @@
 import React, {useState, useEffect} from "react";
 // nodejs library that concatenates classes
-import Select2 from "react-select2-wrapper";
 // reactstrap components
 
 import {
   Button,
   Card,
-  CardHeader,
   CardBody,
   FormGroup,
   Form,
@@ -63,12 +61,14 @@ const ManageUsers = ({...props}) => {
         setUserRegister({...userRegister, [e.target.id]: e.target.value});
       };
 
-      useEffect(() => {
-        const getPermissions = () => api.get('/permissions/').then((response) => {
-          setPermission(response.data);
-        }).catch(console.error);
+      const getPermissions = () => api.get('/permissions/').then((response) => {
+        setPermission(response.data);
+      }).catch(console.error);
 
+      useEffect(() => {
+        let abortController = new AbortController();
         getPermissions();
+        return () => abortController.abort();
       }, []);
 
       const registerExecute = async (e) => {
@@ -226,7 +226,7 @@ const ManageUsers = ({...props}) => {
                         <MenuItem value="">
                           <em>None</em>
                         </MenuItem>
-                        {permission.map((data) => (<MenuItem value={data.idPermission}>{data.name}</MenuItem>))}
+                        {permission.map((data, index) => (<MenuItem key={`menuitem-${index}`} value={data.idPermission}>{data.name}</MenuItem>))}
                       </Select>
                     </FormControl>
                   </div>

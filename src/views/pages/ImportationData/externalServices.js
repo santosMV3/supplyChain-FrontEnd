@@ -1,12 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
 import { Button, Input } from 'reactstrap';
-
-
-import editIcon from '../../../assets/img/custom/edit/edit_black_24dp.svg';
-import deleteIcon from '../../../assets/img/custom/delete/delete_black_24dp.svg';
-import confirmIcon from '../../../assets/img/custom/confirm/check_black_24dp.svg';
-import closeIcom from '../../../assets/img/custom/cancel/close_black_24dp.svg';
 import { api } from "services/api";
 
 const ImportationLine = ({post, deleteExt, getExtData}) => {
@@ -134,17 +128,15 @@ const ExternalServices = () => {
     const openRegister = () => setRegisterState(true);
     const closeRegister = () => setRegisterState(false);
 
-    useEffect(() => {
-        const getExtData = () => {
-            api.get('externalServices').then((response) => setExtData(response.data)).catch(console.error);
-        }
-
-        getExtData();
-    }, []);
-
     const getExtData = () => {
         api.get('externalServices').then((response) => setExtData(response.data)).catch(console.error);
     }
+
+    useEffect(() => {
+        let abortController = new AbortController();
+        getExtData();
+        return () => abortController.abort();
+    }, []);
 
     const deleteExt = (idExt) => {
         if(!(window.confirm("Confirm to delete the External Service:"))) return null;
@@ -239,7 +231,7 @@ const ExternalServices = () => {
                     }}>
                         {extData.length > 0 ? (
                             <>
-                                {extData.map((post) => (<ImportationLine post={post} deleteExt={deleteExt} getExtData={getExtData} />))}
+                                {extData.map((post, index) => (<ImportationLine key={`importation-${index}`} post={post} deleteExt={deleteExt} getExtData={getExtData} />))}
                             </>
                         ):(
                             <tr>
@@ -249,63 +241,65 @@ const ExternalServices = () => {
                             </tr>
                         )}
                     </tbody>
-                    {registerState?(
-                    <tr>
-                        <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                            <Input size="sm" id="documentNumber" onChange={handlerInput} type="text" style={{
-                                width: '150px',
-                                margin: '0 auto'
-                            }}/>
-                        </td>
-                        <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                            <Input size="sm" id="SSKProject" onChange={handlerInput} type="text" style={{
-                                width: '150px',
-                                margin: '0 auto'
-                            }}/>
-                        </td>
-                        <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                            <Input size="sm" type="checkbox" onClick={handlerInput} id="externalServices" style={{
-                                position: 'relative',
-                                margin: 'auto',
-                                display: 'block'
-                            }}/>
-                        </td>
-                        <td style={{
-                            boxSizing: 'border-box',
-                             padding: '5px',
-                             display: 'flex',
-                             alignItems: 'center',
-                             justifyContent: 'center'
-                             }}>
-                            <Button color="success" size="sm" outline onClick={createExternalService}>
-                                Save
-                            </Button>
-                            <Button color="danger" size="sm" outline onClick={closeRegister}>
-                                Cancel
-                            </Button>
-                        </td>
-                    </tr>
-                    ):(
-                    <tr>
-                        <td style={{boxSizing: 'border-box', padding: '5px'}} colSpan="5">
-                            <div onDoubleClick={openRegister} style={{
-                                width: '100%',
-                                height: '30px',
-                                backgroundColor: 'rgb(255, 255, 255)',
-                                boxShadow: '0px 0px 2px gray',
-                                borderRadius: '5px',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                flexDirection: 'row',
-                                alignItems: 'center',
+                    <tbody>
+                        {registerState?(
+                        <tr>
+                            <td style={{boxSizing: 'border-box', padding: '5px'}}>
+                                <Input size="sm" id="documentNumber" onChange={handlerInput} type="text" style={{
+                                    width: '150px',
+                                    margin: '0 auto'
+                                }}/>
+                            </td>
+                            <td style={{boxSizing: 'border-box', padding: '5px'}}>
+                                <Input size="sm" id="SSKProject" onChange={handlerInput} type="text" style={{
+                                    width: '150px',
+                                    margin: '0 auto'
+                                }}/>
+                            </td>
+                            <td style={{boxSizing: 'border-box', padding: '5px'}}>
+                                <Input size="sm" type="checkbox" onClick={handlerInput} id="externalServices" style={{
+                                    position: 'relative',
+                                    margin: 'auto',
+                                    display: 'block'
+                                }}/>
+                            </td>
+                            <td style={{
                                 boxSizing: 'border-box',
-                                paddingLeft: '5px'
-                            }}>
-                                Double click unlock register.
-                            </div>
-                        </td>
-                    </tr>
-                    )}
+                                padding: '5px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                                }}>
+                                <Button color="success" size="sm" outline onClick={createExternalService}>
+                                    Save
+                                </Button>
+                                <Button color="danger" size="sm" outline onClick={closeRegister}>
+                                    Cancel
+                                </Button>
+                            </td>
+                        </tr>
+                        ):(
+                        <tr>
+                            <td style={{boxSizing: 'border-box', padding: '5px'}} colSpan="5">
+                                <div onDoubleClick={openRegister} style={{
+                                    width: '100%',
+                                    height: '30px',
+                                    backgroundColor: 'rgb(255, 255, 255)',
+                                    boxShadow: '0px 0px 2px gray',
+                                    borderRadius: '5px',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    boxSizing: 'border-box',
+                                    paddingLeft: '5px'
+                                }}>
+                                    Double click unlock register.
+                                </div>
+                            </td>
+                        </tr>
+                        )}
+                    </tbody>
                 </table>
             </div>
         </>

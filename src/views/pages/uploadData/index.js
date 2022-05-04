@@ -27,7 +27,6 @@ import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
-import moment from 'moment';
 
 api.defaults.timeout = 0;
 
@@ -104,13 +103,16 @@ const UploadPage = (idPage) => {
                 let progress = Math.round(
                     (event.loaded * 100) / event.total
                 );
+                if (progress === 100){
+                    setStateButtonZZORDER({text: "Saving excel data...", color: "warning"});
+                }
                 setLoaderData({...loaderData, seletorZZORDER: progress});
             }
         })
-        .then((response) => {
+        .then(() => {
             setUploadStatus({...uploadStatus, seletorZZORDER: 'stable'});
             setLoaderData({...loaderData, seletorZZORDER: "Upload Success"});
-            setStateButtonZZORDER({text: "Success LogMap", color: "success"});
+            setStateButtonZZORDER({text: "Upload Success!!!", color: "success"});
             
             api.post('/history/', {
                 idUser: localStorage.getItem("AUTHOR_ID"),
@@ -119,10 +121,11 @@ const UploadPage = (idPage) => {
                 action: "upload",
             }).catch(console.error);
         })
-        .catch((error) => {
+        .catch(() => {
             setUploadStatus({...uploadStatus, seletorZZORDER: 'unstable'});
             setLoaderData({...loaderData, seletorZZORDER: 100});
-            setStateButtonZZORDER({text: "Failed LogMap", color: "danger"});
+            setStateButtonZZORDER({text: "Try again...", color: "danger"});
+            e.target.disabled = false;
         });
     }
 
@@ -135,7 +138,7 @@ const UploadPage = (idPage) => {
 
         setLoaderData({...loaderData, seletorLogMap: 0});
 
-        setStateButtonLogMap({text: "Please Wait...", color: "warning"});
+        setStateButtonLogMap({text: "Uploading Excel", color: "warning"});
 
         api.post(`/upload/logisticMap/${excelSheet.seletorLogMap}`, uploadData.seletorLogMap, {
             onUploadProgress: (event) => {
@@ -143,12 +146,15 @@ const UploadPage = (idPage) => {
                     (event.loaded * 100) / event.total
                 );
                 setLoaderData({...loaderData, seletorLogMap: progress});
+                if(progress === 100) {
+                    setStateButtonLogMap({text: "Saving data...", color: "warning"});
+                }
             }
         })
-        .then((response) => {
+        .then(() => {
             setUploadStatus({...uploadStatus, seletorLogMap: 'stable'});
             setLoaderData({...loaderData, seletorLogMap: "Upload Success"});
-            setStateButtonLogMap({text: "Success LogMap", color: "success"});
+            setStateButtonLogMap({text: "Upload Success!!!", color: "success"});
 
             api.post('/history/', {
                 idUser: localStorage.getItem("AUTHOR_ID"),
@@ -157,10 +163,11 @@ const UploadPage = (idPage) => {
                 action: "upload",
             }).catch(console.error);
         })
-        .catch((error) => {
+        .catch(() => {
             setUploadStatus({...uploadStatus, seletorLogMap: 'unstable'});
             setLoaderData({...loaderData, seletorLogMap: 100});
-            setStateButtonLogMap({text: "Failed LogMap", color: "danger"});
+            setStateButtonLogMap({text: "Try again...", color: "danger"});
+            e.target.disabled = false;
         });
     }
 
@@ -224,7 +231,7 @@ const UploadPage = (idPage) => {
                             transition: '0.5s',
                         }}
                         >
-                            <label for="seletorZZORDER" style={hover.seletorZZORDER?{
+                            <label htmlFor="seletorZZORDER" style={hover.seletorZZORDER?{
                                 width: "120px",
                                 height: "120px",
                                 backgroundColor: "#11cdef",
@@ -332,8 +339,8 @@ const UploadPage = (idPage) => {
                                         height: '70px',
                                         overflow: 'auto'
                                     }}>
-                                        {excelData.seletorZZORDER.SheetNames.map((sheet) => (
-                                            <div style={{
+                                        {excelData.seletorZZORDER.SheetNames.map((sheet, index) => (
+                                            <div key={`zzorder-${index}`} style={{
                                                 display: 'flex',
                                                 flexDirection: 'row',
                                                 alignItems: 'center',
@@ -343,7 +350,7 @@ const UploadPage = (idPage) => {
                                                 boxShadow: '0px 0px 2px black'
                                             }}>
                                                 <input type="radio" onChange={handlerInputRadio} style={{width:'10%'}} name="seletorZZORDER" value={sheet} id={sheet+"_id"}/>
-                                                <label for={sheet+"_id"} style={{
+                                                <label htmlFor={sheet+"_id"} style={{
                                                     fontFamily: 'Arial',
                                                     color: 'gray',
                                                     fontSize: '0.8em',
@@ -425,7 +432,7 @@ const UploadPage = (idPage) => {
                             transition: '0.5s',
                         }}
                         >
-                            <label for="seletorLogMap" style={hover.seletorLogMap?{
+                            <label htmlFor="seletorLogMap" style={hover.seletorLogMap?{
                                 width: "120px",
                                 height: "120px",
                                 backgroundColor: "#11cdef",
@@ -533,8 +540,8 @@ const UploadPage = (idPage) => {
                                         height: '70px',
                                         overflow: 'auto'
                                     }}>
-                                        {excelData.seletorLogMap.SheetNames.map((sheet) => (
-                                            <div style={{
+                                        {excelData.seletorLogMap.SheetNames.map((sheet, index) => (
+                                            <div key={`logmap-${index}`} style={{
                                                 display: 'flex',
                                                 flexDirection: 'row',
                                                 alignItems: 'center',
@@ -544,7 +551,7 @@ const UploadPage = (idPage) => {
                                                 boxShadow: '0px 0px 2px black'
                                             }}>
                                                 <input type="radio" onChange={handlerInputRadio} style={{width:'10%'}} name="seletorLogMap" value={sheet} id={sheet+"_id"}/>
-                                                <label for={sheet+"_id"} style={{
+                                                <label htmlFor={sheet+"_id"} style={{
                                                     fontFamily: 'Arial',
                                                     color: 'gray',
                                                     fontSize: '0.8em',
@@ -725,6 +732,7 @@ const ListLogMap = () => {
     }
 
     useEffect(() => {
+        let abortController = new AbortController();
         const getData = () => {
             const userId = localStorage.getItem('AUTHOR_ID');
 
@@ -748,8 +756,11 @@ const ListLogMap = () => {
             }).catch(console.error);
             
         };
-
         getData();
+
+        return () => {
+            abortController.abort();
+        }
     }, []);
 
     const getData = (pageUrl) => {
@@ -867,6 +878,7 @@ const ListLogMap = () => {
         }
 
         useEffect(() => {
+            let abortController = new AbortController();
             const getStatus = () => {
                 api.get('/status?is_active=True').then((response => setStatusData(response.data))).catch(console.error);
                 api.get(`/statusOrder?idOrder=${post.id}`).then((response) => {
@@ -886,8 +898,11 @@ const ListLogMap = () => {
                     setAutoForms({...autoForms, importation: response.data.imp});
                 }).catch(console.error);
             }
-
             getStatus();
+
+            return () => {
+                abortController.abort();
+            }
             
         }, []);
 
@@ -1298,8 +1313,8 @@ const ListLogMap = () => {
                                             <MenuItem value="">
                                                 <em>None</em>
                                             </MenuItem>
-                                            {statusData.map((status) => (
-                                                <MenuItem onClick={handleOptionChange} value={`${status.idStatus}:${post.id}`}>
+                                            {statusData.map((status, index) => (
+                                                <MenuItem key={`status-${index}`} onClick={handleOptionChange} value={`${status.idStatus}:${post.id}`}>
                                                     <em id={status.name}>{status.name}</em>
                                                 </MenuItem>
                                             ))}
@@ -3205,8 +3220,8 @@ const ListLogMap = () => {
                                             <MenuItem value="">
                                                 <em>None</em>
                                             </MenuItem>
-                                            {statusData.map((status) => (
-                                                <MenuItem value={`${status.idStatus}:${post.id}`}>
+                                            {statusData.map((status, index) => (
+                                                <MenuItem key={`statusdata-${index}`} value={`${status.idStatus}:${post.id}`}>
                                                     <em>{status.name}</em>
                                                 </MenuItem>
                                             ))}
@@ -3271,9 +3286,9 @@ const ListLogMap = () => {
                         borderRadius: '15px',
                         boxShadow: '0px 0px 2px gray'
                     }}>
-                        <Input onChange={handlerInputFilter} id="field" size="sm" style={{marginBottom: '10px'}} type="select">
+                        <Input onChange={handlerInputFilter} id="field" bsSize="sm" style={{marginBottom: '10px'}} type="select">
                             <option value={false}>Fields</option>
-                            {filterFields.map((filter) => (<option value={filter[0]}>{filter[1]}</option>))}
+                            {filterFields.map((filter, index) => (<option key={`filter-${index}`} value={filter[0]}>{filter[1]}</option>))}
                         </Input>
                         <div style={{
                             width: '100%',
@@ -3283,7 +3298,7 @@ const ListLogMap = () => {
                             justifyContent: 'space-around'
                         }}>
                             {searchFilter.field !== "externalService"?(
-                                <Input id="value" value={searchFilter.value} onChange={handlerInputFilter} type="text" size="sm" style={{width:'70%'}}/>
+                                <Input id="value" value={searchFilter.value} onChange={handlerInputFilter} type="text" bsSize="sm" style={{width:'70%'}}/>
                             ):(
                                 <div className="custom-control custom-checkbox">
                                     <input
@@ -3311,7 +3326,7 @@ const ListLogMap = () => {
                 overflow: 'auto',
                 display: 'block'
             }} responsive>
-                <thead ckassName="thead-light">
+                <thead className="thead-light">
                     <tr>
                         <th scope="col">Nº</th>
                         <th scope="col">Billing Forecast</th>
@@ -3332,7 +3347,7 @@ const ListLogMap = () => {
                 <tbody>
                     {logMapData!==undefined?(
                         <>
-                        {logMapData.results.length > 0?logMapData.results.map((post, index) => (<ListItem post={post} index={index}/>)):(
+                        {logMapData.results.length > 0?logMapData.results.map((post, index) => (<ListItem key={`listitem-${index}`} post={post} index={index}/>)):(
                             <tr>
                                 <td colSpan="24">
                                     No data.

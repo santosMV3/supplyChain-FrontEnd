@@ -35,51 +35,14 @@ import Select from '@material-ui/core/Select';
 
 import { ExpandMore } from '@material-ui/icons';
 
-import Select2 from "react-select2-wrapper";
 import {useHistory} from "react-router-dom";
 import {api} from "../../../services/api";
 
 import {
     BodyInfo,
-    TitleInfo,
-    OtherInfo,
-    TextConfirm
 } from './components'
 
 import ManageUsers from ".";
-
-const modalStyle = {
-    content: {
-        top: '50%',
-        left: '50%',
-        right: 'auto',
-        bottom: 'auto',
-        marginRight: '-50%',
-        transform: 'translate(-50%, -50%)',
-        width: '50vw',
-        minHeight: '30vh',
-        height: 'auto',
-        padding: 0,
-    },
-};
-
-const confirmStyle = {
-    content: {
-        top: '50%',
-        left: '50%',
-        right: 'auto',
-        bottom: 'auto',
-        marginRight: '-50%',
-        transform: 'translate(-50%, -50%)',
-        width: '400px',
-        minHeight: '100px',
-        height: 'auto',
-        padding: 0,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-    },
-};
 
 const createStyles = makeStyles((theme) => ({
     modal: {
@@ -146,6 +109,7 @@ const ListUsers = () => {
     }
 
     useEffect(() => {
+        let abortController = new AbortController();
         const usersGetData = async () => {
             api.get('/users').then((data) => {
                 setUsersData(data.data);
@@ -157,6 +121,7 @@ const ListUsers = () => {
             });
         }
         usersGetData();
+        return () => abortController.abort();
     }, []);
 
     const reloadData = (modal=false) => {
@@ -182,10 +147,12 @@ const ListUsers = () => {
         const closeModalEdit = () => setEditModalState(false);
 
         useEffect(() => {
+            let abortController = new AbortController();
             const getPermission = () => {
                 api.get(`/user-permission/?idUser=${post.id}`).then((response) => setPermission(response.data)).catch(console.error);
             }
             getPermission();
+            return () => abortController.abort();
         }, []);
     
         const listStyle = {
@@ -208,6 +175,7 @@ const ListUsers = () => {
             const loginFormat = dateLogin===null ? 'Never Loged In.' : `${dateLogin[2]}/${dateLogin[1]}/${dateLogin[0]}`;
 
             useEffect(() => {
+                let abortController = new AbortController();
                 const getPages = () => {
                     if(permission[0] === undefined) return;
                     api.get(`/permissions/${permission[0].idPermission}/`).then(
@@ -216,14 +184,17 @@ const ListUsers = () => {
                 }
 
                 getPages();
+                return () => abortController.abort();
             }, []);
             const GetPage = ({post}) => {
                 const [pageName, setPageName] = useState([]);
                 useEffect(() => {
+                    let abortController = new AbortController();
                     const getPage = () => {
                         api.get(`/pages/${post[0]}/`).then((response) => setPageName(response.data)).catch(console.error);
                     }
                     getPage();
+                    return () => abortController.abort();
                 }, []);
 
                 return (
@@ -267,7 +238,7 @@ const ListUsers = () => {
                                     <ListGroupItem className="active">
                                         Pages:
                                     </ListGroupItem>
-                                    {pages.map((data) => (<GetPage post={data}/>))}
+                                    {pages.map((data, index) => (<GetPage key={`pageItem-${index}`} post={data}/>))}
                                 </AccordionDetails>
                             </Accordion>
                         </ListGroupItem>
@@ -310,53 +281,55 @@ const ListUsers = () => {
                                         <th scope="col">Last Login</th>
                                     </tr>
                                 </thead>
-                                <tr>
-                                    <th scope="row">
-                                        <Media className="align-items-center" style={{textAlign: 'center'}}>
-                                            <Media>
-                                                <span className="mb-0 text-sm">
-                                                    {data.post.first_name !== "" ? `${data.post.first_name} ${data.post.last_name}`:data.post.username}
-                                                </span>
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">
+                                            <Media className="align-items-center" style={{textAlign: 'center'}}>
+                                                <Media>
+                                                    <span className="mb-0 text-sm">
+                                                        {data.post.first_name !== "" ? `${data.post.first_name} ${data.post.last_name}`:data.post.username}
+                                                    </span>
+                                                </Media>
                                             </Media>
-                                        </Media>
-                                    </th>
-                                    <td>
-                                        <Media className="align-items-center">
-                                            <Media>
-                                                <span className="mb-0 text-sm">
-                                                    {data.post.username}
-                                                </span>
+                                        </th>
+                                        <td>
+                                            <Media className="align-items-center">
+                                                <Media>
+                                                    <span className="mb-0 text-sm">
+                                                        {data.post.username}
+                                                    </span>
+                                                </Media>
                                             </Media>
-                                        </Media>
-                                    </td>
-                                    <td>
-                                        <Media className="align-items-center">
-                                            <Media>
-                                                <span className="mb-0 text-sm">
-                                                    {data.post.email}
-                                                </span>
+                                        </td>
+                                        <td>
+                                            <Media className="align-items-center">
+                                                <Media>
+                                                    <span className="mb-0 text-sm">
+                                                        {data.post.email}
+                                                    </span>
+                                                </Media>
                                             </Media>
-                                        </Media>
-                                    </td>
-                                    <td>
-                                        <Media className="align-items-center">
-                                            <Media>
-                                                <span className="mb-0 text-sm">
-                                                    {dateJoined[2]}/{dateJoined[1]}/{dateJoined[0]}
-                                                </span>
+                                        </td>
+                                        <td>
+                                            <Media className="align-items-center">
+                                                <Media>
+                                                    <span className="mb-0 text-sm">
+                                                        {dateJoined[2]}/{dateJoined[1]}/{dateJoined[0]}
+                                                    </span>
+                                                </Media>
                                             </Media>
-                                        </Media>
-                                    </td>
-                                    <td>
-                                        <Media className="align-items-center">
-                                            <Media>
-                                                <span className="mb-0 text-sm">
-                                                    {loginFormat}
-                                                </span>
+                                        </td>
+                                        <td>
+                                            <Media className="align-items-center">
+                                                <Media>
+                                                    <span className="mb-0 text-sm">
+                                                        {loginFormat}
+                                                    </span>
+                                                </Media>
                                             </Media>
-                                        </Media>
-                                    </td>
-                                </tr>
+                                        </td>
+                                    </tr>
+                                </tbody>
                             </Table>
                         </div>
                     </div>
@@ -416,12 +389,14 @@ const ListUsers = () => {
                 const [permission, setPermission] = useState([]);
 
                 useEffect(() => {
+                    let abortController = new AbortController();
                     const getPermissions = () => {
                         api.get('/permissions/').then((response) => setPermission(response.data))
                         .catch(console.error);
                     }
 
                     getPermissions();
+                    return () => abortController.abort();
                 }, []);
 
                 return (
@@ -477,7 +452,7 @@ const ListUsers = () => {
                                                 <MenuItem value="">
                                                 <em>None</em>
                                                 </MenuItem>
-                                                {permission.map((data) => (<MenuItem value={data.idPermission}>{data.name}</MenuItem>))}
+                                                {permission.map((data, index) => (<MenuItem key={`permission-${index}`} value={data.idPermission}>{data.name}</MenuItem>))}
                                         </Select>
                                     </FormControl>
                                 )}
@@ -571,7 +546,7 @@ const ListUsers = () => {
                                 style={{margin:'0'}}
                                 control={
                                 <Col className="col-auto" style={{padding: '0'}}>
-                                    {post.id==localStorage.getItem('AUTHOR_ID')?(
+                                    {post.id === localStorage.getItem('AUTHOR_ID')?(
                                         <Button color="danger" disabled outline size="sm" type="button">
                                             Disable
                                         </Button>
@@ -598,7 +573,7 @@ const ListUsers = () => {
                                 style={{margin:'0'}}
                                 control={
                                 <Col className="col-auto" style={{padding: '0'}}>
-                                    {post.id==localStorage.getItem('AUTHOR_ID')?null:(
+                                    {post.id === localStorage.getItem('AUTHOR_ID')?null:(
                                         <div>
                                             <Button color="success" outline onClick={enableUser} size="sm" type="button">
                                                 Enable
@@ -657,7 +632,7 @@ const ListUsers = () => {
                     overflowX: 'hidden',
                     padding: '5px',
                 }}>
-                    {usersData.map((data) => (<Users post={data}/>))}
+                    {usersData.map((data, index) => (<Users key={`userlist-${index}`} post={data}/>))}
                 </div>
             </ListGroup>
       </Container>

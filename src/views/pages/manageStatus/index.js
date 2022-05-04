@@ -14,27 +14,24 @@ const ListStatus = () => {
     const handleCloseSuccess = () => setSuccessAlert({status: false});
 
     const [openInfoAlert, setInfoAlert] = React.useState(false);
-    const handleOpenInfoAlert = (msg="Info!!!") => setInfoAlert({status: true, message: msg});
+    // const handleOpenInfoAlert = (msg="Info!!!") => setInfoAlert({status: true, message: msg});
     const handleCloseInfo = () => setInfoAlert({status: false});
 
     const [openDangerAlert, setDangerAlert] = React.useState(false);
     const handleOpenDangerAlert = (msg="Danger!!!") => setDangerAlert({status: true, message: msg});
     const handleCloseDanger = () => setDangerAlert({status: false});
 
-    useEffect(() => {
-        const getStatus = async () => {
-            api.get('/status/').then((response) => {
-                setStatusData(response.data);
-            }).catch(console.error);
-        }
-        getStatus();
-    }, []);
-
-    const ReloadData = () => {
+    const getStatus = async () => {
         api.get('/status/').then((response) => {
             setStatusData(response.data);
         }).catch(console.error);
     }
+
+    useEffect(() => {
+        let abortController = new AbortController();
+        getStatus();
+        return () => abortController.abort();
+    }, []);
 
     const NewStatus = () => {
         const [inputNew, setInputNew] = useState({
@@ -63,7 +60,7 @@ const ListStatus = () => {
                 api.post('/status/', newStatus)
                 .then(() => {
                     e.target.disabled = false;
-                    ReloadData();
+                    getStatus();
                     handleOpenSuccessAlert('Status created success!');
                 }).catch((error) => {
                     if(error.response) return handleOpenDangerAlert("This name is already in use!");
@@ -156,7 +153,7 @@ const ListStatus = () => {
             e.target.disabled = true;
             api.patch(`/status/${e.target.value}/`, {is_active: false}).then(() => {
                 e.target.disabled = true;
-                ReloadData();
+                getStatus();
                 handleOpenSuccessAlert('Success for disable status!!!');
             }
             ).catch(console.error);
@@ -166,7 +163,7 @@ const ListStatus = () => {
             e.target.disabled = true;
             api.patch(`/status/${e.target.value}/`, {is_active: true}).then(() => {
                 e.target.disabled = true;
-                ReloadData();
+                getStatus();
                 handleOpenSuccessAlert('Success for active status!!!');
             }
             ).catch(console.error);
@@ -187,7 +184,7 @@ const ListStatus = () => {
 
             api.patch(`/status/${post.idStatus}/`, data).then((response) => {
                 e.target.disabled = false;
-                ReloadData();
+                getStatus();
                 handleOpenSuccessAlert("Success for update data!!!");
             }).catch(console.error);
 
@@ -322,22 +319,26 @@ const ListStatus = () => {
                             <th scope="col" style={{width:"50px", textAlign: 'center'}}/>
                             </tr>
                         </thead>
-                        {statusData.length>0
-                        ?statusData.map((post) => (<ListItem post={post}/>))
-                        :(
-                            <td colSpan='3' style={{padding:'0'}}>
-                                <div style={{
-                                    width: '100%',
-                                    boxSizing: 'border-box',
-                                    padding: '5px',
-                                    textAlign: 'center'
-                                }}>
-                                    <h3>
-                                        No permissions registered.
-                                    </h3>
-                                </div>
-                            </td>
-                        )}
+                        <tbody>
+                            {statusData.length>0
+                            ?statusData.map((post, index) => (<ListItem key={`statuslist-${index}`} post={post}/>))
+                            :(
+                                <tr>
+                                    <td colSpan='3' style={{padding:'0'}}>
+                                        <div style={{
+                                            width: '100%',
+                                            boxSizing: 'border-box',
+                                            padding: '5px',
+                                            textAlign: 'center'
+                                        }}>
+                                            <h3>
+                                                No permissions registered.
+                                            </h3>
+                                        </div>
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
                     </Table>
                 </div>
             </div>

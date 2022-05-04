@@ -1,19 +1,3 @@
-/*!
-
-=========================================================
-* Argon Dashboard PRO React - v1.2.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/argon-dashboard-pro-react
-* Copyright 2021 Creative Tim (https://www.creative-tim.com)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
 import React, {useState} from "react";
 import {useHistory} from "react-router-dom";
 // nodejs library that concatenates classes
@@ -68,12 +52,15 @@ function Login() {
       signIn(response.data);
 
       return history.push('/admin/dashboard');
-    }).catch((error) => {
+    }).catch(() => {
       window.alert('falha ao executar o login do usuario');
     })
   }
 
   const [focusedEmail, setfocusedEmail] = React.useState(false);
+  const setFocusedEmailTrue = () => setfocusedEmail(true);
+  // const setFocusedEmailFalse = () => setfocusedEmail(false);
+
   const [focusedPassword, setfocusedPassword] = React.useState(false);
   if(isSignedIn()) history.push('/admin/dashboard');
   return (
@@ -115,8 +102,8 @@ function Login() {
                         placeholder="Username"
                         type="text"
                         id="username"
-                        onFocus={() => setfocusedEmail(true)}
-                        onBlur={() => setfocusedEmail(true)}
+                        onFocus={() => setFocusedEmailTrue()}
+                        onBlur={() => setFocusedEmailTrue()}
                         onChange={handlerInput}
                       />
                     </InputGroup>
@@ -136,7 +123,7 @@ function Login() {
                         placeholder="Password"
                         type="password"
                         id="password"
-                        onFocus={() => setfocusedPassword(true)}
+                        onFocus={() => setFocusedEmailTrue()}
                         onBlur={() => setfocusedPassword(true)}
                         onChange={handlerInput}
                       />

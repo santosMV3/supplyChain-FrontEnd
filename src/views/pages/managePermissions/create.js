@@ -2,11 +2,7 @@ import { Accordion, AccordionDetails, AccordionSummary, FormControlLabel } from 
 import React, {useState, useEffect} from 'react';
 
 import {
-    Badge,
     Button,
-    ListGroupItem,
-    ListGroup,
-    Progress,
     Row,
     Col,
     Container,
@@ -29,18 +25,20 @@ const CreatePermission = () => {
     }
     const [pagesState, setPagesState] = useState([]);
 
-    useEffect(() => {
-        const getPages = async () => {
-            try {
-                api.get('/pages').then((response) => {
-                    setPagesState(response.data);
-                }).catch(console.error);
-            } catch (error) {
-                console.error(error)
-            }
+    const getPages = async () => {
+        try {
+            api.get('/pages').then((response) => {
+                setPagesState(response.data);
+            }).catch(console.error);
+        } catch (error) {
+            console.error(error)
         }
+    }
 
+    useEffect(() => {
+        let abortController = new AbortController();
         getPages();
+        return () => abortController.abort();
     }, []);
 
     const executeCreate = (e) => {
@@ -276,7 +274,7 @@ const CreatePermission = () => {
                             padding: "5px",
                             margin: '0 auto',
                         }}>
-                            {pagesState.map((post) => (<PageInput post={post}/>))}
+                            {pagesState.map((post, index) => (<PageInput key={`pagestate-${index}`} post={post}/>))}
                         </div>
                         <div className="text-center">
                             <Button className="mt-4" color="info" type="submit">

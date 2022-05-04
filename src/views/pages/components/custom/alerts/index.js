@@ -16,24 +16,6 @@ root: {
 },
 }));
 
-const bodyAlertStyle = {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    top: "0",
-    left: "0",
-    position: "fixed",
-    width: '100%',
-    zIndex: "999",
-}
-
-const alertStyle = {
-    width: "50vh",
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center'
-}
-
 export const DangerAlert = (props) => {
     const classes = useStyles();
     return (
