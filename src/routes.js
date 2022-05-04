@@ -82,7 +82,7 @@ const routes = [
     views: [
       {
         path: "/boardingDate",
-        miniName: "Data",
+        miniName: "PC",
         component: ImportationData,
         layout: "/admin",
         name: "Boarding Date PC",
@@ -96,14 +96,14 @@ const routes = [
       },
       {
         path: "/importationDetails",
-        miniName: "Imp. Details",
+        miniName: "IMP",
         layout: "/admin",
         name: "Importation Details",
         component: ImportationDetails
       },
       {
         path: "/externalServices",
-        miniName: "Ext.",
+        miniName: "Ext",
         component: ExternalServices,
         layout: "/admin",
         name: 'External Services'
