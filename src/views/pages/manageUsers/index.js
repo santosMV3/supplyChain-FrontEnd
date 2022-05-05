@@ -82,7 +82,7 @@ const ManageUsers = ({...props}) => {
 
         api.post('/users/', userRegister).then((response) => {
           api.post('/user-permission/', {idUser: response.data.id, idPermission: selected})
-          .then((response) => {
+          .then(() => {
             window.alert('Success to register a new user!');
             props.refresh(true);
           }).catch(console.error);
