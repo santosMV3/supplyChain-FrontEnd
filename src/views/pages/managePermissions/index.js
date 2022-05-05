@@ -201,8 +201,6 @@ const ListPermissions = () => {
         const postDate = post.createdAt.split('-');
         const localDate = `${postDate[2]}/${postDate[1]}/${postDate[0]}`
 
-        const [usersAssociated, setUsersAssociated] = useState("");
-
         const pageData = post.idPages.split(',');
 
         const EditPermissionsModal = () => {
@@ -501,16 +499,13 @@ const ListPermissions = () => {
             .then( async (response) => {
                 if(response.data.length > 0){
                     e.target.disabled = true;
-                    response.data.forEach((permissionUser) => {
-                        api.get(`/users/${permissionUser.idUser}/`)
-                        .then((user) => {
-                            const namesData = user.data.first_name!==undefined?user.data.first_name+ " " + user.data.last_name:user.data.username;
-                            setUsersAssociated("bah");
-                            openDangerAlert(namesData);
-                        })
-                        .catch(console.error);
-                        openDangerAlert(usersAssociated);
-                    });
+                    Promise.all(response.data.map((permissionUser) => api.get(`/users/${permissionUser.idUser}/`)))
+                    .then((users) => {
+                        users = users.map((user) => user.data);
+                        const namesData = users.map((user) => user.first_name!==undefined?user.first_name+ " " + user.last_name:user.username);
+                        openDangerAlert(`Users are using this permission. (${namesData.length})`);
+                    })
+                    .catch(console.error);
                 }
                 else {
                     if(window.confirm('Do you want to delete this permission?')){
@@ -529,6 +524,9 @@ const ListPermissions = () => {
                 <Accordion style={{
                     width: "100%",
                     height: "inherit",
+                    borderRadius: '10px',
+                    overflow: 'hidden',
+                    boxShadow: '0px 0px 3px gray'
                 }}>
                     <AccordionSummary expandIcon={<ExpandMore/>} style={{boxShadow: "0px 0px 3px gray",}}>
                         <div className="col ml--2">
