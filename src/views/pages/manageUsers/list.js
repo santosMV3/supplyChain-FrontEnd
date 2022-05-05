@@ -161,7 +161,8 @@ const ListUsers = () => {
             boxSizing: 'border-box',
             display: 'flex',
             flexDirection: 'row',
-            alignItems: 'center'
+            alignItems: 'center',
+            textTransform: 'capitalize'
         }
     
         const AccordionMore = ({data}) => {
@@ -223,10 +224,10 @@ const ListUsers = () => {
                                 width: '100%'
                             }}>
                                 <AccordionSummary expandIcon={<ExpandMore />} style={{
-                                    width: '98%',
+                                    width: '100%',
                                     marginLeft: 'auto',
                                     marginRight: 'auto',
-                                    boxShadow: '0px 0px 10px gray'
+                                    boxShadow: '0px 0px 5px gray'
                                 }}>
                                     {props.pages.name}
                                 </AccordionSummary>
@@ -235,10 +236,15 @@ const ListUsers = () => {
                                     flexDirection: 'column',
                                     borderRadius: '10px',
                                 }}>
-                                    <ListGroupItem className="active">
-                                        Pages:
-                                    </ListGroupItem>
-                                    {pages.map((data, index) => (<GetPage key={`pageItem-${index}`} post={data}/>))}
+                                    <div style={{
+                                        borderRadius: '10px',
+                                        boxShadow: '0px 0px 5px gray'
+                                    }}>
+                                        <ListGroupItem className="active">
+                                            Pages:
+                                        </ListGroupItem>
+                                        {pages.map((data, index) => (<GetPage key={`pageItem-${index}`} post={data}/>))}
+                                    </div>
                                 </AccordionDetails>
                             </Accordion>
                         </ListGroupItem>
@@ -269,7 +275,8 @@ const ListUsers = () => {
                             width: '100%',
                             borderRadius: '10px',
                             boxShadow: '0px 0px 5px gray',
-                            backgroundColor: "#fff"
+                            backgroundColor: "#fff",
+                            overflow: "hidden"
                         }}>
                             <Table className="align-items-center" responsive>
                                 <thead className="thead-light">
@@ -336,8 +343,10 @@ const ListUsers = () => {
                     {pages.length===undefined?(
                         <BodyInfo>
                         <ListGroup style={{
-                            boxShadow: "0px 0px 5px gray",
-                            border: "1px solid black"
+                            boxShadow: "0px 0px 5px black",
+                            // border: "1px solid black",
+                            borderRadius: '5px',
+                            overflow: 'hidden'
                         }}>
                             <ListGroupItem className="active" style={listStyle}>Permission:</ListGroupItem>
                             <PageItem pages={pages}/>
@@ -503,10 +512,13 @@ const ListUsers = () => {
         }
 
         return (
-            <ListGroupItem className="px-0">
+            <ListGroupItem className="px-0" style={{
+                borderRadius: '10px',
+            }}>
                 <Accordion style={{
                     borderRadius: '10px',
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+                    boxShadow: '0px 0px 5px gray'
                 }}>
                     <AccordionSummary expandIcon={<ExpandMore />} style={{
                         borderBottom: '1px solid gray'
@@ -517,72 +529,82 @@ const ListUsers = () => {
                             paddingLeft: "50px",
                         }}>
                             <h4 className="mb-0">
-                                {post.username}&nbsp;{post.id===localStorage.getItem('AUTHOR_ID')?"(Me)":""}
+                                {post.username}&nbsp;{post.id.toString()===localStorage.getItem('AUTHOR_ID').toString()?"(you)":""}
                             </h4>
                             <small style={{color: '#525f7f'}}>
                                 {post.first_name !== "" ? `${post.first_name} ${post.last_name}`:post.username}
                             </small>
                         </div>
-                        <FormControlLabel 
-                            onClick={(event) => event.stopPropagation()}
-                            onFocus={(event) => event.stopPropagation()}
-                            style={{margin:'0'}}
-                            control={
-                            <Col className="col-auto" style={{padding: '0', marginRight: '10px'}}>
-                                <Button color="primary" outline size="sm" type="button" onClick={openModalEdit}>
-                                    Edit
-                                </Button>
-                                <ModalEdit 
-                                open={editModalState}
-                                close={closeModalEdit}
-                                post={post}/>
-                            </Col>
-                            }
-                        />
-                        {post.is_active === true?(
-                            <FormControlLabel 
-                                onClick={(event) => event.stopPropagation()}
-                                onFocus={(event) => event.stopPropagation()}
-                                style={{margin:'0'}}
-                                control={
-                                <Col className="col-auto" style={{padding: '0'}}>
-                                    {post.id === localStorage.getItem('AUTHOR_ID')?(
-                                        <Button color="danger" disabled outline size="sm" type="button">
-                                            Disable
-                                        </Button>
-                                    ):(
-                                        <div>
-                                            {confirmDisable?(
-                                                <Button color="danger" outline size="sm" onMouseOut={closeDisable} onClick={disableUser} type="button">
-                                                    Confirm
-                                                </Button>
-                                            ):(
-                                                <Button color="danger" outline size="sm" onClick={openDisable} type="button">
+                        {post.is_superuser?null:(
+                            <>
+                                <FormControlLabel 
+                                    onClick={(event) => event.stopPropagation()}
+                                    onFocus={(event) => event.stopPropagation()}
+                                    style={{margin:'0'}}
+                                    control={
+                                    <Col className="col-auto" style={{padding: '0', marginRight: '10px'}}>
+                                        {post.id.toString() === localStorage.getItem('AUTHOR_ID').toString()?(
+                                            <Button color="primary" disabled outline size="sm" type="button" onClick={openModalEdit}>
+                                                Edit
+                                            </Button>
+                                        ):(
+                                            <Button color="primary" outline size="sm" type="button" onClick={openModalEdit}>
+                                                Edit
+                                            </Button>
+                                        )}
+                                        <ModalEdit 
+                                        open={editModalState}
+                                        close={closeModalEdit}
+                                        post={post}/>
+                                    </Col>
+                                    }
+                                />
+                                {post.is_active === true?(
+                                    <FormControlLabel 
+                                        onClick={(event) => event.stopPropagation()}
+                                        onFocus={(event) => event.stopPropagation()}
+                                        style={{margin:'0'}}
+                                        control={
+                                        <Col className="col-auto" style={{padding: '0'}}>
+                                            {post.id.toString() === localStorage.getItem('AUTHOR_ID').toString()?(
+                                                <Button color="danger" disabled outline size="sm" type="button">
                                                     Disable
                                                 </Button>
+                                            ):(
+                                                <div>
+                                                    {confirmDisable?(
+                                                        <Button color="danger" outline size="sm" onMouseOut={closeDisable} onClick={disableUser} type="button">
+                                                            Confirm
+                                                        </Button>
+                                                    ):(
+                                                        <Button color="danger" outline size="sm" onClick={openDisable} type="button">
+                                                            Disable
+                                                        </Button>
+                                                    )}
+                                                </div>
                                             )}
-                                        </div>
-                                    )}
-                                </Col>
-                                }
-                            />
-                        ):(
-                            <FormControlLabel 
-                                onClick={(event) => event.stopPropagation()}
-                                onFocus={(event) => event.stopPropagation()}
-                                style={{margin:'0'}}
-                                control={
-                                <Col className="col-auto" style={{padding: '0'}}>
-                                    {post.id === localStorage.getItem('AUTHOR_ID')?null:(
-                                        <div>
-                                            <Button color="success" outline onClick={enableUser} size="sm" type="button">
-                                                Enable
-                                            </Button>
-                                        </div>
-                                    )}
-                                </Col>
-                                }
-                            />
+                                        </Col>
+                                        }
+                                    />
+                                ):(
+                                    <FormControlLabel 
+                                        onClick={(event) => event.stopPropagation()}
+                                        onFocus={(event) => event.stopPropagation()}
+                                        style={{margin:'0'}}
+                                        control={
+                                        <Col className="col-auto" style={{padding: '0'}}>
+                                            {post.id === localStorage.getItem('AUTHOR_ID')?null:(
+                                                <div>
+                                                    <Button color="success" outline onClick={enableUser} size="sm" type="button">
+                                                        Enable
+                                                    </Button>
+                                                </div>
+                                            )}
+                                        </Col>
+                                        }
+                                    />
+                                )}
+                            </>
                         )}
                     </AccordionSummary>
                     <AccordionDetails style={{backgroundColor: "#5e72e4"}}>
