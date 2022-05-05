@@ -227,7 +227,7 @@ const ListUsers = () => {
                                     width: '100%',
                                     marginLeft: 'auto',
                                     marginRight: 'auto',
-                                    boxShadow: '0px 0px 5px gray'
+                                    boxShadow: '0px 0px 3px gray'
                                 }}>
                                     {props.pages.name}
                                 </AccordionSummary>
@@ -238,7 +238,7 @@ const ListUsers = () => {
                                 }}>
                                     <div style={{
                                         borderRadius: '10px',
-                                        boxShadow: '0px 0px 5px gray'
+                                        boxShadow: '0px 0px 3px gray'
                                     }}>
                                         <ListGroupItem className="active">
                                             Pages:
@@ -274,7 +274,7 @@ const ListUsers = () => {
                         <div style={{
                             width: '100%',
                             borderRadius: '10px',
-                            boxShadow: '0px 0px 5px gray',
+                            boxShadow: '0px 0px 3px gray',
                             backgroundColor: "#fff",
                             overflow: "hidden"
                         }}>
@@ -343,7 +343,7 @@ const ListUsers = () => {
                     {pages.length===undefined?(
                         <BodyInfo>
                         <ListGroup style={{
-                            boxShadow: "0px 0px 5px black",
+                            boxShadow: "0px 0px 3px black",
                             // border: "1px solid black",
                             borderRadius: '5px',
                             overflow: 'hidden'
@@ -518,7 +518,7 @@ const ListUsers = () => {
                 <Accordion style={{
                     borderRadius: '10px',
                     overflow: 'hidden',
-                    boxShadow: '0px 0px 5px gray'
+                    boxShadow: '0px 0px 3px gray'
                 }}>
                     <AccordionSummary expandIcon={<ExpandMore />} style={{
                         borderBottom: '1px solid gray'
@@ -645,7 +645,7 @@ const ListUsers = () => {
             <ListGroup className="list" flush style={{
                 width: '100%',
                 height: '100%',
-                boxShadow: '0px 0px 5px gray',
+                boxShadow: '0px 0px 3px gray',
                 borderRadius: '10px',
                 overflow: 'hidden'
             }}>
