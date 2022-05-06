@@ -1,19 +1,3 @@
-/*!
-
-=========================================================
-* Argon Dashboard PRO React - v1.2.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/argon-dashboard-pro-react
-* Copyright 2021 Creative Tim (https://www.creative-tim.com)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
 import React, { useState, useEffect } from "react";
 // react plugin used to create charts
 import { Pie, Bar } from "react-chartjs-2";
@@ -104,13 +88,22 @@ function Dashboard() {
   useEffect(() => {
     let abortController = new AbortController();
     const getCompetences = () => {
-      api.get(`/statusFirst`).then((response => {
-        const idStatus = response.data.idStatus;
+      Promise.all([
+        api.get(`/statusFirst`),
+        api.get('/logMapExternalServices/'),
+        api.get('/logMapKPIItens/'),
+        api.get('/logMapToInvoice/')
+      ]).then((response) => {
+        // REQUISITION #1
+        const idStatus = response[0].data.idStatus;
         api.get(`/statusOrder?idStatus=${idStatus}`).then((orderStatus) => {
           Promise.all(orderStatus.data.map((status) => api.get(`/logisticMap/${status.idOrder}`))).then((orders) => {
             orders = orders.map((order) => order.data);
-            api.get("/logMapCompetence").then((competencesTotal) => {
-              competencesTotal = competencesTotal.data;
+            Promise.all([
+              api.get("/logMapCompetence"),
+              api.get(`/logisticMapWE`)
+            ]).then((multiData) => {
+              const competencesTotal = multiData[0].data;
               orders.forEach((order) => {
                 const index = competencesTotal.competences.indexOf(order.competenceName);
                 const data = {
@@ -122,30 +115,25 @@ function Dashboard() {
                 order.total = data;
               });
               setBilledOrders(orders);
-            }).catch(console.error); 
-
-            api.get(`/logisticMapWE`).then((response) => {
-                
-                setWEOrdersState(response.data);
-
+              setWEOrdersState(multiData[1].data);
             }).catch(console.error);
           });
         }).catch(console.error);
-      })).catch(console.error);
-      api.get('/logMapExternalServices/').then((response) => {
-        setExternalData(response.data);
-      }).catch(console.error);
-      api.get('/logMapKPIItens/').then((response) => {
-        setKpiData(response.data);
-      }).catch(console.error);
-      api.get('/logMapToInvoice/').then(response => {
+
+        //REQUISITION #2
+        setExternalData(response[1].data);
+
+        //REQUISTION #3
+        setKpiData(response[2].data);
+
+        //REQUISITION #4
         setChartData({
           labels: ['Orders'],
-          totalQuatity: parseInt(response.data.quantityInvoiced) + parseInt(response.data.quantityOrders),
+          totalQuatity: parseInt(response[3].data.quantityInvoiced) + parseInt(response[3].data.quantityOrders),
           totalInvoiced: 0,
           datasets: [
             {
-              data: [response.data.quantityOrders],
+              data: [response[3].data.quantityOrders],
               label: "Not Invoiced: ",
               maxBarThickness: 10,
               backgroundColor: 'rgba(255, 17, 0, 1)',
@@ -153,7 +141,7 @@ function Dashboard() {
               borderWidth: 1,
             },
             {
-              data: [response.data.quantityInvoiced],
+              data: [response[3].data.quantityInvoiced],
               label: "Invoiced: ",
               maxBarThickness: 10,
               backgroundColor: 'rgba(0, 255, 51, 1)',
@@ -164,11 +152,11 @@ function Dashboard() {
         });
         setStatusValues({
           labels: ["Orders"],
-          totalQuatity: parseFloat(response.data.valueInvoiced) + parseFloat(response.data.valueOrders),
+          totalQuatity: parseFloat(response[3].data.valueInvoiced) + parseFloat(response[3].data.valueOrders),
           totalInvoiced: 0,
           datasets: [
             {
-              data: [response.data.valueOrders],
+              data: [response[3].data.valueOrders],
               label: "Not Invoiced: ",
               maxBarThickness: 10,
               backgroundColor: 'rgba(255, 17, 0, 1)',
@@ -176,7 +164,7 @@ function Dashboard() {
               borderWidth: 1,
             },
             {
-              data: [response.data.valueInvoiced],
+              data: [response[3].data.valueInvoiced],
               label: "Invoiced: ",
               maxBarThickness: 10,
               backgroundColor: 'rgba(0, 255, 51, 1)',
@@ -185,7 +173,7 @@ function Dashboard() {
             }
           ]
         });
-      }).catch(console.error)
+      }).catch(console.error);
     }
 
     getCompetences();
