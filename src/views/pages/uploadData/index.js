@@ -28,6 +28,8 @@ import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 
+import Loader from "../components/custom/loader";
+
 api.defaults.timeout = 0;
 
 const UploadPage = (idPage) => {
@@ -152,6 +154,7 @@ const UploadPage = (idPage) => {
             }
         })
         .then(() => {
+            e.target.disabled = false;
             setUploadStatus({...uploadStatus, seletorLogMap: 'stable'});
             setLoaderData({...loaderData, seletorLogMap: "Upload Success"});
             setStateButtonLogMap({text: "Upload Success!!!", color: "success"});
@@ -642,6 +645,10 @@ const ListLogMap = () => {
     const openFilter = () => setFilterState(true);
     const closeFilter = () => setFilterState(false);
 
+    const [loaderList, setLoaderList] = useState(true);
+    const openLoaderList = () => setLoaderList(true);
+    const closeLoaderList = () => setLoaderList(false);
+
     const filterFields = [
       ["salesRep", "Sales Rep"],
       ["competenceName", 'COMPETENCE NAME (Z2 PARTNER)'],
@@ -751,9 +758,16 @@ const ListLogMap = () => {
                     }).catch(console.error);
                     setFilterStats(true);
                     setLogMapData(order.data);
-                    setRequisitionUrl(`/logisticMap/?competenceName=${fullName}`)
-                }).catch(console.error);
-            }).catch(console.error);
+                    setRequisitionUrl(`/logisticMap/?competenceName=${fullName}`);
+                    closeLoaderList();
+                }).catch((error) => {
+                    console.error(error);
+                    closeLoaderList();
+                });
+            }).catch((error) => {
+                console.error(error);
+                closeLoaderList();
+            });
             
         };
         getData();
@@ -856,6 +870,10 @@ const ListLogMap = () => {
         const openEditMode = () => setEditMode(true);
         const closeEditMode = () => setEditMode(false);
 
+        const [loaderItem, setLoaderItem] = useState(true);
+        const openLoaderItem = () => setLoaderItem(true);
+        const closeLoaderItem = () => setLoaderItem(false);
+
         const [editExternalMode, setEditExternalMode] = useState(false);
         const openExternalMode = () => {
             if (!post.externalService) return;
@@ -877,27 +895,34 @@ const ListLogMap = () => {
             setSelectedStatusName(e.target.id);
         }
 
+        const getStatus = () => {
+            openLoaderItem();
+            Promise.all([
+                api.get('/status?is_active=True'),
+                api.get(`/statusOrder?idOrder=${post.id}`),
+                api.get(`/importationDetails/${post.importation}`)
+            ]).then((response) => {
+                setStatusData(response[0].data);
+                setStatusOrder(response[1].data);
+                setAutoForms({...autoForms, importation: response[2].data.imp});
+                if(response[1].data[0]) {
+                    Promise.all([
+                        api.get(`/status/${response[1].data[0].idStatus}`),
+                        api.get(`/users/${response[1].data[0].idUser}`)
+                    ]).then((data) => {
+                        setStatus([data[0].data.name, data[0].data.description, data[0].data.idStatus]);
+                        setSelectedStatus(`${data[0].data.idStatus}:${post.id}`);
+                        setUserOrder(data[1].data);
+                        closeLoaderItem();
+                    }).catch(console.error);
+                } else {
+                    closeLoaderItem();
+                }
+            }).catch(console.error);
+        }
+
         useEffect(() => {
             let abortController = new AbortController();
-            const getStatus = () => {
-                api.get('/status?is_active=True').then((response => setStatusData(response.data))).catch(console.error);
-                api.get(`/statusOrder?idOrder=${post.id}`).then((response) => {
-                    setStatusOrder(response.data);
-                    if(response.data[0]) {
-                        api.get(`/status/${response.data[0].idStatus}`)
-                        .then((data) => {
-                            setStatus([data.data.name, data.data.description, data.data.idStatus]);
-                            setSelectedStatus(`${data.data.idStatus}:${post.id}`);
-                        }).catch(console.error);
-                        api.get(`/users/${response.data[0].idUser}`).then((user) => {
-                            setUserOrder(user.data);
-                        }).catch(console.error);
-                    }
-                }).catch(console.error);
-                api.get(`/importationDetails/${post.importation}`).then((response) => {
-                    setAutoForms({...autoForms, importation: response.data.imp});
-                }).catch(console.error);
-            }
             getStatus();
 
             return () => {
@@ -905,26 +930,6 @@ const ListLogMap = () => {
             }
             
         }, []);
-
-        const getStatus = () => {
-            api.get('/status?is_active=True').then((response => setStatusData(response.data))).catch(console.error);
-            api.get(`/statusOrder?idOrder=${post.id}`).then((response) => {
-                setStatusOrder(response.data);
-                if(response.data[0]) {
-                    api.get(`/status/${response.data[0].idStatus}`)
-                    .then((data) => {
-                        setStatus([data.data.name, data.data.description, data.data.idStatus]);
-                        setSelectedStatus(`${data.data.idStatus}:${post.id}`);
-                    }).catch(console.error);
-                    api.get(`/users/${response.data[0].idUser}`).then((user) => {
-                        setUserOrder(user.data);
-                    }).catch(console.error);
-                }
-            }).catch(console.error);
-            api.get(`/importationDetails/${post.importation}`).then((response) => {
-                setAutoForms({...autoForms, importation: response.data.imp});
-            }).catch(console.error);
-        }
 
         const updateOrderWeek = () => {
             api.patch(`/logisticMap/${post.id}/`, {previsionWeek: selectedStatusWeek}).then((response) => {
@@ -1336,29 +1341,35 @@ const ListLogMap = () => {
                                     </>
                                 ):(
                                     <>
-                                        <div style={{
-                                            display: 'flex',
-                                            flexDirection: "row"
-                                        }}>
-                                            {status!==undefined?(
-                                                <>
-                                                    <Button style={{
-                                                        textOverflow: 'ellipsis',
-                                                        maxWidth: '10ch',
-                                                        overflow: 'hidden'
-                                                    }} size="sm" id={"status" + index} onClick={openStatus} color="default">
-                                                        {status[0]}
+                                        {loaderItem?(
+                                            <div>
+                                                <Loader/>
+                                            </div>
+                                        ):(
+                                            <div style={{
+                                                display: 'flex',
+                                                flexDirection: "row"
+                                            }}>
+                                                {status!==undefined?(
+                                                    <>
+                                                        <Button style={{
+                                                            textOverflow: 'ellipsis',
+                                                            maxWidth: '10ch',
+                                                            overflow: 'hidden'
+                                                        }} size="sm" id={"status" + index} onClick={openStatus} color="default">
+                                                            {status[0]}
+                                                        </Button>
+                                                    </>
+                                                ):(
+                                                    <Button size="sm" onClick={openStatus} color="primary">
+                                                        Add Status
                                                     </Button>
-                                                </>
-                                            ):(
-                                                <Button size="sm" onClick={openStatus} color="primary">
-                                                    Add Status
+                                                )}
+                                                <Button size="sm" color="primary" id={"expand"+ index} onClick={openModal}>
+                                                    ...
                                                 </Button>
-                                            )}
-                                            <Button size="sm" color="primary" id={"expand"+ index} onClick={openModal}>
-                                                ...
-                                            </Button>
-                                        </div>
+                                            </div>
+                                        )}
                                     </>
                                 )}
                             </Media>
@@ -3319,51 +3330,85 @@ const ListLogMap = () => {
                     </div>
                 </div>
             </div>
-            <Table className="align-items-center"style={{
-                height: 'auto',
-                minHeight: '10px',
-                maxHeight: '65vh',
-                overflow: 'auto',
-                display: 'block'
-            }} responsive>
-                <thead className="thead-light">
-                    <tr>
-                        <th scope="col">Nº</th>
-                        <th scope="col">Billing Forecast</th>
-                        <th scope="col">Cust. Name</th>
-                        <th scope="col">SO</th>
-                        <th scope="col">Item</th>
-                        <th scope="col">Open Value</th>
-                        <th scope="col">Item Categ.</th>
-                        <th scope="col">First Date</th>
-                        <th scope="col">Sched. l. date</th>
-                        <th scope="col">Material Descript.</th>
-                        <th scope="col">Material Number</th>
-                        <th scope="col">ETA Trianon</th>
-                        <th scope="col"/>
-                        <th scope="col">Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {logMapData!==undefined?(
-                        <>
-                        {logMapData.results.length > 0?logMapData.results.map((post, index) => (<ListItem key={`listitem-${index}`} post={post} index={index}/>)):(
-                            <tr>
-                                <td colSpan="24">
-                                    No data.
-                                </td>
-                            </tr>
-                        )}
-                        </>
-                    ):(
-                    <tr>
-                        <td colSpan="24">
-                            No data.
-                        </td>
-                    </tr>
-                )}
-                </tbody>
-            </Table>
+            {loaderList?(
+                <div style={{
+                    width: '30vw',
+                    height: '40vh',
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "space-evenly",
+                    position: "absolute",
+                    backgroundColor: "#ffffff",
+                    left: "0",
+                    right: "0",
+                    top: "0",
+                    bottom: "0",
+                    margin: "20vh auto",
+                    boxShadow: "0px 0px 5px gray",
+                    borderRadius: "10px"
+                }}>
+                    <div style={{
+                        width: "160px",
+                        height: "90px",
+                        
+                    }}>
+                        <Loader/>
+                    </div>
+                    <div style={{
+                        fontSize: "1.1em",
+                        fontFamily: "arial"
+                    }}>
+                        Loading orders. Please wait...
+                    </div>
+                </div>
+            ):(
+                <Table className="align-items-center"style={{
+                    height: 'auto',
+                    minHeight: '10px',
+                    maxHeight: '65vh',
+                    overflow: 'auto',
+                    display: 'block'
+                }} responsive>
+                    <thead className="thead-light">
+                        <tr>
+                            <th scope="col">Nº</th>
+                            <th scope="col">Billing Forecast</th>
+                            <th scope="col">Cust. Name</th>
+                            <th scope="col">SO</th>
+                            <th scope="col">Item</th>
+                            <th scope="col">Open Value</th>
+                            <th scope="col">Item Categ.</th>
+                            <th scope="col">First Date</th>
+                            <th scope="col">Sched. l. date</th>
+                            <th scope="col">Material Descript.</th>
+                            <th scope="col">Material Number</th>
+                            <th scope="col">ETA Trianon</th>
+                            <th scope="col"/>
+                            <th scope="col">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {logMapData!==undefined?(
+                            <>
+                            {logMapData.results.length > 0?logMapData.results.map((post, index) => (<ListItem key={`listitem-${index}`} post={post} index={index}/>)):(
+                                <tr>
+                                    <td colSpan="24">
+                                        No data.
+                                    </td>
+                                </tr>
+                            )}
+                            </>
+                        ):(
+                        <tr>
+                            <td colSpan={12}>
+                                Error to collect orders. (Server possible offline...)
+                            </td>
+                        </tr>
+                    )}
+                    </tbody>
+                </Table>
+            )}
             <div style={{
                 width: '100%',
                 minHeight: '5px',
