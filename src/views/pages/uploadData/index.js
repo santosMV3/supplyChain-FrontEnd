@@ -1342,7 +1342,10 @@ const ListLogMap = () => {
                                 ):(
                                     <>
                                         {loaderItem?(
-                                            <div>
+                                            <div style={{
+                                                width: "50px",
+                                                height: "26px"
+                                            }}>
                                                 <Loader/>
                                             </div>
                                         ):(
