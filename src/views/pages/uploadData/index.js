@@ -29,6 +29,7 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 
 import Loader from "../components/custom/loader";
+import LoaderBox from "../components/custom/loader/loaderBox";
 
 api.defaults.timeout = 0;
 
@@ -3334,37 +3335,7 @@ const ListLogMap = () => {
                 </div>
             </div>
             {loaderList?(
-                <div style={{
-                    width: '30vw',
-                    height: '40vh',
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "space-evenly",
-                    position: "absolute",
-                    backgroundColor: "#ffffff",
-                    left: "0",
-                    right: "0",
-                    top: "0",
-                    bottom: "0",
-                    margin: "20vh auto",
-                    boxShadow: "0px 0px 5px gray",
-                    borderRadius: "10px"
-                }}>
-                    <div style={{
-                        width: "160px",
-                        height: "90px",
-                        
-                    }}>
-                        <Loader/>
-                    </div>
-                    <div style={{
-                        fontSize: "1.1em",
-                        fontFamily: "arial"
-                    }}>
-                        Loading orders. Please wait...
-                    </div>
-                </div>
+                <LoaderBox message="Loading orders. Please wait..."/>
             ):(
                 <Table className="align-items-center"style={{
                     height: 'auto',
