@@ -19,9 +19,16 @@ import {
 } from "variables/charts.js";
 import { api } from "services/api";
 
+import LoaderBox from "../components/custom/loader/loaderBox";
+
 function Dashboard() {
   const [billedOrders, setBilledOrders] = useState([]);
   const [WEOrdersState, setWEOrdersState] = useState([]);
+
+  const [kpiLoader, setKpiLoader] = useState(true);
+  const openKPILoader = () => setKpiLoader(true);
+  const closeKPILoader = () => setKpiLoader(false);
+
   const [chartData, setChartData] = useState({
     labels: ["Orders"],
     totalQuatity: 0,
@@ -88,12 +95,68 @@ function Dashboard() {
   useEffect(() => {
     let abortController = new AbortController();
     const getCompetences = () => {
+      openKPILoader();
       Promise.all([
         api.get(`/statusFirst`),
         api.get('/logMapExternalServices/'),
         api.get('/logMapKPIItens/'),
         api.get('/logMapToInvoice/')
       ]).then((response) => {
+
+                //REQUISITION #2
+                setExternalData(response[1].data);
+
+                //REQUISTION #3
+                setKpiData(response[2].data);
+        
+                //REQUISITION #4
+                setChartData({
+                  labels: ['Orders'],
+                  totalQuatity: parseInt(response[3].data.quantityInvoiced) + parseInt(response[3].data.quantityOrders),
+                  totalInvoiced: 0,
+                  datasets: [
+                    {
+                      data: [response[3].data.quantityOrders],
+                      label: "Not Invoiced: ",
+                      maxBarThickness: 10,
+                      backgroundColor: 'rgba(255, 17, 0, 1)',
+                      borderColor: 'rgba(255, 17, 0, 1)',
+                      borderWidth: 1,
+                    },
+                    {
+                      data: [response[3].data.quantityInvoiced],
+                      label: "Invoiced: ",
+                      maxBarThickness: 10,
+                      backgroundColor: 'rgba(0, 255, 51, 1)',
+                      borderColor: 'rgba(0, 255, 51, 1))',
+                      borderWidth: 1,
+                    }
+                  ]
+                });
+                setStatusValues({
+                  labels: ["Orders"],
+                  totalQuatity: parseFloat(response[3].data.valueInvoiced) + parseFloat(response[3].data.valueOrders),
+                  totalInvoiced: 0,
+                  datasets: [
+                    {
+                      data: [response[3].data.valueOrders],
+                      label: "Not Invoiced: ",
+                      maxBarThickness: 10,
+                      backgroundColor: 'rgba(255, 17, 0, 1)',
+                      borderColor: 'rgba(255, 17, 0, 1)',
+                      borderWidth: 1,
+                    },
+                    {
+                      data: [response[3].data.valueInvoiced],
+                      label: "Invoiced: ",
+                      maxBarThickness: 10,
+                      backgroundColor: 'rgba(0, 255, 51, 1)',
+                      borderColor: 'rgba(0, 255, 51, 1))',
+                      borderWidth: 1,
+                    }
+                  ]
+                });
+
         // REQUISITION #1
         const idStatus = response[0].data.idStatus;
         api.get(`/statusOrder?idStatus=${idStatus}`).then((orderStatus) => {
@@ -116,64 +179,20 @@ function Dashboard() {
               });
               setBilledOrders(orders);
               setWEOrdersState(multiData[1].data);
-            }).catch(console.error);
+              closeKPILoader();
+            }).catch((error) => {
+              console.error(error);
+              closeKPILoader();
+            });
           });
-        }).catch(console.error);
-
-        //REQUISITION #2
-        setExternalData(response[1].data);
-
-        //REQUISTION #3
-        setKpiData(response[2].data);
-
-        //REQUISITION #4
-        setChartData({
-          labels: ['Orders'],
-          totalQuatity: parseInt(response[3].data.quantityInvoiced) + parseInt(response[3].data.quantityOrders),
-          totalInvoiced: 0,
-          datasets: [
-            {
-              data: [response[3].data.quantityOrders],
-              label: "Not Invoiced: ",
-              maxBarThickness: 10,
-              backgroundColor: 'rgba(255, 17, 0, 1)',
-              borderColor: 'rgba(255, 17, 0, 1)',
-              borderWidth: 1,
-            },
-            {
-              data: [response[3].data.quantityInvoiced],
-              label: "Invoiced: ",
-              maxBarThickness: 10,
-              backgroundColor: 'rgba(0, 255, 51, 1)',
-              borderColor: 'rgba(0, 255, 51, 1))',
-              borderWidth: 1,
-            }
-          ]
+        }).catch((error) => {
+          console.error(error);
+          closeKPILoader();
         });
-        setStatusValues({
-          labels: ["Orders"],
-          totalQuatity: parseFloat(response[3].data.valueInvoiced) + parseFloat(response[3].data.valueOrders),
-          totalInvoiced: 0,
-          datasets: [
-            {
-              data: [response[3].data.valueOrders],
-              label: "Not Invoiced: ",
-              maxBarThickness: 10,
-              backgroundColor: 'rgba(255, 17, 0, 1)',
-              borderColor: 'rgba(255, 17, 0, 1)',
-              borderWidth: 1,
-            },
-            {
-              data: [response[3].data.valueInvoiced],
-              label: "Invoiced: ",
-              maxBarThickness: 10,
-              backgroundColor: 'rgba(0, 255, 51, 1)',
-              borderColor: 'rgba(0, 255, 51, 1))',
-              borderWidth: 1,
-            }
-          ]
-        });
-      }).catch(console.error);
+      }).catch((error) => {
+        console.error(error);
+        closeKPILoader();
+      });
     }
 
     getCompetences();
@@ -850,135 +869,141 @@ function Dashboard() {
 
   return (
     <>
-      <CardsHeader name="Default" parentName="Dashboards" />
-      <Container className="mt--6" fluid style={{
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        marginBottom: '20px'
-      }}>
-        {billedOrders.length === 0?
+      {kpiLoader?(
+        <LoaderBox message="Loading KPIs. Please wait..."/>
+      ):(
         <>
-          <div style={{
-            width: "48%",
-            boxShadow: "0px 0px 5px gray",
-            borderRadius: "10px",
-            height: '445px',
-            overflow: 'hidden'
+          <CardsHeader name="Default" parentName="Dashboards" />
+          <Container className="mt--6" fluid style={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'space-around',
+            marginBottom: '20px'
           }}>
-            <div style={{
-              width: "100%",
-              height: "400px",
-              overflow: 'hidden',
-              boxShadow: "0px 0px 2px gray",
-            }}>
-              <Card>
-                <CardHeader className="bg-transparent">
-                  <Row className="align-items-center">
-                    <div className="col">
-                      <h5 className="h3 mb-0">Orders Quantity:</h5>
-                    </div>
-                  </Row>
-                </CardHeader>
-                <CardBody>
-                  <div className="chart" style={{textAlign: 'center'}}>
-                      No invoiced orders
-                  </div>
-                </CardBody>
-              </Card>
-            </div>
-            <div style={{
-              width: '100%',
-              height: '45px',
-              overflow: 'hidden',
-              display: 'flex',
-              alignItems: 'center',
-              flexDirection: 'row',
-              boxSizing: 'border-box',
-              padding: '10px',
-              justifyContent: "space-around"
-            }}>
-              <h5 className="h4 mb-0">Total Invoiced: 0</h5>
-              <h5 className="h4 mb-0">Total Unvoiced: 0</h5>
-            </div>
-          </div>
-          <div style={{
-            width: "48%",
-            boxShadow: "0px 0px 5px gray",
-            borderRadius: "10px",
-            height: '445px',
-            overflow: 'hidden'
+            {billedOrders.length === 0?
+            <>
+              <div style={{
+                width: "48%",
+                boxShadow: "0px 0px 5px gray",
+                borderRadius: "10px",
+                height: '445px',
+                overflow: 'hidden'
+              }}>
+                <div style={{
+                  width: "100%",
+                  height: "400px",
+                  overflow: 'hidden',
+                  boxShadow: "0px 0px 2px gray",
+                }}>
+                  <Card>
+                    <CardHeader className="bg-transparent">
+                      <Row className="align-items-center">
+                        <div className="col">
+                          <h5 className="h3 mb-0">Orders Quantity:</h5>
+                        </div>
+                      </Row>
+                    </CardHeader>
+                    <CardBody>
+                      <div className="chart" style={{textAlign: 'center'}}>
+                          No invoiced orders
+                      </div>
+                    </CardBody>
+                  </Card>
+                </div>
+                <div style={{
+                  width: '100%',
+                  height: '45px',
+                  overflow: 'hidden',
+                  display: 'flex',
+                  alignItems: 'center',
+                  flexDirection: 'row',
+                  boxSizing: 'border-box',
+                  padding: '10px',
+                  justifyContent: "space-around"
+                }}>
+                  <h5 className="h4 mb-0">Total Invoiced: 0</h5>
+                  <h5 className="h4 mb-0">Total Unvoiced: 0</h5>
+                </div>
+              </div>
+              <div style={{
+                width: "48%",
+                boxShadow: "0px 0px 5px gray",
+                borderRadius: "10px",
+                height: '445px',
+                overflow: 'hidden'
+              }}>
+                <div style={{
+                  width: "100%",
+                  height: "400px",
+                  overflow: 'hidden',
+                  boxShadow: "0px 0px 2px gray",
+                }}>
+                  <Card>
+                    <CardHeader className="bg-transparent">
+                      <Row className="align-items-center">
+                        <div className="col">
+                          <h5 className="h3 mb-0">Orders Values (R$):</h5>
+                        </div>
+                      </Row>
+                    </CardHeader>
+                    <CardBody>
+                      <div className="chart" style={{textAlign: 'center'}}>
+                          No invoiced orders
+                      </div>
+                    </CardBody>
+                  </Card>
+                </div>
+                <div style={{
+                  width: '100%',
+                  height: '45px',
+                  overflow: 'hidden',
+                  display: 'flex',
+                  alignItems: 'center',
+                  flexDirection: 'row',
+                  boxSizing: 'border-box',
+                  padding: '10px',
+                  justifyContent: "space-around"
+                }}>
+                  <h5 className="h4 mb-0">Total Invoiced: R$0,00</h5>
+                  <h5 className="h4 mb-0">Total Unvoiced: R$0,00</h5>
+                </div>
+              </div>
+            </>:(
+              <>
+                <BilledGraphicQuantity billedOrders={billedOrders}/>
+                <BilledGraphicValues billedOrders={billedOrders}/>
+              </>
+            )}
+          </Container>
+          <Container fluid style={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'space-around',
+            marginBottom: '20px'
           }}>
-            <div style={{
-              width: "100%",
-              height: "400px",
-              overflow: 'hidden',
-              boxShadow: "0px 0px 2px gray",
-            }}>
-              <Card>
-                <CardHeader className="bg-transparent">
-                  <Row className="align-items-center">
-                    <div className="col">
-                      <h5 className="h3 mb-0">Orders Values (R$):</h5>
-                    </div>
-                  </Row>
-                </CardHeader>
-                <CardBody>
-                  <div className="chart" style={{textAlign: 'center'}}>
-                      No invoiced orders
-                  </div>
-                </CardBody>
-              </Card>
-            </div>
-            <div style={{
-              width: '100%',
-              height: '45px',
-              overflow: 'hidden',
-              display: 'flex',
-              alignItems: 'center',
-              flexDirection: 'row',
-              boxSizing: 'border-box',
-              padding: '10px',
-              justifyContent: "space-around"
-            }}>
-              <h5 className="h4 mb-0">Total Invoiced: R$0,00</h5>
-              <h5 className="h4 mb-0">Total Unvoiced: R$0,00</h5>
-            </div>
-          </div>
-        </>:(
-          <>
-            <BilledGraphicQuantity billedOrders={billedOrders}/>
-            <BilledGraphicValues billedOrders={billedOrders}/>
-          </>
-        )}
-      </Container>
-      <Container fluid style={{
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        marginBottom: '20px'
-      }}>
-        <StatusValuesChart/>
-        <StatusValuesChartNotInvoiced/>
-      </Container>
-      <Container fluid style={{
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        marginBottom: '20px'
-      }}>
-        <ExternalServicesChart/>
-        <TransporterOrders/>
-      </Container>
-      <Container fluid style={{
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        marginBottom: '20px'
-      }}>
-        <PrePaymentOrders/>
-        <PrevisonWEChart/>
-      </Container>
+            <StatusValuesChart/>
+            <StatusValuesChartNotInvoiced/>
+          </Container>
+          <Container fluid style={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'space-around',
+            marginBottom: '20px'
+          }}>
+            <ExternalServicesChart/>
+            <TransporterOrders/>
+          </Container>
+          <Container fluid style={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'space-around',
+            marginBottom: '20px'
+          }}>
+            <PrePaymentOrders/>
+            <PrevisonWEChart/>
+        </Container>
+        </>
+      )}
     </>
   );
 }
