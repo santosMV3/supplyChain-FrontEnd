@@ -121,7 +121,7 @@ function CardsHeader() {
                         </span>
                       </div>
                       <Col className="col-auto">
-                        <div className="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
+                        <div className="icon icon-shape bg-gradient-red text-white rounded-circle shadow" style={{width: "43px", height: "43px"}}>
                           <i className="ni ni-money-coins" />
                         </div>
                       </Col>
@@ -150,7 +150,7 @@ function CardsHeader() {
                         </span>
                       </div>
                       <Col className="col-auto">
-                        <div className="icon icon-shape bg-gradient-orange text-white rounded-circle shadow">
+                        <div className="icon icon-shape bg-gradient-orange text-white rounded-circle shadow" style={{width: "43px", height: "43px"}}>
                           <i className="ni ni-money-coins" />
                         </div>
                       </Col>
@@ -177,7 +177,7 @@ function CardsHeader() {
                           </span>
                       </div>
                       <Col className="col-auto">
-                        <div className="icon icon-shape bg-gradient-success text-white rounded-circle shadow">
+                        <div className="icon icon-shape bg-gradient-success text-white rounded-circle shadow" style={{width: "43px", height: "43px"}}>
                           <i className="ni ni-chart-bar-32" />
                         </div>
                       </Col>
@@ -207,7 +207,7 @@ function CardsHeader() {
                           </span>
                       </div>
                       <Col className="col-auto">
-                        <div className="icon icon-shape bg-gradient-primary text-white rounded-circle shadow">
+                        <div className="icon icon-shape bg-gradient-primary text-white rounded-circle shadow" style={{width: "43px", height: "43px"}}>
                           <i className="ni ni-chart-bar-32" />
                         </div>
                       </Col>
