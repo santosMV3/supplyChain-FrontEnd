@@ -772,7 +772,8 @@ const ListLogMap = () => {
                         order.data.fullPage = [order.data.count/40, order.data.count%40];
                         order.data.lastPage = order.data.fullPage[1] > 0 ? parseInt(order.data.fullPage[0])+1:parseInt(order.data.fullPage[0]);
                         setRequisitionUrl(`/logisticMap/`);
-                        return setLogMapData(order.data);
+                        setLogMapData(order.data);
+                        return closeLoaderList();
                     }).catch(console.error);
                     setFilterStats(true);
                     setLogMapData(order.data);
