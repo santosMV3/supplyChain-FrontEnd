@@ -30,10 +30,11 @@ import Select from '@material-ui/core/Select';
 
 import Loader from "../components/custom/loader";
 import LoaderBox from "../components/custom/loader/loaderBox";
+import ProcessBox from '../components/custom/loader/processingLoader';
 
 api.defaults.timeout = 0;
 
-const UploadPage = (idPage) => {
+const UploadPage = () => {
     const [hover, setHover] = useState({
         seletorZZORDER: false,
         seletorLogMap: false
@@ -72,14 +73,23 @@ const UploadPage = (idPage) => {
         color: "primary"
     });
 
+    const [processState, setProcessState] = useState([false]);
+
     const handlerInputFile = (e) => {
         if(e.target.files.length > 0){
+            setProcessState([true, "Reading Excel sheets..."]);
             const file = e.target.files[0];
             file.format = file.name.split('.');
             setUploadData({...uploadData, [e.target.id]: file});
 
-            readFile(file).then((data) => setExcelData({...excelData, [e.target.id]: data}))
-            .catch(console.error);
+            readFile(file).then((data) => {
+                setExcelData({...excelData, [e.target.id]: data});
+                setProcessState([false]);
+            })
+            .catch((error) => {
+                console.error(error);
+                setProcessState([false]);
+            });
         }
     }
 
@@ -108,14 +118,17 @@ const UploadPage = (idPage) => {
                 );
                 if (progress === 100){
                     setStateButtonZZORDER({text: "Saving excel data...", color: "warning"});
+                    setProcessState([true, "Registering ZZORDER data in the database..."]);
                 }
                 setLoaderData({...loaderData, seletorZZORDER: progress});
             }
         })
         .then(() => {
+            e.target.disabled = false;
             setUploadStatus({...uploadStatus, seletorZZORDER: 'stable'});
             setLoaderData({...loaderData, seletorZZORDER: "Upload Success"});
             setStateButtonZZORDER({text: "Upload Success!!!", color: "success"});
+            setProcessState([false]);
             
             api.post('/history/', {
                 idUser: localStorage.getItem("AUTHOR_ID"),
@@ -128,6 +141,7 @@ const UploadPage = (idPage) => {
             setUploadStatus({...uploadStatus, seletorZZORDER: 'unstable'});
             setLoaderData({...loaderData, seletorZZORDER: 100});
             setStateButtonZZORDER({text: "Try again...", color: "danger"});
+            setProcessState([false]);
             e.target.disabled = false;
         });
     }
@@ -136,7 +150,6 @@ const UploadPage = (idPage) => {
         if(uploadData.seletorLogMap === undefined) return window.alert("Choose a BackLog excel file please!");
         if(excelSheet.seletorLogMap === undefined) return window.alert("Choose a sheet in BackLog uploader please!");
         e.target.disabled = true;
-
         setUploadStatus({...uploadStatus, seletorLogMap: 'stable'});
 
         setLoaderData({...loaderData, seletorLogMap: 0});
@@ -151,6 +164,7 @@ const UploadPage = (idPage) => {
                 setLoaderData({...loaderData, seletorLogMap: progress});
                 if(progress === 100) {
                     setStateButtonLogMap({text: "Saving data...", color: "warning"});
+                    setProcessState([true, "Registering LOGMAP data in the database..."]);
                 }
             }
         })
@@ -159,7 +173,7 @@ const UploadPage = (idPage) => {
             setUploadStatus({...uploadStatus, seletorLogMap: 'stable'});
             setLoaderData({...loaderData, seletorLogMap: "Upload Success"});
             setStateButtonLogMap({text: "Upload Success!!!", color: "success"});
-
+            setProcessState([false]);
             api.post('/history/', {
                 idUser: localStorage.getItem("AUTHOR_ID"),
                 page: "Due List",
@@ -171,6 +185,7 @@ const UploadPage = (idPage) => {
             setUploadStatus({...uploadStatus, seletorLogMap: 'unstable'});
             setLoaderData({...loaderData, seletorLogMap: 100});
             setStateButtonLogMap({text: "Try again...", color: "danger"});
+            setProcessState([false]);
             e.target.disabled = false;
         });
     }
@@ -182,6 +197,7 @@ const UploadPage = (idPage) => {
             alignItems: 'center',
             justifyContent: 'center',
         }}>
+            {processState[0]?(<ProcessBox message={processState[1]}/>):null}
             <Form style={{
                 display: "flex",
                 flexDirection: 'column',
@@ -195,7 +211,8 @@ const UploadPage = (idPage) => {
                 height: 'auto',
                 borderRadius: '15px',
                 boxShadow: '0px 0px 5px gray',
-                paddingBottom: '15px'
+                paddingBottom: '15px',
+                display: [processState[0]?"none":"block"]
             }}>
                 <div style={{
                     display: 'flex',
@@ -3501,8 +3518,12 @@ const FinancesPage = () => {
         }}>
             <div style={{
                 float: 'right',
+                width: "100%",
                 marginRight: '1vw',
-                marginBottom: '15px'
+                marginBottom: '15px',
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "flex-end"
             }}>
                 {uploadPage===false?(
                     <Button color="primary" size="sm" onClick={openUploadPage} type="button">
