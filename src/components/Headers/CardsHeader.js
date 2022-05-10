@@ -1,19 +1,3 @@
-/*!
-
-=========================================================
-* Argon Dashboard PRO React - v1.2.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/argon-dashboard-pro-react
-* Copyright 2021 Creative Tim (https://www.creative-tim.com)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
 import React from "react";
 // nodejs library to set properties for components
 import PropTypes from "prop-types";
@@ -28,63 +12,70 @@ import {
 } from "reactstrap";
 import { api } from "services/api";
 
+import InlineLoader from "views/pages/components/custom/loader/inlineLoader";
+
 function CardsHeader() {
   const [billedOrders, setBilledOrders] = React.useState(0);
   const [billedOrdersLoged, setBilledOrdersLoged] = React.useState(0);
   const [billedValues, setBilledValues] = React.useState("R$ 0,00");
   const [billedValuesLogged, setBilledValuesLogged] = React.useState("R$ 0,00");
+  const [loaderState, setLoaderState] = React.useState(true);
 
   React.useEffect(() => {
 
     let abortController = new AbortController();
 
     const getFirstId = () => {
-      api.get("/statusFirst/").then((status) => {
-        api.get(`/statusOrder?idStatus=${status.data.idStatus}`).then((response) => {
+      const loggedUserID = localStorage.getItem('AUTHOR_ID');
+      Promise.all([
+        api.get('/statusFirst/'),
+        api.get(`/users/${loggedUserID}/`),
+        api.get('/statusOrder/'),
+        api.get('/logMapAnalitic/')
+      ])
+      .then((response) => {
+        const fullName = `${response[1].data.first_name} ${response[1].data.last_name}`;
+        let idOrdersStatus = response[2].data.filter((orderStatus) => orderStatus.idStatus === response[0].data.idStatus);
+        idOrdersStatus = idOrdersStatus.map((orderStatus) => orderStatus.idOrder);
+        Promise.all(idOrdersStatus.map((order) => api.get(`/logisticMap/${order}/`)))
+        .then((orders) => {
+          let values = 0;
+          orders.forEach((order) => values+=parseFloat(order.data.openValueLocalCurrency));
+          
+          // #2 KPI
+          setBilledValues(values.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'}));
 
-          Promise.all(response.data.map((order) => api.get(`/logisticMap/${order.idOrder}`))).then((orders) => {
-            let data = orders.map((order) => order.data);
-            data = data.map((order) => Math.abs(parseFloat(order.openValueLocalCurrency)));
-            let totalValue = 0;
-            data.forEach((value) => {
-              totalValue+=value;
-            });
+          // #4 KPI
+          setBilledOrders(parseInt(response[3].data.total) - parseInt(response[2].data.length));
 
-            setBilledValues(totalValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
-          }).catch(console.error);
-          api.get('/logMapAnalitic').then((analitic) => {
-            setBilledOrders(analitic.data.total - response.data.length);
-          }).catch(console.error);
+          let loggedStatusOrders = response[2].data.filter((orderStatus) => orderStatus.idUser === response[1].data.id);
+          loggedStatusOrders = loggedStatusOrders.filter((orderStatus) => orderStatus.idStatus === response[0].data.idStatus);
 
-          const user = localStorage.getItem("AUTHOR_ID");
-
-          api.get(`/statusOrder?idStatus=${status.data.idStatus}&idUser=${user}`).then((logedData) => {
+          Promise.all(loggedStatusOrders.map((orderStatus) => api.get(`/logisticMap/${orderStatus.idOrder}/`)))
+          .then((loggedOrders) => {
             
-            Promise.all(logedData.data.map((order) => api.get(`/logisticMap/${order.idOrder}`))).then((orders) => {
-              let values = orders.map((order) => Math.abs(parseFloat(order.data.openValueLocalCurrency)));
-              let valueTotal = 0;
-
-              values.forEach((value) => {
-                valueTotal+=value;
-              });
-              setBilledValuesLogged(valueTotal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'}));
-            }).catch(console.error);
+            // #1 KPI
+            let loggedValues = 0;
+            loggedOrders.forEach((order) => loggedValues+=parseFloat(order.data.openValueLocalCurrency));
+            setBilledValuesLogged(loggedValues.toLocaleString('pt-BR', {style: 'currency', currency: "BRL"}));
             
-            api.get(`/users/${user}`).then((user) => {
-              user = user.data;
-              const name = `${user.first_name} ${user.last_name}`;
-              api.get(`/logisticMap?competenceName=${name}`).then((orders) => {
-                orders = orders.data;
-                if(orders.count === 0) return setBilledOrdersLoged(orders.count);
-                else {
-                  let count = orders.count;
-                  setBilledOrdersLoged(count);
-                }
-              }).catch(console.error);
-            }).catch(console.error);
-          }).catch(console.error);
-        }).catch(console.error);
-      }).catch(console.error);
+            // #3 KPI
+            api.get(`/logisticMap?competenceName=${fullName}`)
+            .then((orders) => {
+              setBilledOrdersLoged(parseInt(orders.data.count) - parseInt(loggedStatusOrders.length));
+              setLoaderState(false);
+            })
+            .catch(console.error);
+
+          })
+          .catch(console.error);
+        })
+        .catch(console.error);
+
+      })
+      .catch((error) => {
+        console.error(error);
+      })
     }
     getFirstId();
 
@@ -92,6 +83,17 @@ function CardsHeader() {
       abortController.abort();
     }
   }, []);
+
+  const ContainerInlineLoader = () => {
+    return (
+      <div style={{
+        width: "75px",
+        marginLeft: "-10px"
+      }}>
+        <InlineLoader/>
+      </div>
+    )
+  }
 
   return (
     <>
@@ -108,13 +110,14 @@ function CardsHeader() {
                         <CardTitle
                           tag="h5"
                           className="text-uppercase text-muted mb-0"
+                          style={{padding: "0px", margin: "0px"}}
                         >
-                          Invoiced Value by you
+                          Your Invoiced Values
                         </CardTitle>
-                        <span className="h2 font-weight-bold mb-0" style={{
+                        <span className="h1 font-weight-bold mb-0" style={{
                           fontSize: '1.0em'
                         }}>
-                          {billedValuesLogged}
+                          {loaderState?(<ContainerInlineLoader/>):billedValuesLogged}
                         </span>
                       </div>
                       <Col className="col-auto">
@@ -138,11 +141,13 @@ function CardsHeader() {
                           tag="h5"
                           className="text-uppercase text-muted mb-0"
                         >
-                          Total Invoiced Values
+                          All Invoiced Values
                         </CardTitle>
                         <span className="h2 font-weight-bold mb-0" style={{
                           fontSize: '1.0em'
-                        }}>{billedValues}</span>
+                        }}>
+                          {loaderState?(<ContainerInlineLoader/>):billedValues}
+                        </span>
                       </div>
                       <Col className="col-auto">
                         <div className="icon icon-shape bg-gradient-orange text-white rounded-circle shadow">
@@ -167,7 +172,9 @@ function CardsHeader() {
                         >
                           Orders to Invoice
                         </CardTitle>
-                        <span className="h2 font-weight-bold mb-0">{billedOrdersLoged}</span>
+                        <span className="h2 font-weight-bold mb-0">
+                          {loaderState?(<ContainerInlineLoader/>):billedOrdersLoged}
+                          </span>
                       </div>
                       <Col className="col-auto">
                         <div className="icon icon-shape bg-gradient-success text-white rounded-circle shadow">
@@ -195,7 +202,9 @@ function CardsHeader() {
                         >
                           Unvoiced Orders
                         </CardTitle>
-                        <span className="h2 font-weight-bold mb-0">{billedOrders}</span>
+                        <span className="h2 font-weight-bold mb-0">
+                          {loaderState?(<ContainerInlineLoader/>):billedOrders}
+                          </span>
                       </div>
                       <Col className="col-auto">
                         <div className="icon icon-shape bg-gradient-primary text-white rounded-circle shadow">
