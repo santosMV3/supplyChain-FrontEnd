@@ -102,10 +102,11 @@ const CreatePermission = () => {
                         }
                     } else {
                         if(e.target.checked){
-                            setExpanded('true');
+                            setExpanded('');
                             crud.forEach((option) => {
                                 const optionCheck = document.getElementById(e.target.id + option);
-                                optionCheck.disabled = false
+                                optionCheck.checked = true;
+                                optionCheck.disabled = false;
                             });
                         }
                         else {
