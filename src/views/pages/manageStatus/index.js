@@ -332,7 +332,7 @@ const ListStatus = () => {
                                             textAlign: 'center'
                                         }}>
                                             <h3>
-                                                No permissions registered.
+                                                No status registered.
                                             </h3>
                                         </div>
                                     </td>
