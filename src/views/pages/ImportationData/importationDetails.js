@@ -275,7 +275,7 @@ const ImportationDetails = () => {
                                 wordBreak: 'break-word',
                                 width: '150px'
                             }}>
-                                Released for billing
+                                Released to invoice
                             </th>
                             <th/>
                         </tr>
