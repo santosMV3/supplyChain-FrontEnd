@@ -1073,15 +1073,15 @@ const ListLogMap = () => {
             return `${date[2]}/${date[1]}/${date[0]} ${time[0]}:${time[1]}`;
         }
 
-        const firstDate = formatDate(post.firstDate);
-        const schedIDate = formatDate(post.schedIDate);
-        const PCInvoiceDate = formatDate(post.PCInvoiceDate);
-        const previsionTrianom = formatDate(post.previsionTrianom);
-        const confDeliveryDate = formatDate(post.confDeliveryDate);
+        const firstDate = post.firstDate?formatDate(post.firstDate):null;
+        const schedIDate = post.schedIDate?formatDate(post.schedIDate):null;
+        const PCInvoiceDate = post.PCInvoiceDate?formatDate(post.PCInvoiceDate):null;
+        const previsionTrianom = post.previsionTrianom?formatDate(post.previsionTrianom):null;
+        const confDeliveryDate = post.confDeliveryDate?formatDate(post.confDeliveryDate):null;
         const statusOrderDate = statusOrder.length > 0 ? formatDateTime(statusOrder[0].Date) : null;
 
-        const [releaseDateExternal, setReleaseDateExternal] = useState(post.releaseDate != null ? formatDate(post.releaseDate) : null);
-        const [previsionDate, setPrevisionDate] = useState(post.previsionDate != null ? formatDate(post.previsionDate) : null);
+        const [releaseDateExternal, setReleaseDateExternal] = useState(post.releaseDate ? formatDate(post.releaseDate) : null);
+        const [previsionDate, setPrevisionDate] = useState(post.previsionDate ? formatDate(post.previsionDate) : null);
         const [supplier, setSupplier] = useState(post.supplier);
         const [returnDays, setReturnDays] = useState(post.returnDays);
 
@@ -1096,8 +1096,8 @@ const ListLogMap = () => {
                 releaseDate: `${releaseDateTime}`,
             }).then((response) => {
                 window.alert("Success to update the External Service");
-                setReleaseDateExternal(formatDate(response.data.releaseDate));
-                setPrevisionDate(formatDate(response.data.prevision));
+                if (response.data.releaseDate) setReleaseDateExternal(formatDate(response.data.releaseDate));
+                if (response.data.prevision) setPrevisionDate(formatDate(response.data.prevision));
                 setSupplier(response.data.supplier);
                 setReturnDays(response.data.returnDays);
                 closeExternalMode();
