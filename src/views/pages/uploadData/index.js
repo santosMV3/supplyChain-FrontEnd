@@ -856,6 +856,8 @@ const ListLogMap = () => {
 
     const searchField = () => {
         try {
+            openLoaderList()
+            closeFilter()
             api.get(`/logisticMap/?${searchFilter.field}=${searchFilter.value}`).then((response) => {
                 response.data.page = 1;
                 response.data.fullPage = [response.data.count / 40, response.data.count % 40];
@@ -863,9 +865,14 @@ const ListLogMap = () => {
                 setLogMapData(response.data);
                 setFilterStats(true);
                 setRequisitionUrl(`/logisticMap/?${searchFilter.field}=${searchFilter.value}`);
-            }).catch(console.error);
+                return closeLoaderList();
+            }).catch((error) => {
+                console.error(error);
+                return closeLoaderList();
+            });
         } catch (error) {
             console.error(error);
+            return closeLoaderList()
         }
     }
 
@@ -3496,7 +3503,7 @@ const ListLogMap = () => {
                 justifyContent: 'center'
             }}>
                 <nav aria-label="...">
-                    {logMapData !== undefined ? (
+                    {logMapData !== undefined && !loaderList ? (
                         <>
                             {logMapData.count > 0 ? (
                                 <Pagination>
