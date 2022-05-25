@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 
 import {
     Button,
@@ -24,9 +24,10 @@ import {
 
 import "./components/style.css";
 
-import { api } from 'services/api';
+import {api} from 'services/api';
 
-import { Accordion,
+import {
+    Accordion,
     AccordionSummary,
     AccordionDetails,
     FormControlLabel,
@@ -35,24 +36,24 @@ import { Accordion,
     Backdrop,
     makeStyles
 } from '@material-ui/core';
-import { ExpandMore } from '@material-ui/icons';
+import {ExpandMore} from '@material-ui/icons';
 import {DangerAlert} from '../components/custom/alerts/index'
 import CreatePermission from './create';
 
 const useStyles = makeStyles((theme) => ({
     modal: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     paper: {
-      backgroundColor: theme.palette.background.paper,
-      boxShadow: theme.shadows[5],
-      borderRadius: '10px',
-      width: '40vw',
-      minHeight: '25vh',
-      height: 'auto',
-      overflow: 'hidden'
+        backgroundColor: theme.palette.background.paper,
+        boxShadow: theme.shadows[5],
+        borderRadius: '10px',
+        width: '40vw',
+        minHeight: '25vh',
+        height: 'auto',
+        overflow: 'hidden'
     },
 }));
 
@@ -92,12 +93,12 @@ const ListPermissions = () => {
         setRegisterState(false);
     };
 
-    const PageItem = ( {post} ) => {
+    const PageItem = ({post}) => {
         const pageData = post.split('.');
         const pagePermissions = pageData[1];
 
         const [pageState, setPagesState] = useState([]);
-          
+
         useEffect(() => {
             let abortController = new AbortController();
             const getPage = async () => {
@@ -111,81 +112,81 @@ const ListPermissions = () => {
             }
             getPage();
             return () => abortController.abort();
-        },[]);
-            
-    return (
-        <ListGroupItem style={{
-            width: "100%",
-            height: "70px",
-            padding: "0",
-            marginBottom: '5px',
-            overflow: "hidden",
-            borderRadius: '5px',
-            boxShadow: "0px 0px 5px gray"
-        }}>
-            <div style={{
+        }, []);
+
+        return (
+            <ListGroupItem style={{
                 width: "100%",
-                fontSize: "1.0em",
-                boxSizing: "border-box",
-                padding: "3px 10px",
-                marginBottom: "5px"
+                height: "70px",
+                padding: "0",
+                marginBottom: '5px',
+                overflow: "hidden",
+                borderRadius: '5px',
+                boxShadow: "0px 0px 5px gray"
             }}>
-                <span style={{fontWeight: "bold"}}>Page:</span> {pageState.name}
-            </div>
-            <div style={{
-                display: "flex",
-                justifyContent: "space-around"
-            }}>
-                <div className="custom-control custom-checkbox">
-                    <input
-                        className="custom-control-input"
-                        type="checkbox"
-                        disabled="true"
-                        checked={pagePermissions?pagePermissions.includes('v'):false}
-                    />
-                    <label className="custom-control-label">
-                        View
-                    </label>
+                <div style={{
+                    width: "100%",
+                    fontSize: "1.0em",
+                    boxSizing: "border-box",
+                    padding: "3px 10px",
+                    marginBottom: "5px"
+                }}>
+                    <span style={{fontWeight: "bold"}}>Page:</span> {pageState.name}
                 </div>
-                <div className="custom-control custom-checkbox">
-                    <input
-                        className="custom-control-input"
-                        type="checkbox"
-                        disabled="true"
-                        checked={pagePermissions?pagePermissions.includes('c'):false}
-                    />
-                    <label className="custom-control-label">
-                        Create
-                    </label>
+                <div style={{
+                    display: "flex",
+                    justifyContent: "space-around"
+                }}>
+                    <div className="custom-control custom-checkbox">
+                        <input
+                            className="custom-control-input"
+                            type="checkbox"
+                            disabled="true"
+                            checked={pagePermissions ? pagePermissions.includes('v') : false}
+                        />
+                        <label className="custom-control-label">
+                            View
+                        </label>
+                    </div>
+                    <div className="custom-control custom-checkbox">
+                        <input
+                            className="custom-control-input"
+                            type="checkbox"
+                            disabled="true"
+                            checked={pagePermissions ? pagePermissions.includes('c') : false}
+                        />
+                        <label className="custom-control-label">
+                            Create
+                        </label>
+                    </div>
+                    <div className="custom-control custom-checkbox">
+                        <input
+                            className="custom-control-input"
+                            type="checkbox"
+                            disabled="true"
+                            checked={pagePermissions ? pagePermissions.includes('e') : false}
+                        />
+                        <label className="custom-control-label">
+                            Edit
+                        </label>
+                    </div>
+                    <div className="custom-control custom-checkbox">
+                        <input
+                            className="custom-control-input"
+                            type="checkbox"
+                            disabled="true"
+                            checked={pagePermissions ? pagePermissions.includes('d') : false}
+                        />
+                        <label className="custom-control-label">
+                            Delete
+                        </label>
+                    </div>
                 </div>
-                <div className="custom-control custom-checkbox">
-                    <input
-                        className="custom-control-input"
-                        type="checkbox"
-                        disabled="true"
-                        checked={pagePermissions?pagePermissions.includes('e'):false}
-                    />
-                    <label className="custom-control-label">
-                        Edit
-                    </label>
-                </div>
-                <div className="custom-control custom-checkbox">
-                    <input
-                        className="custom-control-input"
-                        type="checkbox"
-                        disabled="true"
-                        checked={pagePermissions?pagePermissions.includes('d'):false}
-                    />
-                    <label className="custom-control-label">
-                        Delete
-                    </label>
-                </div>
-            </div>
-        </ListGroupItem>
+            </ListGroupItem>
         )
     }
 
-    const PermissionItem = ({ post }) => {
+    const PermissionItem = ({post}) => {
         const classes = useStyles();
         const [open, setOpen] = useState(false);
         const handleOpen = () => setOpen(true);
@@ -195,7 +196,7 @@ const ListPermissions = () => {
             status: false,
             message: ""
         });
-        const openDangerAlert = (msg="DANGER!!!") => setDangerAlert({status: true, message: msg});
+        const openDangerAlert = (msg = "DANGER!!!") => setDangerAlert({status: true, message: msg});
         const closeDangerAlert = () => setDangerAlert({status: false});
 
         const postDate = post.createdAt.split('-');
@@ -221,34 +222,33 @@ const ListPermissions = () => {
                 return () => abortController.abort();
             }, []);
 
-            const PageInput = ({ post, data }) => {
+            const PageInput = ({post, data}) => {
                 let pageData = ['-2'];
                 data.forEach((page) => {
-                    if(page.includes(post.idPage)) pageData = page;
+                    if (page.includes(post.idPage)) pageData = page;
                 });
-                if(pageData[0]!== '-2') pageData = pageData.split('.');
+                if (pageData[0] !== '-2') pageData = pageData.split('.');
 
                 const [expanded, setExpanded] = useState('');
                 const handlerExpand = (e) => {
                     const crud = ['view', 'create', 'edit', 'delete'];
 
-                    if ((e.target.id).toLowerCase() === "admin"){
+                    if ((e.target.id).toLowerCase() === "admin") {
                         const inputPages = [].slice.call(document.getElementsByClassName('pageInput'));
-                        if (e.target.checked === true){
+                        if (e.target.checked === true) {
                             inputPages.forEach((page) => {
-                                page.checked=true;
-                                if(page.id !== "admin") page.disabled=true
+                                page.checked = true;
+                                if (page.id !== "admin") page.disabled = true
 
                                 crud.forEach((option) => {
                                     const optionCheck = document.getElementById(page.id + option);
                                     optionCheck.checked = true;
                                 });
                             });
-                        }
-                        else {
+                        } else {
                             inputPages.forEach((page) => {
-                                page.checked=false;
-                                if(page.id !== "admin") page.disabled=false
+                                page.checked = false;
+                                if (page.id !== "admin") page.disabled = false
                                 crud.forEach((option) => {
                                     const optionCheck = document.getElementById(page.id + option);
                                     optionCheck.checked = false;
@@ -256,19 +256,19 @@ const ListPermissions = () => {
                             });
                         }
                     } else {
-                        if(e.target.checked){
-                            setExpanded('true');
-                            crud.forEach((option) => {
-                                const optionCheck = document.getElementById(e.target.id + option);
-                                optionCheck.disabled = false
-                            });
-                        }
-                        else {
+                        if (e.target.checked) {
                             setExpanded('');
                             crud.forEach((option) => {
                                 const optionCheck = document.getElementById(e.target.id + option);
-                                optionCheck.checked = false
-                                optionCheck.disabled = true
+                                optionCheck.disabled = false;
+                                optionCheck.checked = true;
+                            });
+                        } else {
+                            setExpanded('');
+                            crud.forEach((option) => {
+                                const optionCheck = document.getElementById(e.target.id + option);
+                                optionCheck.checked = false;
+                                optionCheck.disabled = true;
                             });
                         }
                     }
@@ -304,79 +304,80 @@ const ListPermissions = () => {
                                             {post.name}
                                         </h4>
                                     </div>
-                                    <FormControlLabel 
+                                    <FormControlLabel
                                         onClick={(event) => event.stopPropagation()}
                                         onFocus={(event) => event.stopPropagation()}
-                                        style={{margin:'0'}}
+                                        style={{margin: '0'}}
                                         control={
-                                        <Col className="col-auto" style={{padding: '0'}}>
-                                            <label className="custom-toggle">
-                                                <input  type="checkbox" onChange={handlerExpand} value={post.idPage} className="pageInput" id={post.name}/>
-                                                <span
-                                                    className="custom-toggle-slider rounded-circle"
-                                                    data-label-off="No"
-                                                    data-label-on="Yes"
-                                                />
-                                            </label>
-                                        </Col>
+                                            <Col className="col-auto" style={{padding: '0'}}>
+                                                <label className="custom-toggle">
+                                                    <input type="checkbox" onChange={handlerExpand} value={post.idPage}
+                                                           className="pageInput" id={post.name}/>
+                                                    <span
+                                                        className="custom-toggle-slider rounded-circle"
+                                                        data-label-off="No"
+                                                        data-label-on="Yes"
+                                                    />
+                                                </label>
+                                            </Col>
                                         }
                                     />
                                 </AccordionSummary>
-                                <AccordionDetails style={{backgroundColor: "#fcfcfc", userSelect:"none"}}>
-                                <div style={{
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    justifyContent: "space-around"
-                                }}>
-                                    <div className="custom-control custom-checkbox">
-                                        <input
-                                            className="custom-control-input"
-                                            id={post.name+"view"}
-                                            type="checkbox"
-                                            value="v"
-                                            disabled="true"
-                                        />
-                                        <label className="custom-control-label" htmlFor={post.name+"view"}>
-                                            View
-                                        </label>
+                                <AccordionDetails style={{backgroundColor: "#fcfcfc", userSelect: "none"}}>
+                                    <div style={{
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        justifyContent: "space-around"
+                                    }}>
+                                        <div className="custom-control custom-checkbox">
+                                            <input
+                                                className="custom-control-input"
+                                                id={post.name + "view"}
+                                                type="checkbox"
+                                                value="v"
+                                                disabled="true"
+                                            />
+                                            <label className="custom-control-label" htmlFor={post.name + "view"}>
+                                                View
+                                            </label>
+                                        </div>
+                                        <div className="custom-control custom-checkbox">
+                                            <input
+                                                className="custom-control-input"
+                                                id={post.name + "create"}
+                                                type="checkbox"
+                                                value="c"
+                                                disabled="true"
+                                            />
+                                            <label className="custom-control-label" htmlFor={post.name + "create"}>
+                                                Create
+                                            </label>
+                                        </div>
+                                        <div className="custom-control custom-checkbox">
+                                            <input
+                                                className="custom-control-input"
+                                                id={post.name + "edit"}
+                                                type="checkbox"
+                                                value="e"
+                                                disabled="true"
+                                            />
+                                            <label className="custom-control-label" htmlFor={post.name + "edit"}>
+                                                Edit
+                                            </label>
+                                        </div>
+                                        <div className="custom-control custom-checkbox">
+                                            <input
+                                                className="custom-control-input"
+                                                id={post.name + "delete"}
+                                                type="checkbox"
+                                                value="d"
+                                                disabled="true"
+                                            />
+                                            <label className="custom-control-label" htmlFor={post.name + "delete"}>
+                                                Delete
+                                            </label>
+                                        </div>
                                     </div>
-                                    <div className="custom-control custom-checkbox">
-                                        <input
-                                            className="custom-control-input"
-                                            id={post.name+"create"}
-                                            type="checkbox"
-                                            value="c"
-                                            disabled="true"
-                                        />
-                                        <label className="custom-control-label" htmlFor={post.name+"create"}>
-                                            Create
-                                        </label>
-                                    </div>
-                                    <div className="custom-control custom-checkbox">
-                                        <input
-                                            className="custom-control-input"
-                                            id={post.name+"edit"}
-                                            type="checkbox"
-                                            value="e"
-                                            disabled="true"
-                                        />
-                                        <label className="custom-control-label" htmlFor={post.name+"edit"}>
-                                            Edit
-                                        </label>
-                                    </div>
-                                    <div className="custom-control custom-checkbox">
-                                        <input
-                                            className="custom-control-input"
-                                            id={post.name+"delete"}
-                                            type="checkbox"
-                                            value="d"
-                                            disabled="true"
-                                        />
-                                        <label className="custom-control-label" htmlFor={post.name+"delete"}>
-                                            Delete
-                                        </label>
-                                    </div>
-                                </div>
                                 </AccordionDetails>
                             </Accordion>
                         </div>
@@ -387,36 +388,36 @@ const ListPermissions = () => {
             const executeCreate = (e) => {
                 e.preventDefault();
                 let permissions = "";
-        
+
                 const inputPages = [].slice.call(document.getElementsByClassName('pageInput'));
-        
+
                 inputPages.forEach((input) => {
-                    if (input.checked === true){
+                    if (input.checked === true) {
                         const crud = ['view', 'create', 'edit', 'delete'];
                         let subPermissions = "";
                         crud.forEach((option) => {
                             const optionCheck = document.getElementById(input.id + option);
-                            if(optionCheck.checked === true){
+                            if (optionCheck.checked === true) {
                                 subPermissions += optionCheck.value;
                             }
                         });
-                        permissions+=`${input.value}.${subPermissions},`;
+                        permissions += `${input.value}.${subPermissions},`;
                     }
                 });
-        
-                permissions = permissions.slice(0, permissions.length-1);
+
+                permissions = permissions.slice(0, permissions.length - 1);
                 if (permissions === "") return window.alert("Selecione alguma permissão.");
-        
+
                 permissionsState.name = document.getElementById('name').value;
                 permissionsState.idPages = permissions
 
-        
+
                 api.patch(`/permissions/${post.idPermission}/`, permissionsState).then(() => {
                     window.alert("Permission has updated successfully!");
                     getPermissions();
                     handleClose();
                 }).catch(console.error);
-                
+
             }
 
             return (
@@ -429,17 +430,17 @@ const ListPermissions = () => {
                     closeAfterTransition
                     BackdropComponent={Backdrop}
                     BackdropProps={{
-                    timeout: 500,
+                        timeout: 500,
                     }}
                 >
                     <Fade in={open}>
                         <div className={classes.paper}>
-                            <Navbar className="navbar-horizontal navbar-dark bg-default"expand="lg" style={{
+                            <Navbar className="navbar-horizontal navbar-dark bg-default" expand="lg" style={{
                                 width: '100%',
                                 height: '50px'
                             }}>
                                 <Container>
-                                    <NavbarBrand style={{cursor: 'default', userSelect:'none'}}>
+                                    <NavbarBrand style={{cursor: 'default', userSelect: 'none'}}>
                                         Edit Permission
                                     </NavbarBrand>
                                     <Button color="danger" size="sm" type="button" onClick={handleClose}>
@@ -451,18 +452,18 @@ const ListPermissions = () => {
                                 <Form role="form" onSubmit={executeCreate}>
                                     <FormGroup>
                                         <InputGroup className="input-group-merge input-group-alternative mb-3">
-                                        <InputGroupAddon addonType="prepend">
-                                            <InputGroupText>
-                                            <i className="ni ni-hat-3" />
-                                            </InputGroupText>
-                                        </InputGroupAddon>
-                                        <Input
-                                            placeholder="Name:"
-                                            type="text"
-                                            id="name"
-                                            required
-                                            defaultValue={post.name}
-                                        />
+                                            <InputGroupAddon addonType="prepend">
+                                                <InputGroupText>
+                                                    <i className="ni ni-hat-3"/>
+                                                </InputGroupText>
+                                            </InputGroupAddon>
+                                            <Input
+                                                placeholder="Name:"
+                                                type="text"
+                                                id="name"
+                                                required
+                                                defaultValue={post.name}
+                                            />
                                         </InputGroup>
                                     </FormGroup>
                                     <div style={{
@@ -478,7 +479,8 @@ const ListPermissions = () => {
                                         <div style={{
                                             width: '220px'
                                         }}>
-                                            {pagesState.map((data, index) => (<PageInput key={`pageinput-${index}`} post={data} data={pageData}/>))}
+                                            {pagesState.map((data, index) => (
+                                                <PageInput key={`pageinput-${index}`} post={data} data={pageData}/>))}
                                         </div>
                                     </div>
                                     <div className="text-center">
@@ -496,27 +498,26 @@ const ListPermissions = () => {
 
         const ConfirmDeleteModal = (e) => {
             api.get(`/user-permission/?idPermission=${post.idPermission}`)
-            .then( async (response) => {
-                if(response.data.length > 0){
-                    e.target.disabled = true;
-                    Promise.all(response.data.map((permissionUser) => api.get(`/users/${permissionUser.idUser}/`)))
-                    .then((users) => {
-                        users = users.map((user) => user.data);
-                        const namesData = users.map((user) => user.first_name!==undefined?user.first_name+ " " + user.last_name:user.username);
-                        openDangerAlert(`Users are using this permission. (${namesData.length})`);
-                    })
-                    .catch(console.error);
-                }
-                else {
-                    if(window.confirm('Do you want to delete this permission?')){
-                        api.delete(`/permissions/${post.idPermission}/`).then(() => {
-                            getPermissions();
-                            window.alert('Permission deleted has successfully.');
-                        }).catch(console.error);
+                .then(async (response) => {
+                    if (response.data.length > 0) {
+                        e.target.disabled = true;
+                        Promise.all(response.data.map((permissionUser) => api.get(`/users/${permissionUser.idUser}/`)))
+                            .then((users) => {
+                                users = users.map((user) => user.data);
+                                const namesData = users.map((user) => user.first_name !== undefined ? user.first_name + " " + user.last_name : user.username);
+                                openDangerAlert(`Users are using this permission. (${namesData.length})`);
+                            })
+                            .catch(console.error);
+                    } else {
+                        if (window.confirm('Do you want to delete this permission?')) {
+                            api.delete(`/permissions/${post.idPermission}/`).then(() => {
+                                getPermissions();
+                                window.alert('Permission deleted has successfully.');
+                            }).catch(console.error);
+                        }
                     }
-                }
-            })
-            .catch(console.error);
+                })
+                .catch(console.error);
         }
 
         return (
@@ -534,29 +535,29 @@ const ListPermissions = () => {
                                 {post.name}
                             </h4>
                         </div>
-                        <FormControlLabel 
+                        <FormControlLabel
                             onClick={(event) => event.stopPropagation()}
                             onFocus={(event) => event.stopPropagation()}
-                            style={{margin:'0'}}
+                            style={{margin: '0'}}
                             control={
-                            <Col className="col-auto" style={{padding: '0'}}>
-                                <Button color="success" outline size="sm" type="button" onClick={handleOpen}>
-                                    Edit
-                                </Button>
-                                <EditPermissionsModal/>
-                            </Col>
+                                <Col className="col-auto" style={{padding: '0'}}>
+                                    <Button color="success" outline size="sm" type="button" onClick={handleOpen}>
+                                        Edit
+                                    </Button>
+                                    <EditPermissionsModal/>
+                                </Col>
                             }
                         />
-                        <FormControlLabel 
+                        <FormControlLabel
                             onClick={(event) => event.stopPropagation()}
                             onFocus={(event) => event.stopPropagation()}
-                            style={{margin:'0'}}
+                            style={{margin: '0'}}
                             control={
-                            <Col className="col-auto" style={{padding: '5'}}>
-                                <Button color="danger" outline size="sm" type="button" onClick={ConfirmDeleteModal}>
-                                    Delete
-                                </Button>
-                            </Col>
+                                <Col className="col-auto" style={{padding: '5'}}>
+                                    <Button color="danger" outline size="sm" type="button" onClick={ConfirmDeleteModal}>
+                                        Delete
+                                    </Button>
+                                </Col>
                             }
                         />
                     </AccordionSummary>
@@ -569,15 +570,15 @@ const ListPermissions = () => {
                                 textAlign: 'center',
                                 color: '#fff'
                             }}>
-                                <span style={{fontWeight:"bold"}}>Created:</span> {localDate}
+                                <span style={{fontWeight: "bold"}}>Created:</span> {localDate}
                             </OtherInfo>
                         </BodyInfo>
                     </AccordionDetails>
                 </Accordion>
                 <DangerAlert
-                open={dangerAlert.status}
-                onClose={closeDangerAlert}
-                message={dangerAlert.message}/>
+                    open={dangerAlert.status}
+                    onClose={closeDangerAlert}
+                    message={dangerAlert.message}/>
             </ListGroupItem>
         )
     }
@@ -594,19 +595,19 @@ const ListPermissions = () => {
                 boxSizing: "border-box",
                 padding: '0 15px'
             }}>
-                {registerState?(
+                {registerState ? (
                     <Button color="danger" onClick={closeRegister} size="sm" type="button">
                         Close
                     </Button>
-                ):(
+                ) : (
                     <Button color="primary" onClick={openRegister} size="sm" type="button">
                         New Permission
                     </Button>
                 )}
             </div>
-            {registerState?(
-                <CreatePermission/>
-            ):(
+            {registerState ? (
+                <CreatePermission closeCreate={closeRegister}/>
+            ) : (
                 <Container style={{
                     width: "inherit",
                     height: "450px",
@@ -619,7 +620,8 @@ const ListPermissions = () => {
                         overflowX: 'hidden',
                         padding: '5px',
                     }}>
-                        {permissionsState.length>0 ? permissionsState.map((post, index) => (<PermissionItem key={`permission-${index}`} post={post}/>)):(
+                        {permissionsState.length > 0 ? permissionsState.map((post, index) => (
+                            <PermissionItem key={`permission-${index}`} post={post}/>)) : (
                             <h2 style={{textAlign: "center", marginTop: "10px"}}>Nenhuma permissão cadastrada.</h2>
                         )}
                     </ListGroup>
