@@ -810,18 +810,22 @@ const ListLogMap = () => {
     }, []);
 
     const getData = (pageUrl) => {
+        openLoaderList();
         try {
             if (pageUrl.search('page') !== -1) {
-                const page = pageUrl.split('?');
-                const pageNumber = page[1].split('=');
+                const page = pageUrl.split('page=');
+                const pageNumber = page[1];
 
-                api.get(`/logisticMap/?${page[1]}`).then((response) => {
-                    response.data.page = pageNumber[1];
+                api.get(`${page[0]}page=${page[1]}`).then((response) => {
+                    response.data.page = pageNumber;
                     response.data.fullPage = [response.data.count / 40, response.data.count % 40];
                     response.data.lastPage = response.data.fullPage[1] > 0 ? parseInt(response.data.fullPage[0]) + 1 : parseInt(response.data.fullPage[0]);
                     setLogMapData(response.data);
-                    setRequisitionUrl(`/logisticMap/?${page[1]}`);
-                }).catch(console.error);
+                    closeLoaderList();
+                }).catch((error) => {
+                    console.error(error);
+                    closeLoaderList();
+                });
             } else {
                 try {
                     api.get(`/logisticMap/`).then((response) => {
@@ -829,28 +833,40 @@ const ListLogMap = () => {
                         response.data.fullPage = [response.data.count / 100, response.data.count % 100];
                         setLogMapData(response.data);
                         setRequisitionUrl(`/logisticMap/`);
+                        closeLoaderList();
                         return false;
-                    }).catch(console.error);
+                    }).catch((error) => {
+                        console.error(error);
+                        closeLoaderList();
+                    });
                 } catch (error) {
                     console.error(error);
+                    closeLoaderList();
                 }
             }
         } catch (error) {
             console.error(error);
+            closeLoaderList();
         }
     };
 
     const goToPage = (page) => {
         try {
+            openLoaderList();
             api.get(`/logisticMap/?page=${page}`).then((response) => {
                 response.data.page = page;
                 response.data.fullPage = [response.data.count / 40, response.data.count % 40];
                 response.data.lastPage = response.data.fullPage[1] > 0 ? parseInt(response.data.fullPage[0]) + 1 : parseInt(response.data.fullPage[0]);
                 setLogMapData(response.data);
                 setRequisitionUrl(`/logisticMap/?page=${page}`);
-            }).catch(console.error);
+                closeLoaderList();
+            }).catch((error) => {
+                console.error(error);
+                closeLoaderList();
+            });
         } catch (error) {
             console.error(error);
+            closeLoaderList();
         }
     }
 
@@ -1080,11 +1096,11 @@ const ListLogMap = () => {
             return `${date[2]}/${date[1]}/${date[0]} ${time[0]}:${time[1]}`;
         }
 
-        const firstDate = post.firstDate?formatDate(post.firstDate):null;
-        const schedIDate = post.schedIDate?formatDate(post.schedIDate):null;
-        const PCInvoiceDate = post.PCInvoiceDate?formatDate(post.PCInvoiceDate):null;
-        const previsionTrianom = post.previsionTrianom?formatDate(post.previsionTrianom):null;
-        const confDeliveryDate = post.confDeliveryDate?formatDate(post.confDeliveryDate):null;
+        const firstDate = post.firstDate ? formatDate(post.firstDate) : null;
+        const schedIDate = post.schedIDate ? formatDate(post.schedIDate) : null;
+        const PCInvoiceDate = post.PCInvoiceDate ? formatDate(post.PCInvoiceDate) : null;
+        const previsionTrianom = post.previsionTrianom ? formatDate(post.previsionTrianom) : null;
+        const confDeliveryDate = post.confDeliveryDate ? formatDate(post.confDeliveryDate) : null;
         const statusOrderDate = statusOrder.length > 0 ? formatDateTime(statusOrder[0].Date) : null;
 
         const [releaseDateExternal, setReleaseDateExternal] = useState(post.releaseDate ? formatDate(post.releaseDate) : null);
@@ -1437,40 +1453,42 @@ const ListLogMap = () => {
                                     </>
                                 ) : (
                                     <>
-                                        {loaderItem ? (
-                                            <div style={{
-                                                width: "50px",
-                                                height: "26px"
-                                            }}>
-                                                <Loader/>
-                                            </div>
-                                        ) : (
-                                            <div style={{
-                                                display: 'flex',
-                                                flexDirection: "row"
-                                            }}>
-                                                {status !== undefined ? (
-                                                    <>
-                                                        <Button style={{
-                                                            textOverflow: 'ellipsis',
-                                                            maxWidth: '10ch',
-                                                            overflow: 'hidden'
-                                                        }} size="sm" id={"status" + index} onClick={openStatus}
-                                                                color="default">
-                                                            {status[0]}
+                                        <div style={{
+                                            display: 'flex',
+                                            flexDirection: "row"
+                                        }}>
+                                            {loaderItem ? (
+                                                <div style={{
+                                                    width: "50px",
+                                                    height: "26px"
+                                                }}>
+                                                    <Loader/>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    {status !== undefined ? (
+                                                        <>
+                                                            <Button style={{
+                                                                textOverflow: 'ellipsis',
+                                                                maxWidth: '10ch',
+                                                                overflow: 'hidden'
+                                                            }} size="sm" id={"status" + index} onClick={openStatus}
+                                                                    color="default">
+                                                                {status[0]}
+                                                            </Button>
+                                                        </>
+                                                    ) : (
+                                                        <Button size="sm" onClick={openStatus} color="primary">
+                                                            Add Status
                                                         </Button>
-                                                    </>
-                                                ) : (
-                                                    <Button size="sm" onClick={openStatus} color="primary">
-                                                        Add Status
-                                                    </Button>
-                                                )}
-                                                <Button size="sm" color="primary" id={"expand" + index}
-                                                        onClick={openModal}>
-                                                    ...
-                                                </Button>
-                                            </div>
-                                        )}
+                                                    )}
+                                                </>
+                                            )}
+                                            <Button size="sm" color="primary" id={"expand" + index}
+                                                    onClick={openModal}>
+                                                ...
+                                            </Button>
+                                        </div>
                                     </>
                                 )}
                             </Media>
