@@ -21,64 +21,72 @@ function CardsHeader() {
   const [billedValuesLogged, setBilledValuesLogged] = React.useState("R$ 0,00");
   const [loaderState, setLoaderState] = React.useState(true);
 
-  React.useEffect(() => {
+  const getKPIsData = () => {
+    const loggedUserID = localStorage.getItem('AUTHOR_ID');
+    Promise.all([
+      api.get('/statusFirst/'),
+      api.get(`/users/${loggedUserID}/`),
+      api.get('/statusOrder/'),
+      api.get('/logMapAnalitic/')
+    ])
+        .then((response) => {
+          const fullName = `${response[1].data.first_name} ${response[1].data.last_name}`;
+          let idOrdersStatus = response[2].data.filter((orderStatus) => orderStatus.idStatus === response[0].data.idStatus);
+          idOrdersStatus = idOrdersStatus.map((orderStatus) => orderStatus.idOrder);
+          Promise.all(idOrdersStatus.map((order) => api.get(`/logisticMap/${order}/`)))
+              .then((orders) => {
+                let values = 0;
+                orders.forEach((order) => values+=parseFloat(order.data.openValueLocalCurrency));
 
-    let abortController = new AbortController();
+                // #2 KPI
+                setBilledValues(values.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'}));
 
-    const getFirstId = () => {
-      const loggedUserID = localStorage.getItem('AUTHOR_ID');
-      Promise.all([
-        api.get('/statusFirst/'),
-        api.get(`/users/${loggedUserID}/`),
-        api.get('/statusOrder/'),
-        api.get('/logMapAnalitic/')
-      ])
-      .then((response) => {
-        const fullName = `${response[1].data.first_name} ${response[1].data.last_name}`;
-        let idOrdersStatus = response[2].data.filter((orderStatus) => orderStatus.idStatus === response[0].data.idStatus);
-        idOrdersStatus = idOrdersStatus.map((orderStatus) => orderStatus.idOrder);
-        Promise.all(idOrdersStatus.map((order) => api.get(`/logisticMap/${order}/`)))
-        .then((orders) => {
-          let values = 0;
-          orders.forEach((order) => values+=parseFloat(order.data.openValueLocalCurrency));
-          
-          // #2 KPI
-          setBilledValues(values.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'}));
+                // #4 KPI
+                setBilledOrders(parseInt(response[3].data.total) - parseInt(response[2].data.length));
 
-          // #4 KPI
-          setBilledOrders(parseInt(response[3].data.total) - parseInt(response[2].data.length));
+                let loggedStatusOrders = response[2].data.filter((orderStatus) => orderStatus.idUser === response[1].data.id);
+                loggedStatusOrders = loggedStatusOrders.filter((orderStatus) => orderStatus.idStatus === response[0].data.idStatus);
 
-          let loggedStatusOrders = response[2].data.filter((orderStatus) => orderStatus.idUser === response[1].data.id);
-          loggedStatusOrders = loggedStatusOrders.filter((orderStatus) => orderStatus.idStatus === response[0].data.idStatus);
+                Promise.all(loggedStatusOrders.map((orderStatus) => api.get(`/logisticMap/${orderStatus.idOrder}/`)))
+                    .then((loggedOrders) => {
 
-          Promise.all(loggedStatusOrders.map((orderStatus) => api.get(`/logisticMap/${orderStatus.idOrder}/`)))
-          .then((loggedOrders) => {
-            
-            // #1 KPI
-            let loggedValues = 0;
-            loggedOrders.forEach((order) => loggedValues+=parseFloat(order.data.openValueLocalCurrency));
-            setBilledValuesLogged(loggedValues.toLocaleString('pt-BR', {style: 'currency', currency: "BRL"}));
-            
-            // #3 KPI
-            api.get(`/logisticMap?competenceName=${fullName}`)
-            .then((orders) => {
-              setBilledOrdersLoged(parseInt(orders.data.count) - parseInt(loggedStatusOrders.length));
-              setLoaderState(false);
-            })
-            .catch(console.error);
+                      // #1 KPI
+                      let loggedValues = 0;
+                      loggedOrders.forEach((order) => loggedValues+=parseFloat(order.data.openValueLocalCurrency));
+                      setBilledValuesLogged(loggedValues.toLocaleString('pt-BR', {style: 'currency', currency: "BRL"}));
 
-          })
-          .catch(console.error);
+                      // #3 KPI
+                      api.get(`/logisticMap?competenceName=${fullName}`)
+                          .then((orders) => {
+                            setBilledOrdersLoged(parseInt(orders.data.count) - parseInt(loggedStatusOrders.length));
+                            setLoaderState(false);
+                          })
+                          .catch((error) => {
+                            console.error(error);
+                            setLoaderState(false);
+                          });
+
+                    })
+                    .catch((error) => {
+                      console.error(error);
+                      setLoaderState(false);
+                    });
+              })
+              .catch((error) => {
+                console.error(error);
+                setLoaderState(false);
+              });
+
         })
-        .catch(console.error);
+        .catch((error) => {
+          console.error(error);
+          setLoaderState(false);
+        });
+  }
 
-      })
-      .catch((error) => {
-        console.error(error);
-      })
-    }
-    getFirstId();
-
+  React.useEffect(() => {
+    let abortController = new AbortController();
+    getKPIsData();
     return () => {
       abortController.abort();
     }
