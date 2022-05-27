@@ -27,6 +27,7 @@ import ImportationData from "views/pages/ImportationData";
 import ImportationDetails from "./views/pages/ImportationData/importationDetails";
 import ExternalServices from "views/pages/ImportationData/externalServices";
 import HistoryPage from "views/pages/history";
+import Duelist from "views/pages/uploadData/duelist";
 
 const routes = [
   {
@@ -128,6 +129,15 @@ const routes = [
     path: "/historic",
     miniName: "HS",
     component: HistoryPage,
+    layout: "/admin"
+  },
+  {
+    collapse: false,
+    name: "Due List 2",
+    icon: "ni ni-single-copy-04 text-green",
+    state: "listDuelist",
+    path: "/duelist2",
+    component: Duelist,
     layout: "/admin"
   }
 ];

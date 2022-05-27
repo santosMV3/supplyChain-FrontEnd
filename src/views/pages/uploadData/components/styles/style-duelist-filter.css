@@ -1,0 +1,54 @@
+#container-duelist-filter{
+    width: 310px;
+    float: left;
+    transition: 0.5s;
+    overflow: hidden;
+}
+
+.container-duelist-filter-opened{
+    height: 150px;
+}
+
+.container-duelist-filter-closed{
+    height: 35px;
+}
+
+#container-duelist-filter-itens{
+    width: 300px;
+    height: 150px;
+    margin: 0 auto;
+}
+
+#container-duelist-filter-button{
+    margin-bottom: 10px;
+}
+
+#container-duelist-filter-input{
+    width: 100%;
+    background-color: #fff;
+    padding: 15px;
+    box-sizing: border-box;
+    border-radius: 15px;
+    box-shadow: 0 0 2px gray;
+    margin-bottom: 10px;
+}
+
+#container-duelist-filter-search-input{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+}
+
+#duelist-filter-input-text{
+    width: 70%;
+}
+
+#duelist-filter-button-search{
+    width: 20%;
+}
+
+#duelist-filter-input-select{
+    margin-bottom: 10px;
+}

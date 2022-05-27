@@ -1,0 +1,57 @@
+#custom-duelist-table{
+    height: auto;
+    min-height: 10px;
+    max-height: 65vh;
+    overflow: auto;
+    display: block;
+}
+
+.custom-duelist-row{
+    background-color: #dfdfdf;
+    box-shadow: 0 0 5px gray;
+}
+
+.custom-duelist-row:nth-child(2n+2){
+    background-color: #fff;
+}
+
+.custom-duelist-span{
+    font-size: 1.0em;
+    text-overflow: ellipsis;
+    max-width: 20ch;
+    overflow: hidden;
+}
+
+.custom-duelist-index{
+    width: 30px;
+    height: 30px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    border-radius: 100%;
+    color: #FFFFFF;
+}
+
+.custom-duelist-index-undefined {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    border-radius: 100%;
+    color: #000;
+    box-shadow: 0 0 5px gray;
+}
+
+.custom-duelist-button-status {
+    text-overflow: ellipsis;
+    max-width: 10ch;
+    overflow: hidden;
+}
+
+.custom-duelist-button-no-status {
+    max-width: 10ch;
+    overflow: hidden;
+}
