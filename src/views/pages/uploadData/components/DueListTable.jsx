@@ -51,7 +51,7 @@ export const RenderRowList = (props) => {
 
     return data.length ? data.map((order, i) => (
         (
-            <tr className="custom-duelist-row">
+            <tr key={`row-${i}`} className="custom-duelist-row">
                 <td>
                     <Media className="align-items-center">
                         <Media>

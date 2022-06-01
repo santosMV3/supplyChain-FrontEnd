@@ -1,4 +1,3 @@
-import { dataURItoBlob } from 'dropzone';
 import React, {useState} from 'react';
 
 import {Button, Pagination, PaginationItem, PaginationLink} from "reactstrap";
