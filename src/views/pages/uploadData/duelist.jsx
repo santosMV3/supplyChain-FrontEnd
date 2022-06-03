@@ -26,7 +26,6 @@ const Duelist = () => {
         api.get(endpoint).then((res) => {
             let data = res.data;
             if (endpoint.indexOf("?") > -1 && endpoint.indexOf("page=") > -1){
-                window.alert(endpoint);
                 const urlParams = new URLSearchParams(endpoint.split("?")[1]);
                 data.now = urlParams.get('page');
             } else {

@@ -1,3 +1,15 @@
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+  
+::-webkit-scrollbar-thumb {
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+    background: linear-gradient(to bottom, #11cdef 100%, #fff 50%); 
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+}
+
 #ContainerPage {
     width: 98%;
     margin-left: auto;
