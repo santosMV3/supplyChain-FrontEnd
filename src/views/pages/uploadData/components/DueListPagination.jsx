@@ -70,7 +70,7 @@ export const DueListPagination = (props) => {
                             <span className="sr-only">Next</span>
                         </PaginationLink>
                     </PaginationItem>
-                    <PaginationItem className=''>
+                    <PaginationItem className={maxPage() > 1 ? "":"disabled"}>
                         <div id={searchPagination ? "container-duelist-custom-pagination" : "container-duelist-custom-pagination-closed"}>
                             <div id="container-duelist-custom-pagination-inputs">
                                 <PaginationLink onClick={searchPagination ? closePagination : openPagination} id="pagination-link-duelist">
