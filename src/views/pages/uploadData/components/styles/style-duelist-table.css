@@ -47,11 +47,30 @@
 
 .custom-duelist-button-status {
     text-overflow: ellipsis;
-    max-width: 10ch;
+    width: 12ch;
+    max-width: 12ch;
     overflow: hidden;
 }
 
 .custom-duelist-button-no-status {
-    max-width: 10ch;
+    width: 12ch;
+    max-width: 12ch;
     overflow: hidden;
+}
+
+.custom-duelist-media-select-status{
+    display: column;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.custom-duelist-media-select-status > button{
+    margin-top: 20px;
+    margin-left: 5px;
+    float: left;
+}
+
+.custom-duelist-input-label-material{
+    padding: 0;
 }

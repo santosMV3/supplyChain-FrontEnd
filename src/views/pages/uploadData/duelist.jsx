@@ -25,7 +25,8 @@ const Duelist = () => {
     const getLogMapData = (endpoint="/logisticMap/") => {
         api.get(endpoint).then((res) => {
             let data = res.data;
-            if (endpoint.indexOf("?") > -1){
+            if (endpoint.indexOf("?") > -1 && endpoint.indexOf("page=") > -1){
+                window.alert(endpoint);
                 const urlParams = new URLSearchParams(endpoint.split("?")[1]);
                 data.now = urlParams.get('page');
             } else {
@@ -36,14 +37,14 @@ const Duelist = () => {
         }).catch(console.error);
     }
 
-    const getOrderStatus = () => {
-        api.get("/statusOrder/").then((res) => {
+    function getStatus() {
+        api.get("/status/").then((res) => {
             setOrderStatus(res.data);
         }).catch(console.error);
     }
 
     const executeAPIFunctions = (endpoint="/logisticMap/") => {
-        getOrderStatus();
+        getStatus();
         getLogMapData(endpoint);
     }
 
@@ -53,11 +54,11 @@ const Duelist = () => {
 
     return (
         <div id="ContainerPage">
-            <DuelistFilter reload={executeAPIFunctions}/>
+            <DuelistFilter reload={executeAPIFunctions} endpoint={logMapData.nowEndpoint}/>
             <TableList>
                 <THeadList/>
                 <tbody>
-                    <RenderRowList data={logMapData.results} ordersStatus={logOrderStatus}/>
+                    <RenderRowList reload={executeAPIFunctions} endpoint={logMapData.nowEndpoint} data={logMapData.results} ordersStatus={logOrderStatus}/>
                 </tbody>
             </TableList>
             <DueListPagination data={[logMapData.count, logMapData.previous, logMapData.next, logMapData.now, logMapData.nowEndpoint]} reload={executeAPIFunctions}/>
