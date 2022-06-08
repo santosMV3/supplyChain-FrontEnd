@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import './styles/style-duelist-table.css';
 import {
     Button,
+    Input,
     Media,
     Table, UncontrolledTooltip
 } from "reactstrap";
@@ -81,6 +82,18 @@ export const THeadList = () => {
 export const RenderRowList = (props) => {
     const { data, ordersStatus, reload, endpoint } = props;
 
+    const weList = [];
+
+    for ( let i = 1; i < 61; i++ ){
+        const value = `WE${i}`;
+
+        weList.push(
+            <MenuItem value={value}>
+                <em>{value}</em>
+            </MenuItem>
+        )
+    }
+
     const filterOrderStatus = (idOrder) => {
 
         const status = ordersStatus.filter((statusRelation) => statusRelation.order_status.indexOf(idOrder) > -1);
@@ -92,7 +105,7 @@ export const RenderRowList = (props) => {
         return null;
     }
 
-    return data.length ? data.map((order, i) => (<RowList key={`row-${i}`} order={order} i={i} filterOrderStatus={filterOrderStatus} reload={reload} endpoint={endpoint} ordersStatus={ordersStatus}/>)):(
+    return data.length ? data.map((order, i) => (<RowList key={`row-${i}`} order={order} i={i} weList={weList} filterOrderStatus={filterOrderStatus} reload={reload} endpoint={endpoint} ordersStatus={ordersStatus}/>)):(
         <tr>
             <td colSpan={12}>
                 Error to collect orders. (Server possible offline...)
@@ -122,7 +135,7 @@ const RenderMediaList = (props) => {
 
 const RowList = (props) => {
     const classes = useStyles();
-    const { order, i, filterOrderStatus, reload, endpoint, ordersStatus } = props;
+    const { order, i, filterOrderStatus, reload, endpoint, ordersStatus, weList } = props;
     const orderStatus = filterOrderStatus(order.id);
     const orderStatusSelected = orderStatus?orderStatus[0].idStatus:"";
 
@@ -287,13 +300,57 @@ const RowList = (props) => {
                     )}
                 </td>
             </tr>
-            <TableModal modalState={modalState} closeModal={closeModal} order={order}/>
+            <TableModal weList={weList} modalState={modalState} reload={reload} endpoint={endpoint} closeModal={closeModal} order={order}/>
         </>
     )
 }
 
 const TableModal = (props) => {
-    const { modalState, closeModal, order } = props;
+    const { modalState, closeModal, order, weList, reload, endpoint } = props;
+
+    const [modalEdit, setModalEdit] = useState(false);
+    const openEditMode = () => setModalEdit(true);
+    const closeEditMode = () => setModalEdit(false);
+
+    const [weState, setWeState] = useState({
+        previsionWeek: order.previsionWeek,
+        supplier: order.supplier,
+        returnDays: order.returnDays,
+        releaseDate: order.releaseDate
+    });
+
+    const handlerInput = (e) => {
+        setWeState({...weState, [e.target.name]: e.target.value});
+    }
+
+    const updateOrder = () => {
+        if(order.externalService && weState.returnDays && weState.releaseDate) {
+            api.patch(`/logMapExternalCalc/${order.id}/`, weState).then(() => {
+                window.alert("Order update success!");
+                reload(endpoint);
+                closeEditMode();
+            }).catch((error) => {
+                window.alert("Error to update this order.");
+                console.error(error);
+                console.log(weState);
+            });
+        } else {
+            window.alert("here!");
+            api.patch(`/logisticMap/${order.id}/`, {
+                previsionWeek: weState.previsionWeek,
+                supplier: weState.supplier
+            }).then(() => {
+                window.alert("Order update success!");
+                reload(endpoint);
+                closeEditMode();
+            }).catch((error) => {
+                window.alert("Error to update this order.");
+                console.error(error);
+                console.log(weState);
+            });
+        }
+    }
+
     const classes = useStyles();
 
     return (
@@ -538,38 +595,96 @@ const TableModal = (props) => {
                         </div>
                         <div className='row-list-duelist-modal'>
                             <div className='column-list-duelist-modal'>
-                                <div className='cell-title-list-duelist-modal'>
+                                <div className='cell-title-list-duelist-modal clickable-duelist' onDoubleClick={modalEdit?closeEditMode:openEditMode}>
                                     Prevision Fat. (Week)
                                 </div>
                                 <div className='cell-title-list-duelist-modal'>
                                     External Service
                                 </div>
-                                <div className='cell-title-list-duelist-modal'>
+                                <div className='cell-title-list-duelist-modal clickable-duelist' onDoubleClick={modalEdit?closeEditMode:openEditMode}>
                                     Supplier
                                 </div>
-                                <div className='cell-title-list-duelist-modal'>
+                                <div className='cell-title-list-duelist-modal clickable-duelist' onDoubleClick={modalEdit?closeEditMode:openEditMode}>
                                     Return Days
                                 </div>
-                                <div className='cell-title-list-duelist-modal'>
+                                <div className='cell-title-list-duelist-modal clickable-duelist' onDoubleClick={modalEdit?closeEditMode:openEditMode}>
                                     Release Date
                                 </div>
                             </div>
                             <div className='column-list-duelist-modal'>
-                                <div className='cell-value-list-duelist-modal'>
-                                    {order.previsionWeek ? order.previsionWeek : "N/A"}
-                                </div>
+                                {modalEdit?(
+                                    <div className='cell-value-list-duelist-modal clickable-duelist' onDoubleClick={closeEditMode}>
+                                        <FormControl variant="standard" required
+                                        className={classes.formControl}>
+                                            <InputLabel id="demo-simple-select-outlined-label">
+                                                Week
+                                            </InputLabel>
+                                            <Select
+                                            labelId="demo-simple-select-outlined-label"
+                                            id="demo-simple-select-outlined"
+                                            label="Permission"
+                                            value={weState.previsionWeek}
+                                            onChange={handlerInput}
+                                            name="previsionWeek">
+                                                <MenuItem value="">
+                                                    <em>None</em>
+                                                </MenuItem>
+                                                {weList}
+                                            </Select>
+                                        </FormControl>
+                                    </div>
+                                ):(
+                                    <div className='cell-value-list-duelist-modal clickable-duelist' onDoubleClick={openEditMode}>
+                                        {order.previsionWeek ? order.previsionWeek : "N/A"}
+                                    </div>
+                                )}
                                 <div className='cell-value-list-duelist-modal'>
                                     {order.externalService ? "Yes" : "No"}
                                 </div>
-                                <div className='cell-value-list-duelist-modal'>
-                                    {order.supplier ? order.supplier : "N/A"}
-                                </div>
-                                <div className='cell-value-list-duelist-modal'>
-                                    {order.returnDays ? order.returnDays : "N/A"}
-                                </div>
-                                <div className='cell-value-list-duelist-modal'>
-                                    {order.releaseDate ? order.releaseDate : "N/A"}
-                                </div>
+                                {modalEdit && order.externalService ? (
+                                    <>
+                                        <div className='cell-value-list-duelist-modal clickable-duelist' onDoubleClick={closeEditMode}>
+                                            <Input id="supplierExternal"
+                                            bsSize='sm'
+                                            placeholder="Supplier"
+                                            defaultValue={order.supplier}
+                                            type="text"
+                                            onChange={handlerInput}
+                                            name="supplier"/>
+                                        </div>
+                                        <div className='cell-value-list-duelist-modal clickable-duelist' onDoubleClick={closeEditMode}>
+                                            <Input id="daysExternal"
+                                            bsSize='sm'
+                                            placeholder="Return Days"
+                                            defaultValue={order.returnDays}
+                                            type="number"
+                                            min="0"
+                                            onChange={handlerInput}
+                                            name="returnDays"/>
+                                        </div>
+                                        <div className='cell-value-list-duelist-modal clickable-duelist' onDoubleClick={closeEditMode}>
+                                            <Input
+                                            id="dateExternal"
+                                            defaultValue={new Date().getFullYear() + "-11-23T10:30:00"}
+                                            type="date"
+                                            bsSize='sm'
+                                            onChange={handlerInput}
+                                            name="releaseDate"/>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className='cell-value-list-duelist-modal clickable-duelist' onDoubleClick={openEditMode}>
+                                            {order.supplier ? order.supplier : "N/A"}
+                                        </div>
+                                        <div className='cell-value-list-duelist-modal clickable-duelist' onDoubleClick={openEditMode}>
+                                            {order.returnDays ? order.returnDays : "N/A"}
+                                        </div>
+                                        <div className='cell-value-list-duelist-modal clickable-duelist' onDoubleClick={openEditMode}>
+                                            {order.releaseDate ? formatDate(order.releaseDate) : "N/A"}
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         </div>
                         {order.externalService ? (
@@ -584,6 +699,13 @@ const TableModal = (props) => {
                                         {order.previsionDate ? formatDate(order.previsionDate) : "N/A"}
                                     </div>
                                 </div>
+                            </div>
+                        ):null}
+                        {modalEdit?(
+                            <div className='container-modal-edit-button'>
+                                <Button size="sm" color="success" onClick={updateOrder} id={`save-button-modal-${order.id}`} outline>
+                                    Save
+                                </Button>
                             </div>
                         ):null}
                     </div>
