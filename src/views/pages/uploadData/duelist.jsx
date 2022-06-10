@@ -13,7 +13,7 @@ import {api} from "../../../services/api";
 
 const Duelist = () => {
     const [logMapData, setLogMapData] = useState({
-        results: [],
+        results: null,
         previous: null,
         next: null,
         count: 0,

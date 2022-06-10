@@ -44,7 +44,7 @@ export const DueListPagination = (props) => {
         }
     }
 
-    return (
+    return data[0] > 0 ?(
         <div id="container-duelist-custom-pagination-general">
             <nav aria-label="...">
                 <Pagination>
@@ -87,5 +87,5 @@ export const DueListPagination = (props) => {
                 </Pagination>
             </nav>
         </div>
-    )
+    ): null
 }

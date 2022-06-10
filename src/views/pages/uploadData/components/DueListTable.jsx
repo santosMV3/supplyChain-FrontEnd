@@ -105,13 +105,27 @@ export const RenderRowList = (props) => {
         return null;
     }
 
-    return data.length ? data.map((order, i) => (<RowList key={`row-${i}`} order={order} i={i} weList={weList} filterOrderStatus={filterOrderStatus} reload={reload} endpoint={endpoint} ordersStatus={ordersStatus}/>)):(
-        <tr>
-            <td colSpan={12}>
-                Error to collect orders. (Server possible offline...)
-            </td>
-        </tr>
-    )
+    if (data) {
+        if (data.length > 0){
+            return data.map((order, i) => (<RowList key={`row-${i}`} order={order} i={i} weList={weList} filterOrderStatus={filterOrderStatus} reload={reload} endpoint={endpoint} ordersStatus={ordersStatus}/>));
+        } else {
+            return (
+                <tr>
+                    <td colSpan={12}>
+                        No orders to load.
+                    </td>
+                </tr>
+            )
+        }
+    } else {
+        return (
+            <tr>
+                <td colSpan={12}>
+                    Error to collect orders. (Server possible offline...)
+                </td>
+            </tr>
+        )
+    }
 };
 
 const RenderMediaList = (props) => {
@@ -335,7 +349,6 @@ const TableModal = (props) => {
                 console.log(weState);
             });
         } else {
-            window.alert("here!");
             api.patch(`/logisticMap/${order.id}/`, {
                 previsionWeek: weState.previsionWeek,
                 supplier: weState.supplier
