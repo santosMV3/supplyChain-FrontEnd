@@ -1,0 +1,134 @@
+.duelist-upload-container-card{
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+    padding: 20px;
+}
+
+.duelist-upload-card{
+    box-sizing: border-box;
+    width: 250px;
+    min-height: 150px;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+    border-radius: 15px;
+    overflow: hidden;
+    font-size: 1.1em;
+    cursor: default;
+    user-select: none;
+    background-color: #fff;
+    box-shadow: 0px 0px 10px gray;
+    color: #11cdef;
+    transition: 0.5s;
+    margin-bottom: 20px;
+}
+
+.duelist-upload-card-label{
+    width: 120px;
+    height: 120px;
+    background-color: #4de4ff;
+    font-size: 0.9em;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    box-sizing: border-box;
+    padding: 10px;
+    text-align: center;
+    border-radius: 100%;
+    color: #fff;
+    box-shadow: 0px 0px 0px #4de4ff;
+    flex-direction: column;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: 0.5s;
+}
+
+.duelist-upload-card-label:hover{
+    box-shadow: 0px 0px 20px #11cdef;
+    background-color: #11cdef;
+}
+
+.duelist-upload-card-icon{
+    border-radius: 100%;
+    background-color: #fff;
+    color: #11cdef;
+    box-sizing: border-box;
+    padding: 5px;
+    text-align: center;
+}
+
+.duelist-upload-card-title{
+    font-size: 0.875rem;
+    text-align: left;
+    color: #8898aa;
+    font-weight: 600;
+    width: 100%;
+    margin-bottom: 2px
+}
+
+.duelist-upload-card-value{
+    width: 100%;
+    height: 35px;
+    text-align: center;
+    background-color: #efefef;
+    border-radius: 10px;
+    box-sizing: border-box;
+    padding: 5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-shadow: 0px 0px 2px black;
+    margin-bottom: 10px;
+}
+
+.duelist-upload-card-container-sheets{
+    width: 100%;
+    height: 70px;
+    box-shadow: 0px 0px 2px black;
+    background-color: #efefef;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    overflow: hidden;
+}
+
+.duelist-upload-card-group-sheets{
+    width: 100%;
+    height: 70px;
+    overflow: auto;
+}
+
+.duelist-upload-card-sheet-item{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2px;
+    box-sizing: border-box;
+    box-shadow: 0px 0px 2px black;
+}
+
+.duelist-upload-card-sheet-radio{
+    width: 10%;
+}
+
+.duelist-upload-card-sheet-label{
+    font-family: Arial;
+    color: gray;
+    font-size: 0.8em;
+    margin: 0;
+    width: 90%;
+    text-align: right;
+}
+
+.duelist-upload-card-container-progress{
+    width: 100%;
+    overflow: hidden;
+    transition: 0.5s
+}
+
+.duelist-upload-card-input-file{
+    display: none;
+}

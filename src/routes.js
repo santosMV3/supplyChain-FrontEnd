@@ -28,6 +28,7 @@ import ImportationDetails from "./views/pages/ImportationData/importationDetails
 import ExternalServices from "views/pages/ImportationData/externalServices";
 import HistoryPage from "views/pages/history";
 import Duelist from "views/pages/uploadData/duelist";
+import DuelistUpload from "views/pages/uploadData/uploadPage";
 
 const routes = [
   {
@@ -132,13 +133,26 @@ const routes = [
     layout: "/admin"
   },
   {
-    collapse: false,
+    collapse: true,
     name: "Due List 2",
     icon: "ni ni-single-copy-04 text-green",
     state: "listDuelist",
-    path: "/duelist2",
-    component: Duelist,
-    layout: "/admin"
+    views: [
+      {
+        name: "Due List - List",
+        miniName: "DL",
+        path: "/new/duelist/list",
+        component: Duelist,
+        layout: "/admin"
+      },
+      {
+        name: "Due List - Upload",
+        miniName: "DU",
+        path: "/new/duelist/upload",
+        component: DuelistUpload,
+        layout: "/admin"
+      }
+    ]
   }
 ];
 
