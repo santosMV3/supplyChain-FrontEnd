@@ -82,6 +82,23 @@
     text-overflow: ellipsis;
     box-shadow: 0px 0px 2px black;
     margin-bottom: 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.duelist-upload-card-file-format{
+    font-size: 0.8em;
+    height: 95%;
+    color: #00ff1a;
+    padding: 5px;
+    box-shadow: 0px 0px 5px #00ff1a;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
 }
 
 .duelist-upload-card-container-sheets{

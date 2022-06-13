@@ -5,8 +5,8 @@ import { UploadCard } from "./components/DuelistUploadCard";
 const DuelistUpload = () => {
     return (
         <div id="ContainerPage" className="align-itens-center-row">
-            <UploadCard/>
-            <UploadCard/>
+            <UploadCard identity={"zzorder"} endpoint="/upload/zzorder/"/>
+            <UploadCard identity={"logmap"} endpoint="/upload/logisticMap/"/>
         </div>
     )
 }
