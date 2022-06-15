@@ -1,29 +1,33 @@
 import { readFile } from "@ramonak/react-excel";
 import React, { useState } from "react";
 import { Button, Progress, UncontrolledTooltip } from "reactstrap";
+import { api } from "services/api";
 
 import "./styles/style-duelist-upload-card.css";
 
-export const UploadCard = (props) => {
-    const { identity, endpoint } = props;
+export const UploadCard = () => {
 
     const [ fileData, setFileData ] = useState(null);
     const [ excelData, setExcelData ] = useState(null);
     const [ sheetName, setSheetName ] = useState(null);
+    const [ importState, setImportState ] = useState(false);
+    const [ uploadTime, setUploadTime ] = useState({
+        time: 0,
+        message: null,
+        color: "default"
+    });
 
     const handlerInputFile = (e) => {
         if(e.target.files.length > 0){
             const file = e.target.files[0];
             file.format = file.name.split('.');
-            setFileData({[identity]: file});
+            setFileData(file);
 
             readFile(file)
             .then((data) => {
                 console.log(data);
                 setExcelData({
-                    [identity]: {
-                        sheets: data.SheetNames,
-                    }
+                    sheets: data.SheetNames
                 });
             })
             .catch(console.error);
@@ -32,43 +36,78 @@ export const UploadCard = (props) => {
 
     const handlerInputRadio = (e) => {
         if(e.target.checked){
-            setSheetName({[identity]: e.target.value});
+            setSheetName(e.target.value);
         }
     }
 
-    const sendExcelFile = (e) => {
-        e.target.disabled = true;
-        
-        if(!fileData) window.alert("Please, select a excel file to upload.");
-        else if(!sheetName) window.alert("Please, select a sheet to read.");
+    const sendExcelFile = () => {
+        if(!fileData) return window.alert("Please, select a excel file to upload.");
+        else if(!sheetName) return window.alert("Please, select a sheet to read.");
+        const endpoint = `/upload/${importState?"logisticMap":"zzorder"}/${sheetName}`;
 
-        e.target.disabled = false;
+        setUploadTime({
+            time: 0,
+            message: null,
+            color: "default"
+        })
+
+        api.post(endpoint, fileData, {
+            onUploadProgress: (event) => {
+                let progress = Math.round(
+                    (event.loaded * 100) / event.total
+                );
+                if (progress === 100) {
+                    // Ocorre quando o backend está gravando os dados do excel
+                    return setUploadTime({
+                        time: 99,
+                        message: "Saving data.",
+                        color: "alert"
+                    })
+                }
+                return setUploadTime({...uploadTime, time: progress});
+            }
+        })
+        .then(() => {
+            setUploadTime({
+                time: 100,
+                message: "Upload success.",
+                color: "success"
+            })
+        })
+        .catch(() => {
+            setUploadTime({
+                time: 100,
+                message: "Upload error.",
+                color: "danger"
+            })
+        });
+    }
+
+    const handlerImportCheck = (e) => {
+        setImportState(e.target.checked);
     }
 
     return (
         <div className="duelist-upload-container-card">
             <div className="duelist-upload-card">
                 <label htmlFor="file-seletor" className="duelist-upload-card-label">
-                    Upload {identity.toUpperCase()}
+                    Click to Upload
                     <div className="ni ni-send duelist-upload-card-icon"/>
                 </label>
                 <div className="duelist-upload-card-title">
                     File Name:
                 </div>
-                <div className="duelist-upload-card-value" id={`${identity}-file-target`}>
+                <div className="duelist-upload-card-value" id="file-target">
                     {fileData?(
                         <>
-                            {fileData[`${identity}`].format[0]}&nbsp;
-                            <div className="duelist-upload-card-file-format">
-                                {fileData[`${identity}`].format[1]}
-                            </div>
+                            {fileData.format[0]}&nbsp;
                         </>
                     ):"No excel selected."}
                 </div>
                 <UncontrolledTooltip
                     delay={0}
                     placement="right"
-                    target={`${identity}-file-target`}
+                    target="file-target"
                 >
                     {fileData?fileData.format[0]:"No excel selected."}
                 </UncontrolledTooltip>
@@ -77,10 +116,10 @@ export const UploadCard = (props) => {
                 </div>
                 <div className="duelist-upload-card-container-sheets">
                     <div className="duelist-upload-card-group-sheets">
-                        {excelData?excelData[`${identity}`].sheets.map((sheet, index) => (
-                            <div key={`${identity}-sheet-name-${index}`} className="duelist-upload-card-sheet-item">
-                                <input type="radio" onChange={handlerInputRadio} id={`${identity}-sheet-item-${index}`} value={sheet} className="duelist-upload-card-sheet-radio"/>
-                                <label htmlFor={`${identity}-sheet-item-${index}`} className="duelist-upload-card-sheet-label">
+                        {excelData?excelData.sheets.map((sheet, index) => (
+                            <div key={`sheet-name-${index}`} className="duelist-upload-card-sheet-item">
+                                <input type="radio" onChange={handlerInputRadio} id={`sheet-item-${index}`} value={sheet} className="duelist-upload-card-sheet-radio"/>
+                                <label htmlFor={`sheet-item-${index}`} className="duelist-upload-card-sheet-label">
                                     {sheet}
                                 </label>                 
                             </div>
@@ -91,16 +130,30 @@ export const UploadCard = (props) => {
                     <div className="progress-info">
                         <div className="progress-percentage">
                             <span>
-                                100%
+                                {uploadTime.message?uploadTime.message:uploadTime.time}
                             </span>
                         </div>
                     </div>
-                    <Progress max="100" value="100" color="success"/>
+                    <Progress max="100" value={uploadTime.time} color={uploadTime.color}/>
+                    <div className="duelist-upload-card-check-file" style={{
+                        height: [sheetName?"auto":"0px"],
+                    }}>
+                        <label htmlFor="switch-buttom-file">
+                            ZZORDER
+                        </label>
+                        <label class="switch">
+                            <input type="checkbox" onChange={handlerImportCheck} id="switch-buttom-file"/>
+                            <span class="slider round"/>
+                        </label>
+                        <label htmlFor="switch-buttom-file">
+                            LOGMAP
+                        </label>
+                    </div>
                 </div>
                 <input type="file" id="file-seletor" onChange={handlerInputFile} className="duelist-upload-card-input-file" accept=".xlsx, .XLSX, .xls, .XLS"/>
             </div>
             <Button color="primary" type="button" onClick={sendExcelFile}>
-                Send {identity} file
+                Send excel file
             </Button>
         </div>
     )

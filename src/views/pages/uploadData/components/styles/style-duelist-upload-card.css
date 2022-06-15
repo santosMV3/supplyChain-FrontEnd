@@ -7,7 +7,7 @@
 
 .duelist-upload-card{
     box-sizing: border-box;
-    width: 250px;
+    width: 270px;
     min-height: 150px;
     height: auto;
     display: flex;
@@ -132,7 +132,7 @@
 }
 
 .duelist-upload-card-sheet-label{
-    font-family: Arial;
+    font-family: Arial, Helvetica, sans-serif;
     color: gray;
     font-size: 0.8em;
     margin: 0;
@@ -144,6 +144,25 @@
     width: 100%;
     overflow: hidden;
     transition: 0.5s
+}
+
+.duelist-upload-card-check-file{
+    width: 100%;
+    min-height: 0px;
+    font-size: 0.875rem;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 600;
+    color: #8898aa;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    transition: 0.5s;
+    overflow: hidden;
+}
+
+.duelist-upload-card-check-file label{
+    cursor: pointer;
 }
 
 .duelist-upload-card-input-file{
