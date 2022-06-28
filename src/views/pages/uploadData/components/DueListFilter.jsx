@@ -11,6 +11,7 @@ export const DuelistFilter = (props) => {
         field: null,
         value: null
     });
+    const [filters, setFilters] = useState([]);
     const [filterState, setFilterState] = useState(false);
     const openFilterState = () => setFilterState(true);
     const closeFilterState = () => setFilterState(false);
@@ -55,8 +56,10 @@ export const DuelistFilter = (props) => {
         ["fullDelivery", 'full delivery'],
         ["PCInvoice", 'PC Invoice'],
         ["PCInvoiceDate", 'PC Invoice Date'],
-        ["soLine", "SO LINHA"],
-        ["externalService", "External Service", "check"]
+        ["soLine", "So Line"],
+        ["externalService", "External Service", "check"],
+        ['previsionWeek', 'Prevision Week'],
+        ['itemCategory', 'Item Categ.']
     ];
 
     const handlerInputFilter = (e) => {
@@ -64,16 +67,37 @@ export const DuelistFilter = (props) => {
         setFilterValue({...filterValue, [e.target.name]: e.target.value});
     }
 
-    const actionFilter = () => {
-        if (reload && filterValue.field && filterValue.value){
-            closeFilterState();
-            reload(`/logisticMap?${filterValue.field}=${filterValue.value}`);
-        }
+    const addFilter = () => {
+        if (!filterValue.field || !filterValue.value) return window.alert("Insert a value or and a filter to search.");
+
+        let filterField = filterFields.filter((filterItem) => filterItem[0] === filterValue.field);
+        filterField = filterField[0];
+
+        let filterData = {...filterValue};
+        filterData.field = filterField;
+
+        const copyFilters = filters.filter((item) => item.field[0] === filterValue.field);
+        if (copyFilters.length > 0) return window.alert("Filter name has exist.");
+        setFilters([...filters, filterData]);
+    }
+
+    const deleteFilter = (e) => {
+        let copyFilters = [...filters];
+        copyFilters.splice(e.target.value, e.target.value + 1);
+        setFilters(copyFilters);
+    }
+
+    const searchFilters = () => {
+        let url = `/logisticMap/?`;
+        filters.forEach((filterItem) => {
+            url += `${filterItem.field[0]}=${filterItem.value}&`;
+        });
+        url = url.slice(0, url.length - 1);
+        reload(url);
     }
 
     return (
-        <div id="container-duelist-filter"
-             className={filterState ? "container-duelist-filter-opened" : "container-duelist-filter-closed"}>
+        <div id="container-duelist-filter" className={filterState ? "container-duelist-filter-opened" : "container-duelist-filter-closed"}>
             <div id="container-duelist-filter-itens">
                 <div id="container-duelist-filter-button">
                     {filterState ? (
@@ -93,30 +117,48 @@ export const DuelistFilter = (props) => {
                 </div>
                 <div id="container-duelist-filter-input">
                     <Input id="duelist-filter-input-select" onChange={handlerInputFilter} name='field' bsSize="sm" type="select">
-                        <option value={null}>Fields</option>
+                        <option value="">Fields</option>
                         {filterFields.map((field, index) => (<option key={`filter-field-${index}`} value={field[0]}>{field[1]}</option>))}
                     </Input>
-                    <div id="container-duelist-filter-search-input">
-                        {filterValue.field === "externalService" ? (
-                            <div className="custom-control custom-checkbox">
-                                <input
-                                    className="custom-control-input"
-                                    id="value"
-                                    name='value'
-                                    type="checkbox"
-                                    onClick={handlerInputFilter}
-                                />
-                                <label className="custom-control-label" htmlFor="value">
-                                    Value
-                                </label>
-                            </div>
-                        ):(
-                            <Input id="duelist-filter-input-text" onChange={handlerInputFilter} name='value' type="text" bsSize="sm"/>
-                        )}
-                        <Button id="duelist-filter-button-search" onClick={actionFilter} color="info" size="sm" type="button">
-                            Search
+                    {filterValue.field === "externalService" ? (
+                        <div className="custom-control custom-checkbox duelist-filter-input-checkbox">
+                            <input
+                                className="custom-control-input"
+                                id="value"
+                                name='value'
+                                type="checkbox"
+                                onClick={handlerInputFilter}
+                            />
+                            <label className="custom-control-label" htmlFor="value">
+                                Value
+                            </label>
+                        </div>
+                    ):(
+                        <Input id="duelist-filter-input-text" onChange={handlerInputFilter} name='value' type="text" bsSize="sm"/>
+                    )}
+                    <div id="duelist-filter-container-buttons">
+                        <Button id="duelist-filter-button-search" onClick={addFilter} color="info" size="sm" type="button">
+                            Adicionar
+                        </Button>
+                        <Button id="duelist-filter-button-search" onClick={searchFilters} color="info" size="sm" type="button">
+                            Buscar
                         </Button>
                     </div>
+                </div>
+                <div className='duelist-filter-container-bubble'>
+                    {filters.map((filterItem, index) => (
+                        <div key={`${index}-filter-item`} className='duelist-filter-bubble'>
+                            <div className='duelist-filter-bubble-title'>
+                                {filterItem.field[1]}:&nbsp;
+                            </div>
+                            <div>
+                                {filterItem.value}&nbsp;
+                            </div>
+                            <Button color='danger' outline onClick={deleteFilter} value={index} className='button-filter-bubble-delete' size='sm'>
+                                x
+                            </Button>
+                        </div>
+                    ))}
                 </div>
             </div>
         </div>
