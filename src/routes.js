@@ -113,26 +113,6 @@ const routes = [
     ],
   },
   {
-    collapse: false,
-    name: "Due List",
-    icon: "ni ni-single-copy-04 text-green",
-    state: "uploadOption",
-    path: "/duelist",
-    miniName: "DUE LIST",
-    component: UploadPage,
-    layout: "/admin"
-  },
-  {
-    collapse: false,
-    name: "Historic",
-    icon: "ni ni-books text-black",
-    state: "historicOption",
-    path: "/historic",
-    miniName: "HS",
-    component: HistoryPage,
-    layout: "/admin"
-  },
-  {
     collapse: true,
     name: "Due List 2",
     icon: "ni ni-single-copy-04 text-green",
@@ -153,6 +133,16 @@ const routes = [
         layout: "/admin"
       }
     ]
+  },
+  {
+    collapse: false,
+    name: "Historic",
+    icon: "ni ni-books text-black",
+    state: "historicOption",
+    path: "/historic",
+    miniName: "HS",
+    component: HistoryPage,
+    layout: "/admin"
   }
 ];
 
