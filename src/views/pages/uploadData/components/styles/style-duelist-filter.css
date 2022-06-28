@@ -99,6 +99,8 @@
     box-shadow: 0 0 2px black;
     font-size: 0.9em;
     margin-bottom: 6px;
+    user-select: none;
+    cursor: pointer;
 }
 
 .duelist-filter-bubble:hover{

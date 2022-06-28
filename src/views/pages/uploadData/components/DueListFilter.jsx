@@ -8,8 +8,8 @@ export const DuelistFilter = (props) => {
     const { reload, endpoint } = props;
 
     const [filterValue, setFilterValue] = useState({
-        field: null,
-        value: null
+        field: "",
+        value: ""
     });
     const [filters, setFilters] = useState([]);
     const [filterState, setFilterState] = useState(false);
@@ -79,12 +79,26 @@ export const DuelistFilter = (props) => {
         const copyFilters = filters.filter((item) => item.field[0] === filterValue.field);
         if (copyFilters.length > 0) return window.alert("Filter name has exist.");
         setFilters([...filters, filterData]);
+
+        setFilterValue({
+            field: "",
+            value: ""
+        });
     }
 
     const deleteFilter = (e) => {
         let copyFilters = [...filters];
         copyFilters.splice(e.target.value, e.target.value + 1);
         setFilters(copyFilters);
+    }
+
+    const editFilter = (index) => {
+        let filterItem = filters[index];
+        setFilterValue({
+            field: filterItem.field[0],
+            value: filterItem.value
+        });
+        deleteFilter({ target: { value: index } });
     }
 
     const searchFilters = () => {
@@ -116,7 +130,7 @@ export const DuelistFilter = (props) => {
                     ):null}
                 </div>
                 <div id="container-duelist-filter-input">
-                    <Input id="duelist-filter-input-select" onChange={handlerInputFilter} name='field' bsSize="sm" type="select">
+                    <Input id="duelist-filter-input-select" onChange={handlerInputFilter} value={filterValue.field} name='field' bsSize="sm" type="select">
                         <option value="">Fields</option>
                         {filterFields.map((field, index) => (<option key={`filter-field-${index}`} value={field[0]}>{field[1]}</option>))}
                     </Input>
@@ -134,7 +148,7 @@ export const DuelistFilter = (props) => {
                             </label>
                         </div>
                     ):(
-                        <Input id="duelist-filter-input-text" onChange={handlerInputFilter} name='value' type="text" bsSize="sm"/>
+                        <Input id="duelist-filter-input-text" onChange={handlerInputFilter} value={filterValue.value} name='value' type="text" bsSize="sm"/>
                     )}
                     <div id="duelist-filter-container-buttons">
                         <Button id="duelist-filter-button-search" onClick={addFilter} color="info" size="sm" type="button">
@@ -147,7 +161,7 @@ export const DuelistFilter = (props) => {
                 </div>
                 <div className='duelist-filter-container-bubble'>
                     {filters.map((filterItem, index) => (
-                        <div key={`${index}-filter-item`} className='duelist-filter-bubble'>
+                        <div key={`${index}-filter-item`} onDoubleClick={() => editFilter(index)} className='duelist-filter-bubble'>
                             <div className='duelist-filter-bubble-title'>
                                 {filterItem.field[1]}:&nbsp;
                             </div>
