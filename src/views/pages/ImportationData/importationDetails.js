@@ -29,6 +29,7 @@ const ImportationLine = ({post, deleteFactory, getImp}) => {
 
         if (e.target.type === "checkbox") return setImpUpdate({...impUpdate, [e.target.name]: e.target.checked});
 
+
         setImpUpdate({...impUpdate, [e.target.name]: e.target.value});
     }
 
@@ -43,7 +44,7 @@ const ImportationLine = ({post, deleteFactory, getImp}) => {
     }
 
     const formatData = (data) => {
-        if(data.indexOf('-') > -1){
+        if(data !== null || data.indexOf('-') > -1){
             data = data.split(' ');
             data = data[0].split('-');
             return `${data[2]}/${data[1]}/${data[0]}`;
@@ -52,7 +53,7 @@ const ImportationLine = ({post, deleteFactory, getImp}) => {
         }
     }
 
-    const prevChegadaTrianon = formatData(post.prevChegadaTrianon);
+    const prevChegadaTrianon = post.prevChegadaTrianon ? formatData(post.prevChegadaTrianon):"No Data";
 
     return (
         <>
@@ -121,10 +122,17 @@ const ImportationLine = ({post, deleteFactory, getImp}) => {
                         }}/>
                     </td>
                     <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                        <Input bsSize="sm" onChange={handlerInput} name="prevChegadaTrianon" defaultValue={post.prevChegadaTrianon} type="text" style={{
-                            width: '150px',
-                            margin: '0 auto'
-                        }}/>
+                        <Input
+                            id="dateExternal"
+                            defaultValue={new Date().getFullYear() + "-11-23T10:30:00"}
+                            type="date"
+                            bsSize='sm'
+                            onChange={handlerInput}
+                            name="prevChegadaTrianon"
+                            style={{
+                                width: '150px',
+                                margin: '0 auto'
+                            }}/>
                     </td>
                     <td style={{boxSizing: 'border-box', padding: '5px'}}>
                         <Input bsSize="sm" onClick={handlerInput} type="checkbox" defaultChecked={post.liberadoFaturamento===true?true:false} name="liberadoFaturamento" style={{
@@ -314,10 +322,17 @@ const ImportationDetails = () => {
                                 }}/>
                             </td>
                             <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                                <Input bsSize="sm" id="prevChegadaTrianon" onChange={handlerInput} type="text" style={{
-                                    width: '150px',
-                                    margin: '0 auto'
-                                }}/>
+                                <Input
+                                    id="dateExternal"
+                                    defaultValue={new Date().getFullYear() + "-11-23T10:30:00"}
+                                    type="date"
+                                    bsSize='sm'
+                                    onChange={handlerInput}
+                                    name="releaseDate"
+                                    style={{
+                                        width: '150px',
+                                        margin: '0 auto'
+                                    }}/>
                             </td>
                             <td style={{boxSizing: 'border-box', padding: '5px'}}>
                                 <Input bsSize="sm" type="checkbox" onClick={handlerInput} id="liberadoFaturamento" style={{

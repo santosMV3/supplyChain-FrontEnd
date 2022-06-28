@@ -62,18 +62,16 @@ export const THeadList = () => {
         <thead className="thead-light">
             <tr>
                 <th scope="col">Nº</th>
-                <th scope="col">Billing Forecast</th>
                 <th scope="col">Cust. Name</th>
                 <th scope="col">SO</th>
                 <th scope="col">Item</th>
                 <th scope="col">Open Value</th>
                 <th scope="col">Item Categ.</th>
-                <th scope="col">First Date</th>
                 <th scope="col">Sched. l. date</th>
                 <th scope="col">Material Descript.</th>
                 <th scope="col">Material Number</th>
                 <th scope="col">ETA Trianon</th>
-                <th scope="col"/>
+                <th scope='col'>Week</th>
                 <th scope="col">Status</th>
             </tr>
         </thead>
@@ -229,9 +227,6 @@ const RowList = (props) => {
                     </Media>
                 </td>
                 <td>
-                    <RenderMediaList index={i} id={(Math.random() * 1000000).toFixed()} data={order.previsionFatSystem}/>
-                </td>
-                <td>
                     <RenderMediaList index={i} id={(Math.random() * 1000000).toFixed()} data={order.custName}/>
                 </td>
                 <td>
@@ -247,9 +242,6 @@ const RowList = (props) => {
                     <RenderMediaList index={i} id={(Math.random() * 1000000).toFixed()} data={order.itemCategory}/>
                 </td>
                 <td>
-                    <RenderMediaList index={i} id={(Math.random() * 1000000).toFixed()} data={formatDate(order.firstDate)}/>
-                </td>
-                <td>
                     <RenderMediaList index={i} id={(Math.random() * 1000000).toFixed()} data={formatDate(order.schedIDate)}/>
                 </td>
                 <td>
@@ -261,7 +253,9 @@ const RowList = (props) => {
                 <td>
                     <RenderMediaList index={i} id={(Math.random() * 1000000).toFixed()} data={formatDate(order.previsionTrianom)}/>
                 </td>
-                <td/>
+                <td>
+                    <RenderMediaList index={i} id={(Math.random() * 1000000).toFixed()} data={order.previsionWeek}/>
+                </td>
                 <td>
                     {statusState[0]?(
                         <Media className="align-items-center">
@@ -644,6 +638,30 @@ const TableModal = (props) => {
                                     </div>
                                     <div className='cell-value-list-duelist-modal'>
                                         {formatDate(order.confDeliveryDate)}
+                                    </div>
+                                </div>
+                            </div>
+                            <div className='row-list-duelist-modal'>
+                                <div className='column-list-duelist-modal'>
+                                    <div className='cell-title-list-duelist-modal'>
+                                        Billing Forecast
+                                    </div>
+                                    <div className='cell-title-list-duelist-modal'>
+                                        First Date
+                                    </div>
+                                    <div className='cell-title-list-duelist-modal'>
+                                        SO Creation Date
+                                    </div>
+                                </div>
+                                <div className='column-list-duelist-modal'>
+                                    <div className='cell-value-list-duelist-modal'>
+                                        {order.previsionFatSystem}
+                                    </div>
+                                    <div className='cell-value-list-duelist-modal'>
+                                        {formatDate(order.firstDate)}
+                                    </div>
+                                    <div className='cell-value-list-duelist-modal'>
+                                        {formatDate(order.SOCreationDate)}
                                     </div>
                                 </div>
                             </div>
