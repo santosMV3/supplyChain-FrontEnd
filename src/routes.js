@@ -114,7 +114,7 @@ const routes = [
   },
   {
     collapse: true,
-    name: "Due List 2",
+    name: "Due List",
     icon: "ni ni-single-copy-04 text-green",
     state: "listDuelist",
     views: [
