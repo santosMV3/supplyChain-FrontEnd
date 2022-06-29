@@ -309,13 +309,41 @@ const RowList = (props) => {
                     )}
                 </td>
             </tr>
-            <TableModal weList={weList} modalState={modalState} reload={reload} endpoint={endpoint} closeModal={closeModal} order={order}/>
+            <TableModal
+                weList={weList}
+                ordersStatus={ordersStatus}
+                selectedStatus={selectedStatus}
+                modalState={modalState}
+                reload={reload}
+                endpoint={endpoint}
+                closeModal={closeModal}
+                order={order}
+                selectedStatusName={orderStatus}
+            />
         </>
     )
 }
 
 const TableModal = (props) => {
-    const { modalState, closeModal, order, weList, reload, endpoint } = props;
+    const { 
+        modalState, 
+        closeModal, 
+        order, 
+        weList, 
+        reload, 
+        endpoint,
+        selectedStatus,
+        ordersStatus,
+        selectedStatusName
+    } = props;
+
+    const orderStatusSelected = selectedStatusName?selectedStatusName[0].idStatus:"";
+
+    const [orderStatus, setOrderStatus] = useState(selectedStatus);
+
+    const [statusMode, setStatusMode] = useState([false, null]);
+    const openStatusMode = (e) => setStatusMode([true, e.target.name]);
+    const closeStatusMode = () => setStatusMode([false, null]);
 
     const [modalEdit, setModalEdit] = useState(false);
     const openEditMode = () => setModalEdit(true);
@@ -346,6 +374,44 @@ const TableModal = (props) => {
 
     const handlerInput = (e) => {
         setWeState({...weState, [e.target.name]: e.target.value});
+    }
+
+    const handlerStatusSelect = (e) => {
+        setOrderStatus(e.target.value);
+    }
+
+    const saveStatusOrder = (e) => {
+        if (orderStatus === "") return window.alert("Select a status.");
+        if (orderStatus === orderStatusSelected) return closeStatusMode();
+        const action = statusMode[1];
+        const orderId = e.target.value;
+        const user = localStorage.getItem('AUTHOR_ID');
+
+        const data = {
+            idStatus:orderStatus,
+            idUser:user,
+            idOrder:orderId,
+        }
+        
+        if(action === "create") {
+            api.post("/statusOrder/", data).then(() => {
+                closeStatusMode();
+                window.alert("Successful to adding status.");
+                reload(endpoint);
+            }).catch((error) => {
+                window.alert("Error adding status to order.");
+                console.error(error);
+            });
+        } else if (action === "update") {
+            api.patch(`statusOrder/${order.status_id}/`, data).then(() => {
+                closeStatusMode();
+                window.alert("Success to update status.");
+                reload(endpoint);
+            }).catch((error) => {
+                window.alert("Error updating status of this order.");
+                console.error(error);
+            })
+        }
     }
 
     const updateOrder = () => {
@@ -408,17 +474,52 @@ const TableModal = (props) => {
                         <h2 id="modal-modal-title" className='header-title-duelist-modal'>
                             Detailed information - {order.id}
                         </h2>
-                        <div>
+                        <div className='buttons-header-duelist-modal'>
+                            {statusMode[0]?(
+                                <Media className='custom-duelist-media-select-status'>
+                                    <FormControl required className={classes.formControl}>
+                                        <InputLabel className='custom-duelist-input-label-material' id="demo-simple-select-outlined-label">
+                                            Status
+                                        </InputLabel>
+                                        <Select
+                                            labelId="demo-simple-select-outlined-label"
+                                            id="demo-simple-select-outlined"
+                                            label="Permission"
+                                            value={orderStatus}
+                                            onChange={handlerStatusSelect}
+                                        >
+                                            <MenuItem value="">
+                                                <em>None</em>
+                                            </MenuItem>
+                                            {ordersStatus.map((statusItem, index) => (
+                                                <MenuItem key={`status-modal-item-${index}`} value={statusItem.idStatus}>
+                                                    <em>{statusItem.name}</em>
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                    <Button size="sm" outline onClick={saveStatusOrder} value={order.id} color="success">
+                                        ✔
+                                    </Button>
+                                    <Button size="sm" outline onClick={closeStatusMode} color="danger">
+                                        ✘
+                                    </Button>
+                                </Media>
+                            ):(
+                                <Button size="sm" name={selectedStatusName?"update":"create"} className='action-button-duelist-modal' color="primary" outline onClick={openStatusMode}>
+                                    {selectedStatusName?selectedStatusName[0].name:"Add Status"}
+                                </Button>
+                            )}
                             {expandNotes?(
-                                <Button size="sm" color="danger" outline onClick={closeExpandNotes}>
+                                <Button size="sm" className='action-button-duelist-modal' color="danger" outline onClick={closeExpandNotes}>
                                     Close Notes
                                 </Button>
                             ):(
-                                <Button size="sm" color="default" outline onClick={openExpandNotes}>
+                                <Button size="sm" className='action-button-duelist-modal' color="default" outline onClick={openExpandNotes}>
                                     Open Notes
                                 </Button>
                             )}
-                            <Button size="sm" color="danger" outline onClick={closeModal}>
+                            <Button size="sm" className='action-button-duelist-modal' color="danger" outline onClick={closeModal}>
                                 Close
                             </Button>
                         </div>
@@ -724,7 +825,7 @@ const TableModal = (props) => {
                                                 onChange={handlerInput}
                                                 name="supplier"/>
                                             </div>
-                                            <div className='cell-value-list-duelist-modal clickable-duelist' onDoubleClick={closeEditMode}>
+                                            <div className='cell-value-list-duelist-modal input-number clickable-duelist' onDoubleClick={closeEditMode}>
                                                 <Input id="daysExternal"
                                                 bsSize='sm'
                                                 placeholder="Return Days"
