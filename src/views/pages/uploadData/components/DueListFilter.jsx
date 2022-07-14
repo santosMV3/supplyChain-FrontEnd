@@ -102,7 +102,7 @@ export const DuelistFilter = (props) => {
     }
 
     const searchFilters = () => {
-        let url = `/logisticMap/?`;
+        let url = `/logisticMapFilter/?`;
         filters.forEach((filterItem) => {
             url += `${filterItem.field[0]}=${filterItem.value}&`;
         });
