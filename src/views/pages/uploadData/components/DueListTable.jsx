@@ -753,6 +753,9 @@ const TableModal = (props) => {
                                     <div className='cell-title-list-duelist-modal'>
                                         SO Creation Date
                                     </div>
+                                    <div className='cell-title-list-duelist-modal'>
+                                        Purch. no.
+                                    </div>
                                 </div>
                                 <div className='column-list-duelist-modal'>
                                     <div className='cell-value-list-duelist-modal'>
@@ -763,6 +766,9 @@ const TableModal = (props) => {
                                     </div>
                                     <div className='cell-value-list-duelist-modal'>
                                         {formatDate(order.SOCreationDate)}
+                                    </div>
+                                    <div className='cell-value-list-duelist-modal'>
+                                        {order.purchNo}
                                     </div>
                                 </div>
                             </div>
