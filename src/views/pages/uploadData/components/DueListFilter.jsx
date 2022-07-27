@@ -68,7 +68,8 @@ export const DuelistFilter = (props) => {
     }
 
     const addFilter = () => {
-        if (!filterValue.field || !filterValue.value) return window.alert("Insert a value or and a filter to search.");
+        if (!filterValue.field) return window.alert("Insert a value or and a filter to search.");
+        if (!filterValue.value && filterValue.field != "previsionWeek") return window.alert("Insert a value or and a filter to search.");
 
         let filterField = filterFields.filter((filterItem) => filterItem[0] === filterValue.field);
         filterField = filterField[0];
