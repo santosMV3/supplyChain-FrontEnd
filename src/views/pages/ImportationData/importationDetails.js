@@ -164,13 +164,6 @@ const ImportationLine = ({post, deleteFactory, getImp}) => {
 
 const ImportationDetails = () => {
     const [impData, setImpData] = useState([]);
-    const [impCreate, setImpCreate] = useState({
-        docSap: "",
-        imp: "",
-        prevChegadaTrianon: "",
-        liberadoFaturamento: false,
-        automatic: false
-    });
     const [registerState, setRegisterState] = useState(false);
     const openRegister = () => setRegisterState(true);
     const closeRegister = () => setRegisterState(false);
@@ -193,24 +186,6 @@ const ImportationDetails = () => {
         if(!(window.confirm("Confirm to delete the Importation Date:"))) return null;
         api.delete(`/importationDetails/${idImp}`).then(() => {
             window.alert('Deleted success.');
-            getImp();
-        }).catch(console.error);
-    }
-
-    const handlerInput = (e) => {
-        if(e.target.type=== "number"){
-            if(e.target.value === "") e.target.value = 0;
-            if(e.target.value > 99999) e.target.value = 99999;
-        }
-
-        if (e.target.type === "checkbox") return setImpCreate({...impCreate, [e.target.id]: e.target.checked});
-
-        setImpCreate({...impCreate, [e.target.id]: e.target.value});
-    }
-
-    const createImpDate = () => {
-        api.post('/importationDetails/', impCreate).then(() => {
-            window.alert("Create success!");
             getImp();
         }).catch(console.error);
     }
@@ -305,78 +280,6 @@ const ImportationDetails = () => {
                                 </td>
                             </tr>
                         )}
-                    </tbody>
-                    <tbody>
-                    {registerState?(
-                        <tr>
-                            <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                                <Input bsSize="sm" id="docSap" onChange={handlerInput} max="99999" min="0" type="number" style={{
-                                    width: '75px',
-                                    margin: '0 auto'
-                                }}/>
-                            </td>
-                            <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                                <Input bsSize="sm" id="imp" onChange={handlerInput} type="text" style={{
-                                    width: '150px',
-                                    margin: '0 auto'
-                                }}/>
-                            </td>
-                            <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                                <Input
-                                    id="dateExternal"
-                                    defaultValue={new Date().getFullYear() + "-11-23T10:30:00"}
-                                    type="date"
-                                    bsSize='sm'
-                                    onChange={handlerInput}
-                                    name="releaseDate"
-                                    style={{
-                                        width: '150px',
-                                        margin: '0 auto'
-                                    }}/>
-                            </td>
-                            <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                                <Input bsSize="sm" type="checkbox" onClick={handlerInput} id="liberadoFaturamento" style={{
-                                    position: 'relative',
-                                    margin: 'auto',
-                                    display: 'block'
-                                }}/>
-                            </td>
-                            <td style={{
-                                boxSizing: 'border-box',
-                                padding: '5px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center'
-                                }}>
-                                <Button color="success" outline size="sm" onClick={createImpDate}>
-                                    Save
-                                </Button>
-                                <Button color="danger" outline size="sm" onClick={closeRegister}>
-                                    Cancel
-                                </Button>
-                            </td>
-                        </tr>
-                        ):(
-                        <tr>
-                            <td style={{boxSizing: 'border-box', padding: '5px'}} colSpan="5">
-                                <div onDoubleClick={openRegister} style={{
-                                    width: '100%',
-                                    height: '30px',
-                                    backgroundColor: 'rgb(255, 255, 255)',
-                                    boxShadow: '0px 0px 2px gray',
-                                    borderRadius: '5px',
-                                    cursor: 'pointer',
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    boxSizing: 'border-box',
-                                    paddingLeft: '5px'
-                                }}>
-                                    Double click unlock register.
-                                </div>
-                            </td>
-                        </tr>
-                    )}
                     </tbody>
                 </table>
             </div>
