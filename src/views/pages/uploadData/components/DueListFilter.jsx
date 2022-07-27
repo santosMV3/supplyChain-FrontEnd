@@ -132,7 +132,7 @@ export const DuelistFilter = (props) => {
                 <div id="container-duelist-filter-input">
                     <Input id="duelist-filter-input-select" onChange={handlerInputFilter} value={filterValue.field} name='field' bsSize="sm" type="select">
                         <option value="">Fields</option>
-                        {filterFields.map((field, index) => (<option key={`filter-field-${index}`} value={field[0]}>{field[1]}</option>))}
+                        {filterFields.sort().map((field, index) => (<option key={`filter-field-${index}`} value={field[0]}>{field[1]}</option>))}
                     </Input>
                     {filterValue.field === "externalService" ? (
                         <div className="custom-control custom-checkbox duelist-filter-input-checkbox">
