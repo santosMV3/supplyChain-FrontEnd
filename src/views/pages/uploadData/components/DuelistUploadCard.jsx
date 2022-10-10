@@ -146,7 +146,7 @@ export const UploadCard = () => {
                             <span class="slider round"/>
                         </label>
                         <label htmlFor="switch-buttom-file">
-                            LOGMAP
+                            DUE LIST
                         </label>
                     </div>
                 </div>

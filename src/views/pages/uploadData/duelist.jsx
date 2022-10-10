@@ -37,7 +37,7 @@ const Duelist = () => {
     }
 
     function getStatus() {
-        api.get("/status/").then((res) => {
+        api.get("/status/?is_active=true").then((res) => {
             setOrderStatus(res.data);
         }).catch(console.error);
     }

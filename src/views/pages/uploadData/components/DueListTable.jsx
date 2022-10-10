@@ -538,10 +538,10 @@ const TableModal = (props) => {
                                         Cust. number
                                     </div>
                                     <div className='cell-title-list-duelist-modal'>
-                                        Doc Type
+                                        Document Type
                                     </div>
                                     <div className='cell-title-list-duelist-modal'>
-                                        AG Region
+                                        Region
                                     </div>
                                 </div>
                                 <div className='column-list-duelist-modal'>
@@ -565,7 +565,7 @@ const TableModal = (props) => {
                             <div className='row-list-duelist-modal'>
                                 <div className='column-list-duelist-modal'>
                                     <div className='cell-title-list-duelist-modal'>
-                                        GR-quantity
+                                        GR. Quantity
                                     </div>
                                     <div className='cell-title-list-duelist-modal'>
                                         Ordercode
@@ -601,7 +601,7 @@ const TableModal = (props) => {
                             <div className='row-list-duelist-modal'>
                                 <div className='column-list-duelist-modal'>
                                     <div className='cell-title-list-duelist-modal'>
-                                        Term Description
+                                        Payment
                                     </div>
                                     <div className='cell-title-list-duelist-modal'>
                                         Incoterms
@@ -613,7 +613,7 @@ const TableModal = (props) => {
                                         SP. Carrier Partner
                                     </div>
                                     <div className='cell-title-list-duelist-modal'>
-                                        SP. Name
+                                        Carrier
                                     </div>
                                 </div>
                                 <div className='column-list-duelist-modal'>
@@ -637,19 +637,19 @@ const TableModal = (props) => {
                             <div className='row-list-duelist-modal'>
                                 <div className='column-list-duelist-modal'>
                                     <div className='cell-title-list-duelist-modal'>
-                                        Confirmation Type SC
+                                        Confirm. SC.
                                     </div>
                                     <div className='cell-title-list-duelist-modal'>
                                         Date of notification
                                     </div>
                                     <div className='cell-title-list-duelist-modal'>
-                                        Full Delivery
+                                        Full. Delivery
                                     </div>
                                     <div className='cell-title-list-duelist-modal'>
-                                        PC Invoice
+                                        PC. Invoice
                                     </div>
                                     <div className='cell-title-list-duelist-modal'>
-                                        PC Invoice Date
+                                        PC. Invoice Date
                                     </div>
                                 </div>
                                 <div className='column-list-duelist-modal'>
@@ -709,7 +709,7 @@ const TableModal = (props) => {
                             <div className='row-list-duelist-modal'>
                                 <div className='column-list-duelist-modal'>
                                     <div className='cell-title-list-duelist-modal'>
-                                        Billing Forecast
+                                        Est. NF. Date (sys)
                                     </div>
                                     <div className='cell-title-list-duelist-modal'>
                                         Material Days
@@ -718,7 +718,7 @@ const TableModal = (props) => {
                                         Dead Line Fat.
                                     </div>
                                     <div className='cell-title-list-duelist-modal'>
-                                        Producing Company
+                                        PC Invoice
                                     </div>
                                     <div className='cell-title-list-duelist-modal'>
                                         Conf. Delivery Date
@@ -745,7 +745,7 @@ const TableModal = (props) => {
                             <div className='row-list-duelist-modal'>
                                 <div className='column-list-duelist-modal'>
                                     <div className='cell-title-list-duelist-modal'>
-                                        Billing Forecast
+                                        Route
                                     </div>
                                     <div className='cell-title-list-duelist-modal'>
                                         First Date
@@ -759,7 +759,7 @@ const TableModal = (props) => {
                                 </div>
                                 <div className='column-list-duelist-modal'>
                                     <div className='cell-value-list-duelist-modal'>
-                                        {order.previsionFatSystem}
+                                        {order.route}
                                     </div>
                                     <div className='cell-value-list-duelist-modal'>
                                         {formatDate(order.firstDate)}

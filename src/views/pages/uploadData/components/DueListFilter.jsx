@@ -18,48 +18,57 @@ export const DuelistFilter = (props) => {
 
     const filterFields = [
         ["salesRep", "Sales Rep"],
-        ["competenceName", 'COMPETENCE NAME (Z2 PARTNER)'],
-        ["custNumber", 'CUST. NUMBER'],
-        ["custName", 'CUST. NAME'],
-        ["docType", 'Doc Type'],
-        ["AGRegion", 'AG Region'],
-        ["documentNumber", 'Document number'],
-        ["item", 'Item'],
-        ["PONumber", 'PO Number'],
-        ["openValueLocalCurrency", 'Open Value: Local Currency'],
-        ["firstDate", 'First Date'],
-        ["schedIDate", 'Sched. l. date'],
-        ["SOCreationDate", 'SO Creation Date'],
-        ["confDeliveryDate", 'Conf.Deliverydat'],
-        ["delay", 'Delay'],
-        ["deliveryDate", 'Delivery Date'],
-        ["availabilityCustomerDelvDate", 'Availability customer delv date'],
-        ["itemCategory", 'Item categ.'],
-        ["purchNo", 'Purch. no.'],
-        ["producingCompany", 'Producing Company'],
-        ["importNo", 'Import No.'],
-        ["GRDate", 'GR-date'],
-        ["GRQuantity", 'GR-quantity'],
-        ["materialNumber", 'Materialnumber'],
-        ["materialDescript", 'Material descript.'],
-        ["ordercode", 'Ordercode'],
-        ["commQuantity", 'Comm.quantity'],
-        ["externalStock", 'External stock'],
-        ["deliveryBlock", 'Delivery block'],
-        ["termDescription", 'Term Description'],
-        ["incoterms", 'Incoterms 1'],
-        ["route", 'Route'],
-        ["spCarrierPartner", 'SP Carrier Partner'],
-        ["spName", 'SP Name'],
-        ["confirmationTypeSC", 'Confirmation type SC'],
-        ["dateOfNotification", 'Date of notification'],
-        ["fullDelivery", 'full delivery'],
-        ["PCInvoice", 'PC Invoice'],
-        ["PCInvoiceDate", 'PC Invoice Date'],
-        ["soLine", "So Line"],
-        ["externalService", "External Service", "check"],
-        ['previsionWeek', 'Prevision Week'],
-        ['itemCategory', 'Item Categ.']
+        ["competenceName", "Logistic Responsible"],
+        ["custNumber","Cust. Number"],
+        ["custName","Cust. Name"],
+        ["docType","Document Type"],
+        ["AGRegion","Region"],
+        ["documentNumber","SO"],
+        ["item","Item"],
+        ["PONumber","PO Number"],
+        ["openValueLocalCurrency","Open Value"],
+        ["firstDate","First Date"],
+        ["schedIDate","Sched. L. Date"],
+        ["SOCreationDate","SO Creation Date"],
+        ["confDeliveryDate","Conf. Delivery Date"],
+        ["delay","Delay"],
+        ["deliveryDate","Delivery Date"],
+        ["availabilityCustomerDelvDate","Customer Delv. Date"],
+        ["itemCategory","Categ"],
+        ["purchNo","Purch. No."],
+        ["producingCompany","PC"],
+        ["importNo","Import. No."],
+        ["GRDate","GR. Date"],
+        ["GRQuantity","GR. Quantity"],
+        ["materialNumber","Material Number"],
+        ["materialDescript","Material Descript"],
+        ["ordercode","Ordercode"],
+        ["commQuantity","Comm. Quantity"],
+        ["externalStock","External Stock"],
+        ["deliveryBlock","Delivery Block"],
+        ["termDescription","Payment"],
+        ["incoterms","Incoterms"],
+        ["route","Route"],
+        ["spCarrierPartner","SP. Carrier Partner"],
+        ["spName","Carrier"],
+        ["confirmationTypeSC","Confirm. SC."],
+        ["dateOfNotification","Date Of Notification"],
+        ["fullDelivery","Full. Delivery"],
+        ["PCInvoice","PC. Invoice"],
+        ["PCInvoiceDate","PC. Invoice Date"],
+        ["situation","Status Color"],
+        ["deliveryFactory","Delivery Factory"],
+        ["importation","Importation"],
+        ["previsionTrianom","ETA TRIANON"],
+        ["previsionFatSystem","Est. NF. Date (sys)"],
+        ["materiaDays","Material Days"],
+        ["deadLineFat","Dead Line Fat."],
+        ["previsionWeek","Prevision Week"],
+        ["externalService","Ext. Service"],
+        ["supplier","Supplier"],
+        ["returnDays","Return Days"],
+        ["releaseDate","Release Date"],
+        ["previsionDate","Prevision Date"],
     ];
 
     const handlerInputFilter = (e) => {
@@ -69,7 +78,7 @@ export const DuelistFilter = (props) => {
 
     const addFilter = () => {
         if (!filterValue.field) return window.alert("Insert a value or and a filter to search.");
-        if (!filterValue.value && filterValue.field != "previsionWeek") return window.alert("Insert a value or and a filter to search.");
+        // if (!filterValue.value && filterValue.field != "previsionWeek") return window.alert("Insert a value or and a filter to search.");
 
         let filterField = filterFields.filter((filterItem) => filterItem[0] === filterValue.field);
         filterField = filterField[0];
@@ -167,7 +176,7 @@ export const DuelistFilter = (props) => {
                                 {filterItem.field[1]}:&nbsp;
                             </div>
                             <div>
-                                {filterItem.value}&nbsp;
+                                {filterItem.value.length > 0 ? filterItem.value:"Null"}&nbsp;
                             </div>
                             <Button color='danger' outline onClick={deleteFilter} value={index} className='button-filter-bubble-delete' size='sm'>
                                 x

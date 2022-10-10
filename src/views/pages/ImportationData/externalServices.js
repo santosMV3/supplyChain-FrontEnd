@@ -158,6 +158,7 @@ const ExternalServices = () => {
         api.post('/externalServices/', extCreate).then(() => {
             window.alert("Create Success!");
             getExtData();
+            closeRegister();
         }).catch(console.error);
     }
 
