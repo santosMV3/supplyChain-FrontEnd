@@ -67,19 +67,30 @@ export const UploadCard = () => {
                 return setUploadTime({...uploadTime, time: progress});
             }
         })
-        .then(() => {
-            setUploadTime({
-                time: 100,
-                message: "Upload success.",
-                color: "success"
-            })
+        .then((request) => {
+            console.log(request);
+            if (!request.data.status_error){
+                setUploadTime({
+                    time: 100,
+                    message: "Upload success.",
+                    color: "success"
+                })
+            } else {
+                window.alert(`Upload Error. Was found duplicated order: ${request.data.so}${request.data.item}`);
+                setUploadTime({
+                    time: 100,
+                    message: "Upload error.",
+                    color: "danger"
+                });
+            }
         })
-        .catch(() => {
+        .catch((request) => {
             setUploadTime({
                 time: 100,
                 message: "Upload error.",
                 color: "danger"
-            })
+            });
+            console.error(request);
         });
     }
 

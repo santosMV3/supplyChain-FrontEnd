@@ -1,5 +1,4 @@
 #container-duelist-filter{
-    width: 100%;
     float: left;
     transition: 0.5s;
     overflow: hidden;
@@ -8,13 +7,20 @@
 }
 
 .container-duelist-filter-opened{
+    width: 100%;
     height: auto;
     max-height: 162px;
 }
 
 .container-duelist-filter-closed{
+    width: 100%;
     height: auto;
     max-height: 35px;
+}
+
+.container-duelist-filter-select{
+    width: auto;
+    max-width: 90vw;
 }
 
 #container-duelist-filter-itens{
@@ -49,6 +55,12 @@
     justify-content: space-around;
 }
 
+#duelist-filter-input-select-status{
+    width: 60%;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
 #duelist-filter-input-text{
     width: 60%;
 }
@@ -66,9 +78,9 @@
     flex-direction: row;
 }
 
-#duelist-filter-button-search{
+/* .duelist-filter-button{
     width: 80px;
-}
+} */
 
 #duelist-filter-input-select{
     width: 230px;
@@ -103,13 +115,35 @@
     cursor: pointer;
 }
 
+.duelist-filter-bubble-not-like{
+    padding: 5px;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    transition: 0.5s;
+    background-color: #fff;
+    box-shadow: 0 0 3px #ff0000;
+    font-size: 0.9em;
+    margin-bottom: 6px;
+    user-select: none;
+    cursor: pointer;
+}
+
 .duelist-filter-bubble:hover{
     background-color: #11cdef;
     color: #fff;
     box-shadow: 0 0 2px #fff;
 }
 
-.duelist-filter-bubble:hover > .button-filter-bubble-delete{
+.duelist-filter-bubble-not-like:hover{
+    background-color: #fd6f6f;
+    color: #fff;
+    box-shadow: 0 0 2px #fff;
+}
+
+.duelist-filter-bubble:hover > .button-filter-bubble-delete, .duelist-filter-bubble-not-like:hover > .button-filter-bubble-delete{
     transition: 0.5s;
     background-color: red;
     color: #fff;

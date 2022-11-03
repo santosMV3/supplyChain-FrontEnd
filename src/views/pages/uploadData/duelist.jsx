@@ -22,7 +22,7 @@ const Duelist = () => {
     });
     const [logOrderStatus, setOrderStatus] = useState([]);
 
-    const getLogMapData = (endpoint="/logisticMap/") => {
+    const getLogMapData = (endpoint="/logisticMapFilter/") => {
         api.get(endpoint).then((res) => {
             let data = res.data;
             if (endpoint.indexOf("?") > -1 && endpoint.indexOf("page=") > -1){
@@ -42,7 +42,7 @@ const Duelist = () => {
         }).catch(console.error);
     }
 
-    const executeAPIFunctions = (endpoint="/logisticMap/") => {
+    const executeAPIFunctions = (endpoint="/logisticMapFilter/?excludeStatus=FATURADO") => {
         getStatus();
         getLogMapData(endpoint);
     }
@@ -53,7 +53,7 @@ const Duelist = () => {
 
     return (
         <div id="ContainerPage">
-            <DuelistFilter reload={executeAPIFunctions} endpoint={logMapData.nowEndpoint}/>
+            <DuelistFilter reload={executeAPIFunctions} endpoint={logMapData.nowEndpoint} orderStatus={logOrderStatus}/>
             <TableList>
                 <THeadList/>
                 <tbody>

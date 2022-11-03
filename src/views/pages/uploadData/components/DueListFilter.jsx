@@ -5,7 +5,7 @@ import {Button, Input} from "reactstrap";
 
 export const DuelistFilter = (props) => {
 
-    const { reload, endpoint } = props;
+    const { reload, endpoint, orderStatus } = props;
 
     const [filterValue, setFilterValue] = useState({
         field: "",
@@ -16,7 +16,16 @@ export const DuelistFilter = (props) => {
     const openFilterState = () => setFilterState(true);
     const closeFilterState = () => setFilterState(false);
 
+    const [statusMode, setStatusMode] = useState(false);
+    const openStatusMode = () => setStatusMode(true);
+    const closeStatusMode = () => setStatusMode(false);
+
+    const [likeMode, setLikeMode] = useState(true);
+    const openLikeMode = () => setLikeMode(true);
+    const closeLikeMode = () => setLikeMode(false);
+    
     const filterFields = [
+        ['orderStatus', 'Status'],
         ["salesRep", "Sales Rep"],
         ["competenceName", "Logistic Responsible"],
         ["custNumber","Cust. Number"],
@@ -72,8 +81,13 @@ export const DuelistFilter = (props) => {
     ];
 
     const handlerInputFilter = (e) => {
+        if(e.target.name === "field" && e.target.value === "orderStatus" || e.target.name == "value" && e.target.type == "select-one"){
+            setFilterValue({...filterValue, [e.target.name]: e.target.value});
+            return openStatusMode();
+        }
+        closeStatusMode();
         if (e.target.type === "checkbox") return setFilterValue({...filterValue, [e.target.name]: e.target.checked});
-        setFilterValue({...filterValue, [e.target.name]: e.target.value});
+        return setFilterValue({...filterValue, [e.target.name]: e.target.value});
     }
 
     const addFilter = () => {
@@ -83,8 +97,15 @@ export const DuelistFilter = (props) => {
         let filterField = filterFields.filter((filterItem) => filterItem[0] === filterValue.field);
         filterField = filterField[0];
 
+        if (filterField[0] != "orderStatus"){
+            filterField[0] = likeMode ? filterField[0] : `not_${filterField[0]}`;
+        } else {
+            filterField[0] = likeMode? "orderStatus" : "excludeStatus";
+        }
+
         let filterData = {...filterValue};
         filterData.field = filterField;
+        filterData.status = likeMode;
 
         const copyFilters = filters.filter((item) => item.field[0] === filterValue.field);
         if (copyFilters.length > 0) return window.alert("Filter name has exist.");
@@ -105,9 +126,10 @@ export const DuelistFilter = (props) => {
     const editFilter = (index) => {
         let filterItem = filters[index];
         setFilterValue({
-            field: filterItem.field[0],
+            field: filterItem.field[0].replace("not_", "").replace("excludeStatus", "orderStatus"),
             value: filterItem.value
         });
+        setLikeMode(filterItem.field[0].indexOf("not_") > -1 || filterItem.field[0] == "excludeStatus" ? false : true);
         deleteFilter({ target: { value: index } });
     }
 
@@ -121,6 +143,7 @@ export const DuelistFilter = (props) => {
     }
 
     return (
+        <>
         <div id="container-duelist-filter" className={filterState ? "container-duelist-filter-opened" : "container-duelist-filter-closed"}>
             <div id="container-duelist-filter-itens">
                 <div id="container-duelist-filter-button">
@@ -134,7 +157,7 @@ export const DuelistFilter = (props) => {
                         </Button>
                     )}
                     {endpoint && endpoint.indexOf("?") > -1 ? (
-                        <Button color="danger" onClick={() => reload()} outline size="sm" type="button">
+                        <Button color="danger" onClick={() => reload("/logisticMapFilter/")} outline size="sm" type="button">
                             Remove Filter
                         </Button>
                     ):null}
@@ -158,20 +181,36 @@ export const DuelistFilter = (props) => {
                             </label>
                         </div>
                     ):(
-                        <Input id="duelist-filter-input-text" onChange={handlerInputFilter} value={filterValue.value} name='value' type="text" bsSize="sm"/>
+                        <>
+                            {statusMode ? (
+                                <>
+                                    <Input id="duelist-filter-input-select-status" name='value' value={filterValue.value} onChange={handlerInputFilter} bsSize="sm" type="select">
+                                        <option value="">Orders status</option>
+                                        {orderStatus.map((item, index) => (<option key={`filter-status-${index}`} value={item.name}>{item.name}</option>))}
+                                    </Input>
+                                </>
+                            ):(
+                                <>
+                                    <Input id="duelist-filter-input-text" onChange={handlerInputFilter} value={filterValue.value} name='value' type="text" bsSize="sm"/>
+                                </>
+                            )}
+                        </>
                     )}
                     <div id="duelist-filter-container-buttons">
-                        <Button id="duelist-filter-button-search" onClick={addFilter} color="info" size="sm" type="button">
-                            Adicionar
+                        <Button id="duelist-filter-button-like" className='duelist-filter-button' color={likeMode ? "info":"danger"} onClick={likeMode ? closeLikeMode:openLikeMode} size="sm" type="button">
+                            {likeMode?"Have":"Don't Have"}
                         </Button>
-                        <Button id="duelist-filter-button-search" onClick={searchFilters} color="info" size="sm" type="button">
-                            Buscar
+                        <Button className="duelist-filter-button" onClick={addFilter} color="info" size="sm" type="button">
+                            Add
+                        </Button>
+                        <Button className="duelist-filter-button" onClick={searchFilters} color="info" size="sm" type="button">
+                            Search
                         </Button>
                     </div>
                 </div>
                 <div className='duelist-filter-container-bubble'>
                     {filters.map((filterItem, index) => (
-                        <div key={`${index}-filter-item`} onDoubleClick={() => editFilter(index)} className='duelist-filter-bubble'>
+                        <div key={`${index}-filter-item`} onDoubleClick={() => editFilter(index)} className={filterItem.status?'duelist-filter-bubble':'duelist-filter-bubble-not-like'}>
                             <div className='duelist-filter-bubble-title'>
                                 {filterItem.field[1]}:&nbsp;
                             </div>
@@ -186,5 +225,6 @@ export const DuelistFilter = (props) => {
                 </div>
             </div>
         </div>
+        </>
     )
 }

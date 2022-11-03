@@ -178,7 +178,7 @@ const RowList = (props) => {
             idUser:user,
             idOrder:orderId,
         }
-        
+
         if(action === "create") {
             api.post("/statusOrder/", data).then(() => {
                 closeStatusState();
@@ -189,7 +189,7 @@ const RowList = (props) => {
                 console.error(error);
             });
         } else if (action === "update") {
-            api.patch(`statusOrder/${order.status_id}/`, data).then(() => {
+            api.patch(`statusOrder/${order.status_id}/`, {idStatus: data.idStatus, idUser: data.idUser}).then(() => {
                 closeStatusState();
                 window.alert("Success to update status.");
                 reload(endpoint);
@@ -398,6 +398,7 @@ const TableModal = (props) => {
                 closeStatusMode();
                 window.alert("Successful to adding status.");
                 reload(endpoint);
+                closeModal();
             }).catch((error) => {
                 window.alert("Error adding status to order.");
                 console.error(error);
@@ -407,6 +408,7 @@ const TableModal = (props) => {
                 closeStatusMode();
                 window.alert("Success to update status.");
                 reload(endpoint);
+                closeModal();
             }).catch((error) => {
                 window.alert("Error updating status of this order.");
                 console.error(error);
@@ -442,11 +444,15 @@ const TableModal = (props) => {
 
     const createNote = () => {
         if(commentState.comment.length === 0) return window.alert("Insert a comment to create a note!");
-
-        api.post('/orderNotes/', commentState).then(() => {
+        api.post('/orderNotes/', {
+            idOrder: order.id,
+            comment: commentState.comment,
+            idUser: commentState.idUser
+        }).then((request) => {
             window.alert("Comment created success!");
             setCommentState({...commentState, comment: ""});
             reload(endpoint);
+            console.log(request.data);
         }).catch((error) => {
             window.alert("Error to create this comment...");
             console.error(error);
@@ -909,7 +915,7 @@ const TableModal = (props) => {
                                 </div>
                                 <div className='container-register-note-duelist-modal'>
                                     <div className='box-register-note-duelist-modal'>
-                                        <Button color="primary" size='sm' onClick={createNote} outline> Salvar </Button>
+                                        <Button color="primary" size='sm' onClick={createNote} outline> Salvar {order.id} </Button>
                                         <Input type='textarea' name='comment' onChange={handlerComment} value={commentState.comment}/>
                                     </div>
                                 </div>
