@@ -19,7 +19,11 @@ export const DuelistFilter = (props) => {
     const [statusMode, setStatusMode] = useState(false);
     const openStatusMode = () => setStatusMode(true);
     const closeStatusMode = () => setStatusMode(false);
-
+    
+    const [colorMode, setColorMode] = useState(false);
+    const openColorMode = () => setColorMode(true);
+    const closeColorMode = () => setColorMode(false);
+    
     const [likeMode, setLikeMode] = useState(true);
     const openLikeMode = () => setLikeMode(true);
     const closeLikeMode = () => setLikeMode(false);
@@ -65,7 +69,7 @@ export const DuelistFilter = (props) => {
         ["fullDelivery","Full. Delivery"],
         ["PCInvoice","PC. Invoice"],
         ["PCInvoiceDate","PC. Invoice Date"],
-        ["situation","Status Color"],
+        ["situation","Color"],
         ["deliveryFactory","Delivery Factory"],
         ["importation","Importation"],
         ["previsionTrianom","ETA TRIANON"],
@@ -80,24 +84,32 @@ export const DuelistFilter = (props) => {
         ["previsionDate","Prevision Date"],
     ];
 
+    const filterOnlyFields = filterFields.map((fieldItem) => fieldItem[1]).sort();
+
     const handlerInputFilter = (e) => {
-        if(e.target.name === "field" && e.target.value === "orderStatus" || e.target.name == "value" && e.target.type == "select-one"){
+        if(e.target.name === "field" && e.target.value === "Status"){
             setFilterValue({...filterValue, [e.target.name]: e.target.value});
             return openStatusMode();
         }
-        closeStatusMode();
+        else if(e.target.name === "field" && e.target.value === "Color"){
+            setFilterValue({...filterValue, [e.target.name]: e.target.value});
+            return openColorMode();
+        }
+        else if(e.target.name === "field"){
+            closeColorMode();
+            closeStatusMode();   
+        }
         if (e.target.type === "checkbox") return setFilterValue({...filterValue, [e.target.name]: e.target.checked});
         return setFilterValue({...filterValue, [e.target.name]: e.target.value});
     }
 
     const addFilter = () => {
-        if (!filterValue.field) return window.alert("Insert a value or and a filter to search.");
+        if (!filterValue.field) return window.alert("Insert a filter to search.");
         // if (!filterValue.value && filterValue.field != "previsionWeek") return window.alert("Insert a value or and a filter to search.");
-
-        let filterField = filterFields.filter((filterItem) => filterItem[0] === filterValue.field);
+        let filterField = filterFields.filter((filterItem) => filterItem[1] === filterValue.field);
         filterField = filterField[0];
 
-        if (filterField[0] != "orderStatus"){
+        if (filterField[0] !== "orderStatus"){
             filterField[0] = likeMode ? filterField[0] : `not_${filterField[0]}`;
         } else {
             filterField[0] = likeMode? "orderStatus" : "excludeStatus";
@@ -107,14 +119,17 @@ export const DuelistFilter = (props) => {
         filterData.field = filterField;
         filterData.status = likeMode;
 
-        const copyFilters = filters.filter((item) => item.field[0] === filterValue.field);
-        if (copyFilters.length > 0) return window.alert("Filter name has exist.");
+        // const copyFilters = filters.filter((item) => item.field[0] === filterValue.field);
+        // if (copyFilters.length > 0) return window.alert("Filter name has exist.");
+        const filterFiltered = filters.filter((filterItem) => filterItem.field[0].replace("not_", "") == filterData.field[0]);
+        if(filterFiltered.length > 0) return window.alert("This field is already being filtered.");
         setFilters([...filters, filterData]);
-
         setFilterValue({
             field: "",
             value: ""
         });
+        closeColorMode();
+        closeStatusMode();
     }
 
     const deleteFilter = (e) => {
@@ -126,11 +141,13 @@ export const DuelistFilter = (props) => {
     const editFilter = (index) => {
         let filterItem = filters[index];
         setFilterValue({
-            field: filterItem.field[0].replace("not_", "").replace("excludeStatus", "orderStatus"),
+            field: filterItem.field[1],
             value: filterItem.value
         });
-        setLikeMode(filterItem.field[0].indexOf("not_") > -1 || filterItem.field[0] == "excludeStatus" ? false : true);
+        setLikeMode((filterItem.field[0].indexOf("not_") > -1) || (filterItem.field[0] === "excludeStatus") ? false : true);
         deleteFilter({ target: { value: index } });
+        if(filterItem.field[1] === "Status") openStatusMode();
+        if(filterItem.field[1] === "Color") openColorMode();
     }
 
     const searchFilters = () => {
@@ -139,6 +156,7 @@ export const DuelistFilter = (props) => {
             url += `${filterItem.field[0]}=${filterItem.value}&`;
         });
         url = url.slice(0, url.length - 1);
+        console.log(url)
         reload(url);
     }
 
@@ -165,7 +183,7 @@ export const DuelistFilter = (props) => {
                 <div id="container-duelist-filter-input">
                     <Input id="duelist-filter-input-select" onChange={handlerInputFilter} value={filterValue.field} name='field' bsSize="sm" type="select">
                         <option value="">Fields</option>
-                        {filterFields.sort().map((field, index) => (<option key={`filter-field-${index}`} value={field[0]}>{field[1]}</option>))}
+                        {filterOnlyFields.map((field, index) => (<option key={`filter-field-${index}`} value={field}>{field}</option>))}
                     </Input>
                     {filterValue.field === "externalService" ? (
                         <div className="custom-control custom-checkbox duelist-filter-input-checkbox">
@@ -186,12 +204,21 @@ export const DuelistFilter = (props) => {
                                 <>
                                     <Input id="duelist-filter-input-select-status" name='value' value={filterValue.value} onChange={handlerInputFilter} bsSize="sm" type="select">
                                         <option value="">Orders status</option>
-                                        {orderStatus.map((item, index) => (<option key={`filter-status-${index}`} value={item.name}>{item.name}</option>))}
+                                        {orderStatus.sort((a, b) => a.name - b.name).map((item, index) => (<option key={`filter-status-${index}`} value={item.name}>{item.name}</option>))}
                                     </Input>
                                 </>
                             ):(
                                 <>
-                                    <Input id="duelist-filter-input-text" onChange={handlerInputFilter} value={filterValue.value} name='value' type="text" bsSize="sm"/>
+                                    {colorMode ?(
+                                        <Input id="duelist-filter-input-select-status" name='value' value={filterValue.value} onChange={handlerInputFilter} bsSize="sm" type="select">
+                                            <option value="">Colors</option>
+                                            <option value="billed">Green</option>
+                                            <option value="transport">Yellow</option>
+                                            <option value="undefined">White</option>
+                                        </Input>
+                                    ):(
+                                        <Input id="duelist-filter-input-text" onChange={handlerInputFilter} value={filterValue.value} name='value' type="text" bsSize="sm"/>
+                                    )}
                                 </>
                             )}
                         </>
@@ -215,7 +242,7 @@ export const DuelistFilter = (props) => {
                                 {filterItem.field[1]}:&nbsp;
                             </div>
                             <div>
-                                {filterItem.value.length > 0 ? filterItem.value:"Null"}&nbsp;
+                                {filterItem.value.length > 0 ? filterItem.value.replace("billed", "Green").replace("undefined", "White").replace("transport", "Yellow"):"Null"}&nbsp;
                             </div>
                             <Button color='danger' outline onClick={deleteFilter} value={index} className='button-filter-bubble-delete' size='sm'>
                                 x
