@@ -25,9 +25,15 @@ const ImportationLine = ({post, deleteExt, getExtData}) => {
 
     const updateExternalService = () => {
         api.patch(`/externalServices/${post.id}/`, extDataUpdate).then((response) => {
-            window.alert("Update success!");
-            closeEditMode();
-            getExtData();
+            Promise.all([
+                // api.post("/history/", { before: post.SSKProject, after: extDataUpdate.SSKProject, page: "External Services", action: "update" }),
+                api.post("/history/", { before: post.externalServices.toString(), after: extDataUpdate.externalServices.toString(), page: "External Services", action: "update" }),
+                // api.post("/history/", { before: post.documentNumber, after: extDataUpdate.documentNumber, page: "External Services", action: "update" })
+            ]).then(() => {
+                window.alert("Update success!");
+                closeEditMode();
+                getExtData();
+            }).catch(console.error);
         }).catch(console.error);
     }
 
@@ -156,9 +162,15 @@ const ExternalServices = () => {
 
     const createExternalService = () => {
         api.post('/externalServices/', extCreate).then(() => {
-            window.alert("Create Success!");
-            getExtData();
-            closeRegister();
+            Promise.all([
+                // api.post("/history/", { after: extCreate.SSKProject, page: "External Services", action: "create" }),
+                api.post("/history/", { after: extCreate.externalServices.toString(), page: "External Services", action: "create" }),
+                // api.post("/history/", { after: extCreate.documentNumber, page: "External Services", action: "create" })
+            ]).then(() => {
+                window.alert("Create Success!");
+                getExtData();
+                closeRegister();
+            }).catch(console.error);
         }).catch(console.error);
     }
 

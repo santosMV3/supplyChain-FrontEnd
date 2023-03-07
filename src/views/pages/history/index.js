@@ -43,7 +43,7 @@ const HistoryPage = () => {
     const closeFilterMode = () => {
         const getHistoric = () => {
             api.get('/history/').then((response) => {
-                setHistoryData(response.data);
+                setHistoryData(response.data.results);
             }).catch();
         }
 
@@ -55,7 +55,7 @@ const HistoryPage = () => {
         let abortController = new AbortController();
         const getHistoric = () => {
             api.get('/history/').then((response) => {
-                setHistoryData(response.data);
+                setHistoryData(response.data.results);
             }).catch();
         }
 
@@ -64,28 +64,11 @@ const HistoryPage = () => {
     }, []);
 
     const HistoricItem = ({...props}) => {
-        const [user, setUser] = useState(props.historic.idUser);
+        const { historic } = props;
 
         const [historyState, setHistoryState] = useState(false);
         const openHistory = () => setHistoryState(true);
         const closeHistory = () => setHistoryState(false);
-
-        useEffect(() => {
-            let abortController = new AbortController();
-            const getUser = () => {
-                api.get(`/users/${props.historic.idUser}`).then((response) => {
-                    if(response.data.first_name.length > 0) {
-                        if (response.data.last_name.length > 0) return setUser(response.data.first_name + " " + response.data.last_name);
-                        return setUser(response.data.first_name);
-                    } else {
-                        setUser(response.data.username);
-                    }
-                }).catch(console.error);
-            }
-
-            getUser();
-            return () => abortController.abort();
-        }, []);
 
         const formatDateTime = (datetime) => {
             datetime = datetime.split("T");
@@ -97,33 +80,12 @@ const HistoryPage = () => {
         }
 
         const datetime = formatDateTime(props.historic.datetime);
-
-        const calcHisotiricData = (data) => {
-            const changes = []
-            let dataset = data.split("/!/");
-            dataset.forEach((change) => {
-                change = change.split("/?/");
-                changes.push({
-                    name: change[0],
-                    value: change[1]
-                });
-            });
-
-            return changes;
-        }
-
-        const before = calcHisotiricData(props.historic.before);
-        const after = calcHisotiricData(props.historic.after);
-
+        const user = historic.user.first_name && historic.user.last_name ? `${historic.user.first_name} ${historic.user.last_name}` : `${historic.user.username}`;
 
         const ChangeItem = ({...props}) => {
-            const afterItem = after[props.index];
-            const afterData = [];
-
-            if (afterItem.value.indexOf("/|/") > -1){
-                const data = afterItem.value.split("/|/");
-                afterData.push(data[0], data[1], data[2]);
-            }
+            const before = props.data.before;
+            const afterValues = props.data.after;
+            const user = props.data.user.first_name && props.data.user.last_name ? `${props.data.user.first_name} ${props.data.user.last_name}` : `${props.data.user.username}`;
 
             return (
                 <>
@@ -149,9 +111,9 @@ const HistoryPage = () => {
                                     <i className="fa fa-arrow-down" />
                                 </span>
                             </p>
-                            {props.data.name.length > 0?(
+                            {before && before.length > 0?(
                                 <>
-                                    <span style={{fontWeight: "bold"}}>{props.data.name}:</span>&nbsp;{props.data.value}
+                                    {before}
                                 </>
                             ):(
                                 <>
@@ -172,10 +134,10 @@ const HistoryPage = () => {
                                     <i className="fa fa-arrow-up" />
                                 </span>
                             </p>
-                            <span style={{fontWeight: "bold"}}>{afterItem.name}:</span>&nbsp;{afterData.length===0?afterItem.value:afterData[0]}
+                            {afterValues}
                         </div>
                     </div>
-                    {afterData.length === 0?null:(
+                    {props.data.idHistoric ? (
                         <>
                             <div style={{
                                 backgroundColor: [props.index%2===0?"#c7e8ed":"#9dbec2"],
@@ -193,15 +155,15 @@ const HistoryPage = () => {
                                     justifyContent: "space-around"
                                 }}>
                                     <div>
-                                        <span style={{fontWeight: "bold"}}>User:</span> {afterData[1]}
+                                        <span style={{fontWeight: "bold"}}>User:</span> {user}
                                     </div>
                                     <div>
-                                        <span style={{fontWeight: "bold"}}>Datetime:</span> {afterData[2]}
+                                        <span style={{fontWeight: "bold"}}>Datetime:</span> {formatDateTime(props.data.datetime)}
                                     </div>
                                 </div>
                             </div>
                         </>
-                    )}
+                    ):null}
                 </>
             )
         }
@@ -220,7 +182,7 @@ const HistoryPage = () => {
                     height: '1px',
                     padding: '5px',
                 }}>
-                    {user}
+                    { user }
                 </td>
                 <td style={{
                     textAlign: "center",
@@ -247,7 +209,7 @@ const HistoryPage = () => {
                     height: '1px',
                     padding: '5px',
                 }}>
-                    {datetime}
+                    { datetime }
                 </td>
                 <td style={{
                     textAlign: "center",
@@ -256,7 +218,7 @@ const HistoryPage = () => {
                     height: '1px',
                     padding: '5px',
                 }}>
-                    {props.historic.SO==="none"?"Not an a SO":props.historic.SO}
+                    {historic.SO?props.historic.SO:"Not an a SO"}
                 </td>
                 <td style={{
                     textAlign: "center",
@@ -279,7 +241,8 @@ const HistoryPage = () => {
                         overflow: "hidden",
                         minHeight: [historyState?"5px":"0px"],
                     }}>
-                        {before.map((data, index) => (<ChangeItem key={`before-${index}`} data={data} index={index}/>))}
+                        <ChangeItem data={historic} index={0}/>
+                        {historic.so_item.map((soHistoric, index) => (<ChangeItem data={soHistoric} key={`historic-${index}`} index={index + 1}/>))}
                     </div>
                 </td>
             </tr>
@@ -315,7 +278,7 @@ const HistoryPage = () => {
             if(filterValue.length < 1) return window.alert("Type something to filter.");
 
             api.get(`/history?${selectValue}=${filterValue}`).then((response) => {
-                setHistoryData(response.data);
+                setHistoryData(response.data.results);
             }).catch(console.error);
             setFilterState(true);
         }

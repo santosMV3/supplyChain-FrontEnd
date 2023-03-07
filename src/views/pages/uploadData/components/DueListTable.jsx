@@ -157,6 +157,8 @@ const RowList = (props) => {
     const closeStatusState = () => setStatusState([false, null]);
 
     const [selectedStatus, setSelectedStatus] = useState(orderStatusSelected);
+    const [weState, setWeState] = useState(order.previsionWeek);
+    const [ weEditMode, setWeEditMode ] = useState(false);
 
     const [modalState, setModalState] = useState(false);
     const openModal = () => setModalState(true);
@@ -164,6 +166,27 @@ const RowList = (props) => {
 
     const handleSelect = (e) => {
         setSelectedStatus(e.target.value);
+    }
+
+    const handlerInput = async (e) => {
+        setWeState(e.target.value);
+        await updateOrder();
+    }
+
+    const updateOrder = async () => {
+        api.patch(`/logisticMap/${order.id}/`, {previsionWeek: weState}).then((response) => {
+            const historicData = {
+                page: "duelist",
+                before: order.previsionWeek,
+                after: weState,
+                action: "update",
+            }
+            api.post("/history/", historicData).then(() => {
+                setWeState(response.data.previsionWeek);
+            }).catch(console.error);
+        }).catch((error) => {
+            console.error(error);
+        });
     }
 
     const saveStatusOrder = (e) => {
@@ -179,20 +202,27 @@ const RowList = (props) => {
             idOrder:orderId,
         }
 
+        const statusName = ordersStatus.filter((status) => status.idStatus === selectedStatus)[0].name
+        const oldStatusName = ordersStatus.filter((status) => status.idStatus === orderStatusSelected)[0].name
+
         if(action === "create") {
             api.post("/statusOrder/", data).then(() => {
-                closeStatusState();
-                window.alert("Successful to adding status.");
-                reload(endpoint);
+                api.post("/history/", { page: "DueList", after: `Added the status ${statusName} for this order.`, action: "create", SO: order.soLine }).then(() => {
+                    closeStatusState();
+                    window.alert("Successful to adding status.");
+                    reload(endpoint);
+                }).catch(console.error);
             }).catch((error) => {
                 window.alert("Error adding status to order.");
                 console.error(error);
             });
         } else if (action === "update") {
             api.patch(`statusOrder/${order.status_id}/`, {idStatus: data.idStatus, idUser: data.idUser}).then(() => {
-                closeStatusState();
-                window.alert("Success to update status.");
-                reload(endpoint);
+                api.post("/history/", { page: "DueList", before: `Old status ${oldStatusName}`, after: `Added the status ${statusName} for this order.`, action: "update", SO: order.soLine }).then(() => {
+                    closeStatusState();
+                    window.alert("Success to update status.");
+                    reload(endpoint);
+                }).catch(console.error);
             }).catch((error) => {
                 window.alert("Error updating status of this order.");
                 console.error(error);
@@ -254,7 +284,27 @@ const RowList = (props) => {
                     <RenderMediaList index={i} id={(Math.random() * 1000000).toFixed()} data={formatDate(order.previsionTrianom)}/>
                 </td>
                 <td>
-                    <RenderMediaList index={i} id={(Math.random() * 1000000).toFixed()} data={order.previsionWeek}/>
+                    {weEditMode ? (
+                        <FormControl variant="standard" required className={classes.formControl}>
+                            <InputLabel id="demo-simple-select-outlined-label">
+                                Week
+                            </InputLabel>
+                            <Select
+                            labelId="demo-simple-select-outlined-label"
+                            id="demo-simple-select-outlined"
+                            label="Permission"
+                            value={weState}
+                            onChange={handlerInput}
+                            name="previsionWeek">
+                                <MenuItem value="">
+                                    <em>None</em>
+                                </MenuItem>
+                                {weList}
+                            </Select>
+                        </FormControl>
+                    ) : (
+                        <RenderMediaList index={i} id={(Math.random() * 1000000).toFixed()} data={order.previsionWeek}/>
+                    )}
                 </td>
                 <td>
                     {statusState[0]?(
@@ -392,23 +442,31 @@ const TableModal = (props) => {
             idUser:user,
             idOrder:orderId,
         }
+
+        const statusName = ordersStatus.filter((status) => status.idStatus === orderStatus)[0].name
+        const oldStatusName = ordersStatus.filter((status) => status.idStatus === orderStatusSelected)[0].name
         
         if(action === "create") {
             api.post("/statusOrder/", data).then(() => {
-                closeStatusMode();
-                window.alert("Successful to adding status.");
-                reload(endpoint);
-                closeModal();
+                api.post("/history/", { page: "DueList", after: `Added the status ${statusName} for this order.`, action: "create", SO: order.soLine }).then(() => {
+                    closeStatusMode();
+                    window.alert("Successful to adding status.");
+                    reload(endpoint);
+                    closeModal();
+                }).catch(console.error);
             }).catch((error) => {
                 window.alert("Error adding status to order.");
                 console.error(error);
             });
         } else if (action === "update") {
             api.patch(`statusOrder/${order.status_id}/`, data).then(() => {
-                closeStatusMode();
-                window.alert("Success to update status.");
-                reload(endpoint);
-                closeModal();
+                api.post("/history/", { page: "DueList", before: `Old status ${oldStatusName}`, after: `Added the status ${statusName} for this order.`, action: "update", SO: order.soLine }).then(() => {
+                    closeStatusMode();
+                    window.alert("Success to update status.");
+                    console.log(selectedStatusName)
+                    reload(endpoint);
+                    closeModal();
+                }).catch(console.error);
             }).catch((error) => {
                 window.alert("Error updating status of this order.");
                 console.error(error);
@@ -419,9 +477,28 @@ const TableModal = (props) => {
     const updateOrder = () => {
         if(order.externalService && weState.returnDays && weState.releaseDate) {
             api.patch(`/logMapExternalCalc/${order.id}/`, weState).then(() => {
-                window.alert("Order update success!");
-                reload(endpoint);
-                closeEditMode();
+                api.post(`/history/`, {
+                    page: "DueList",
+                    before: order.previsionWeek,
+                    after: weState.previsionWeek,
+                    action: "update",
+                    SO: order.soLine,
+                    so: [
+                        {
+                            before: order.returnDays,
+                            after: weState.returnDays,
+                            action: "update"
+                        },{
+                            before: order.releaseDate,
+                            after: weState.releaseDate,
+                            action: "update"
+                        }
+                    ]
+                }).then(() => {
+                    window.alert("Order update success!");
+                    reload(endpoint);
+                    closeEditMode();
+                })
             }).catch((error) => {
                 window.alert("Error to update this order.");
                 console.error(error);
@@ -432,9 +509,28 @@ const TableModal = (props) => {
                 previsionWeek: weState.previsionWeek,
                 supplier: weState.supplier
             }).then(() => {
-                window.alert("Order update success!");
-                reload(endpoint);
-                closeEditMode();
+                api.post(`/history/`, {
+                    page: "DueList",
+                    before: order.previsionWeek,
+                    after: weState.previsionWeek,
+                    action: "update",
+                    SO: order.soLine,
+                    so: [
+                        {
+                            before: order.returnDays,
+                            after: weState.returnDays,
+                            action: "update"
+                        },{
+                            before: order.supplier,
+                            after: weState.supplier,
+                            action: "update"
+                        }
+                    ]
+                }).then(() => {
+                    window.alert("Order update success!");
+                    reload(endpoint);
+                    closeEditMode();
+                })
             }).catch((error) => {
                 window.alert("Error to update this order.");
                 console.error(error);
@@ -448,11 +544,12 @@ const TableModal = (props) => {
             idOrder: order.id,
             comment: commentState.comment,
             idUser: commentState.idUser
-        }).then((request) => {
-            window.alert("Comment created success!");
-            setCommentState({...commentState, comment: ""});
-            reload(endpoint);
-            console.log(request.data);
+        }).then(() => {
+            api.post("/history/", {page: "duelist", after: commentState.comment, action: "create", SO: order.soLine}).then(() => {
+                window.alert("Comment created success!");
+                setCommentState({...commentState, comment: ""});
+                reload(endpoint);
+            }).catch(console.error)
         }).catch((error) => {
             window.alert("Error to create this comment...");
             console.error(error);
@@ -902,7 +999,7 @@ const TableModal = (props) => {
                             }}>
                                 <div className='container-notes-duelist-modal'>
                                     {order.comments.length > 0 ? (order.comments.map((note, index) => (
-                                        <NoteItem note={note} reload={reload} endpoint={endpoint} key={`${note.id}-${index}`}/>
+                                        <NoteItem note={note} reload={reload} endpoint={endpoint} order={order} key={`${note.id}-${index}`}/>
                                     ))) : (
                                         <div className='container-note-duelist-modal'>
                                             <div className="note-duelist-modal align-itens-center">
@@ -956,9 +1053,11 @@ const NoteItem = (props) => {
         if(valueEdit.comment.length === 0) return window.alert("Insert a comment to update this note!");
 
         api.patch(`/orderNotes/${note.id}/`, valueEdit).then(() => {
-            window.alert("Comment updated success!");
-            closeEditMode();
-            reload(endpoint);
+            api.post("/history/", {page: "duelist", before: note.comment, after: valueEdit.comment, action: "update", SO: props.order.soLine}).then(() => {
+                window.alert("Comment updated success!");
+                closeEditMode();
+                reload(endpoint);
+            }).catch(console.error);
         }).catch((error) => {
             window.alert("Error to update this comment...");
             console.error(error);
@@ -967,9 +1066,11 @@ const NoteItem = (props) => {
 
     const deleteNote = () => {
         api.delete(`/orderNotes/${note.id}/`).then(() => {
-            window.alert("Comment deleted success!");
-            closeEditMode();
-            reload(endpoint);
+            api.post("/history/", {page: "duelist", before: note.comment, after: "Deleted this note.", action: "delete", SO: props.order.soLine}).then(() => {
+                window.alert("Comment deleted success!");
+                closeEditMode();
+                reload(endpoint);
+            }).catch(console.error);
         }).catch((error) => {
             window.alert("Error to delete this comment...");
             console.error(error);

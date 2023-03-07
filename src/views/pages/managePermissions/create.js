@@ -16,7 +16,7 @@ import {
     InputGroupAddon,
     InputGroupText
 } from "reactstrap";
-import {api} from 'services/api';
+import { api } from 'services/api';
 
 const CreatePermission = ({...props}) => {
     const permissionsState = {
@@ -68,8 +68,10 @@ const CreatePermission = ({...props}) => {
         permissionsState.idPages = permissions
 
         api.post('/permissions/', permissionsState).then(() => {
-            window.alert("Permission has created successfully!");
-            props.closeCreate();
+            api.post("/history/", { page: "Permissions", after: `Created a new permission: ${permissionsState.name}`, action: "create" }).then(() => {
+                window.alert("Permission has created successfully!");
+                props.closeCreate();
+            }).catch(console.error);
         }).catch(console.error)
     }
 

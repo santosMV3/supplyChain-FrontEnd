@@ -288,8 +288,10 @@ const FactoryPage = () => {
         if(factoryCreateState.PC.length === 0) return window.alert('Insira um PC!');
        
         api.post('/factoryDate/', factoryCreateState).then(() => {
-            window.alert("Factory created Success.");
-            getFactory();
+            api.post("/history/", { page: "Boarding Date PC", after: `Created a new fabric: ${factoryCreateState.fabrica}`, action: "create" }).then(() => {
+                window.alert("Factory created Success.");
+                getFactory();
+            }).catch(console.error);
         }).catch(console.error)
 
     }
@@ -297,8 +299,10 @@ const FactoryPage = () => {
     const deleteFactory = (idFactory) => {
         if(!(window.confirm("Confirm to delete the factory data:"))) return null;
         api.delete(`/factoryDate/${idFactory}`).then(() => {
-            window.alert('Deleted success.');
-            getFactory();
+            api.post("/history/", { page: "Boarding Date PC", after: `Deleted a fabric.`, action: "delete" }).then(() => {
+                window.alert('Deleted success.');
+                getFactory();
+            }).catch(console.error);
         }).catch(console.error);
     }
 

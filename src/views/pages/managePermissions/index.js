@@ -413,9 +413,11 @@ const ListPermissions = () => {
 
 
                 api.patch(`/permissions/${post.idPermission}/`, permissionsState).then(() => {
-                    window.alert("Permission has updated successfully!");
-                    getPermissions();
-                    handleClose();
+                    api.post("/history/", { page: "Permissions", after: `Edited a permission: ${permissionsState.name}`, before: `Old permission name: ${post.name}`, action: "update" }).then(() => {
+                        window.alert("Permission has updated successfully!");
+                        getPermissions();
+                        handleClose();
+                    }).catch(console.error);
                 }).catch(console.error);
 
             }

@@ -59,9 +59,11 @@ const ListStatus = () => {
                 if(inputDescription.value.length>0) newStatus.description = inputDescription.value;
                 api.post('/status/', newStatus)
                 .then(() => {
-                    e.target.disabled = false;
-                    getStatus();
-                    handleOpenSuccessAlert('Status created success!');
+                    api.post("/history/", { page: "Status Management", after: `Created a new status: ${newStatus.name}`, action: "create" }).then(() => {
+                        e.target.disabled = false;
+                        getStatus();
+                        handleOpenSuccessAlert('Status created success!');
+                      }).catch(console.error);
                 }).catch((error) => {
                     if(error.response) return handleOpenDangerAlert("This name is already in use!");
                     e.target.disabled = false;

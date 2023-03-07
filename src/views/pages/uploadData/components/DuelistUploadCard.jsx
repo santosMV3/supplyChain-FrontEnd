@@ -44,6 +44,7 @@ export const UploadCard = () => {
         if(!fileData) return window.alert("Please, select a excel file to upload.");
         else if(!sheetName) return window.alert("Please, select a sheet to read.");
         const endpoint = `/upload/${importState?"logisticMap":"zzorder"}/${sheetName}`;
+        const fileSubmited = importState?"logisticMap":"zzorder";
 
         setUploadTime({
             time: 0,
@@ -68,7 +69,6 @@ export const UploadCard = () => {
             }
         })
         .then((request) => {
-            console.log(request);
             if (!request.data.status_error){
                 setUploadTime({
                     time: 100,
