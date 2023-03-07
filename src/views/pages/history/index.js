@@ -64,7 +64,7 @@ const HistoryPage = () => {
     }, []);
 
     const HistoricItem = ({...props}) => {
-        const { historic } = props;
+        let { historic } = props;
 
         const [historyState, setHistoryState] = useState(false);
         const openHistory = () => setHistoryState(true);
@@ -79,7 +79,36 @@ const HistoryPage = () => {
             return `${date[2]}/${date[1]}/${date[0]} ${time[0]}:${time[1]}`;
         }
 
-        const datetime = formatDateTime(props.historic.datetime);
+        let historicItens = []
+
+        let ordenedHistoric = {...historic}
+        const historicSO = ordenedHistoric.SO
+        const historicPage = ordenedHistoric.page
+        ordenedHistoric = Object.assign({}, ordenedHistoric, { idHistoric: true });
+
+        console.log(ordenedHistoric)
+
+        historicItens = historicItens.concat(ordenedHistoric.so_item)
+        historicItens.push(ordenedHistoric);
+        historicItens.sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
+        
+        delete ordenedHistoric["so_item"];
+        delete ordenedHistoric["page"];
+        delete ordenedHistoric["SO"];
+
+        historic = historicItens[0];
+        delete historic.idHistoric;
+
+        historicItens.splice(0, 1);
+
+        historic.page = historicPage;
+        historic.SO = historicSO;
+        historic.so_item = historicItens;
+
+        // console.log(historic.so_item)
+
+
+        const datetime = formatDateTime(historic.datetime);
         const user = historic.user.first_name && historic.user.last_name ? `${historic.user.first_name} ${historic.user.last_name}` : `${historic.user.username}`;
 
         const ChangeItem = ({...props}) => {
@@ -191,7 +220,7 @@ const HistoryPage = () => {
                     height: '1px',
                     padding: '5px',
                 }}>
-                    {props.historic.page}
+                    {historic.page}
                 </td>
                 <td style={{
                     textAlign: "center",
@@ -200,7 +229,7 @@ const HistoryPage = () => {
                     height: '1px',
                     padding: '5px',
                 }}>
-                    {props.historic.action}
+                    {historic.action}
                 </td>
                 <td style={{
                     textAlign: "center",
@@ -218,7 +247,7 @@ const HistoryPage = () => {
                     height: '1px',
                     padding: '5px',
                 }}>
-                    {historic.SO?props.historic.SO:"Not an a SO"}
+                    {historic.SO?historic.SO:"Not an a SO"}
                 </td>
                 <td style={{
                     textAlign: "center",
@@ -227,7 +256,7 @@ const HistoryPage = () => {
                     height: '1px',
                     padding: '5px',
                 }}>
-                    <Button color="primary" size="sm" onClick={historyState?closeHistory:openHistory} id={props.historic.id + "toggler"} >
+                    <Button color="primary" size="sm" onClick={historyState?closeHistory:openHistory} id={historic.id + "toggler"} >
                         Expand
                     </Button>
                 </td>
