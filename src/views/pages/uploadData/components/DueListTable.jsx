@@ -203,7 +203,10 @@ const RowList = (props) => {
         }
 
         const statusName = ordersStatus.filter((status) => status.idStatus === selectedStatus)[0].name
-        const oldStatusName = ordersStatus.filter((status) => status.idStatus === orderStatusSelected)[0].name
+        let oldStatusName = ordersStatus.filter((status) => status.idStatus === orderStatusSelected);
+
+        if (oldStatusName.length) oldStatusName = oldStatusName[0].name;
+
 
         if(action === "create") {
             api.post("/statusOrder/", data).then(() => {
