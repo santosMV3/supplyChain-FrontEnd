@@ -128,7 +128,9 @@ const ImportationLine = ({post, deleteFactory, getImp}) => {
                             margin: '0 auto'
                         }}/>
                     </td>
-                    <td style={{boxSizing: 'border-box', padding: '5px'}}>
+                    <td style={{boxSizing: 'border-box', padding: '5px'}} onDoubleClick={() => {
+                        setImpUpdate({...impUpdate, "prevChegadaTrianon": null});
+                    }}>
                         <DatePicker
                             type="date"
                             locale="pt-br"
