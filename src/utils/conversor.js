@@ -9,7 +9,7 @@ export const toReal = (value) => {
 
 export const formatDate = (date) => {
     if (date) {
-        if (date.indexOf('-') === -1) return date;
+        if (date.indexOf('-') === -1) return false;
         if (date.indexOf('T') === -1) {
             date = date.split(' ');
             date = date[0].split('-');
@@ -21,7 +21,7 @@ export const formatDate = (date) => {
         return `${date[2]}/${date[1]}/${date[0]}`;
     }
 
-    return date;
+    return false;
 }
 
 export const formatDateTime = (date) => {
@@ -34,5 +34,15 @@ export const formatDateTime = (date) => {
         return `${date[2]}/${date[1]}/${date[0]} ${time[0]}:${time[1]}`;
     }
 
-    return date;
+    return false;
+}
+
+export const formatDateAmerican = (date) => {
+    if (date) {
+        const day = (date.getDate()).toString().padStart(2, "0");
+        const month = (date.getMonth() + 1).toString().padStart(2, "0");
+        const year = date.getFullYear();
+        return `${year}-${month}-${day}`;
+    }
+    return false;
 }

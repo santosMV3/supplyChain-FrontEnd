@@ -76,7 +76,7 @@ export const DuelistFilter = (props) => {
         ["previsionFatSystem","Est. NF. Date (sys)"],
         ["materiaDays","Material Days"],
         ["deadLineFat","Dead Line Fat."],
-        ["previsionWeek","Prevision Week"],
+        ["previsionWeek","Prevision Fat. (Week)"],
         ["externalService","Ext. Service"],
         ["supplier","Supplier"],
         ["returnDays","Return Days"],
