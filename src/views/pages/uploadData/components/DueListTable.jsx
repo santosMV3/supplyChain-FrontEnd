@@ -175,12 +175,14 @@ const RowList = (props) => {
 
     const updateOrder = async () => {
         api.patch(`/logisticMap/${order.id}/`, {previsionWeek: weState}).then((response) => {
-            const historicData = {
+            let historicData = {
                 page: "duelist",
-                before: order.previsionWeek,
-                after: weState,
+                after: `New Prevision Week value: "${weState}"`,
                 action: "update",
             }
+
+            if (order.previsionWeek) historicData.before = `Old Prevision Week value: "${order.previsionWeek}"`;
+
             api.post("/history/", historicData).then(() => {
                 setWeState(response.data.previsionWeek);
             }).catch(console.error);
@@ -480,24 +482,33 @@ const TableModal = (props) => {
     const updateOrder = () => {
         if(order.externalService && weState.returnDays && weState.releaseDate) {
             api.patch(`/logMapExternalCalc/${order.id}/`, weState).then(() => {
-                api.post(`/history/`, {
+                let historicData = {
                     page: "DueList",
-                    before: order.previsionWeek,
-                    after: weState.previsionWeek,
+                    after: `New Prevision Week value: "${weState.previsionWeek}"`,
                     action: "update",
                     SO: order.soLine,
-                    so: [
-                        {
-                            before: order.returnDays,
-                            after: weState.returnDays,
-                            action: "update"
-                        },{
-                            before: order.releaseDate,
-                            after: weState.releaseDate,
-                            action: "update"
-                        }
-                    ]
-                }).then(() => {
+                    so: []
+                }
+
+                if (order.previsionWeek) historicData.before = `Old Prevision Week value: "${order.previsionWeek}"`;
+
+                if (parseInt(order.returnDays) !== parseInt(weState.returnDays)) {
+                    historicData.so.push({
+                        before: `Old Return Days value: "${order.returnDays}"`,
+                        after: `New Return Days value: "${weState.returnDays}"`,
+                        action: "update"
+                    });
+                }
+
+                if (order.releaseDate !== weState.releaseDate) {
+                    historicData.so.push({
+                        before: `Old Release Date value: "${order.releaseDate}"`,
+                        after: `New Release Date value: "${weState.releaseDate}"`,
+                        action: "update"
+                    });
+                }
+
+                api.post(`/history/`, historicData).then(() => {
                     window.alert("Order update success!");
                     reload(endpoint);
                     closeEditMode();
@@ -548,7 +559,7 @@ const TableModal = (props) => {
             comment: commentState.comment,
             idUser: commentState.idUser
         }).then(() => {
-            api.post("/history/", {page: "duelist", after: commentState.comment, action: "create", SO: order.soLine}).then(() => {
+            api.post("/history/", {page: "duelist", after: `Added a new note to this order: "${commentState.comment}"`, action: "create", SO: order.soLine}).then(() => {
                 window.alert("Comment created success!");
                 setCommentState({...commentState, comment: ""});
                 reload(endpoint);
@@ -1056,7 +1067,7 @@ const NoteItem = (props) => {
         if(valueEdit.comment.length === 0) return window.alert("Insert a comment to update this note!");
 
         api.patch(`/orderNotes/${note.id}/`, valueEdit).then(() => {
-            api.post("/history/", {page: "duelist", before: note.comment, after: valueEdit.comment, action: "update", SO: props.order.soLine}).then(() => {
+            api.post("/history/", {page: "duelist", before: `Old note value: "${note.comment}"`, after: `Updated a note of this order: "${valueEdit.comment}"`, action: "update", SO: props.order.soLine}).then(() => {
                 window.alert("Comment updated success!");
                 closeEditMode();
                 reload(endpoint);
