@@ -3,9 +3,15 @@ import React, { useEffect, useState } from "react"
 import { 
     Button,
     Input
- } from "reactstrap";
+} from "reactstrap";
+import DatePicker, { registerLocale } from "react-datepicker";
+import ptBR from 'date-fns/locale/pt-BR';
+import "react-datepicker/dist/react-datepicker.css";
+import { formatDateAmerican, formatDate } from "utils/conversor";
 
 import { api } from "services/api";
+
+registerLocale('pt-br', ptBR);
 
 const ImportationLine = ({post, deleteFactory, getImp}) => {
 
@@ -22,6 +28,7 @@ const ImportationLine = ({post, deleteFactory, getImp}) => {
     const closeEditMode = () => setEditMode(false);
 
     const handlerInput = (e) => {
+        if (Object.keys(e).length == 0) return setImpUpdate({...impUpdate, "prevChegadaTrianon": formatDateAmerican(e)});
         if(e.target.type=== "number"){
             if(e.target.value === "") e.target.value = 0;
             if(e.target.value > 99999) e.target.value = 99999;
@@ -121,18 +128,21 @@ const ImportationLine = ({post, deleteFactory, getImp}) => {
                             margin: '0 auto'
                         }}/>
                     </td>
-                    <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                        <Input
-                            id="dateExternal"
-                            defaultValue={new Date().getFullYear() + "-11-23T10:30:00"}
+                    <td style={{boxSizing: 'border-box', padding: '5px'}} onDoubleClick={() => {
+                        setImpUpdate({...impUpdate, "prevChegadaTrianon": null});
+                    }}>
+                        <DatePicker
                             type="date"
-                            bsSize='sm'
+                            locale="pt-br"
                             onChange={handlerInput}
-                            name="prevChegadaTrianon"
+                            value={formatDate(impUpdate.prevChegadaTrianon)}
+                            name="releaseDate"
+                            dateFormat="dd/MM/yyyy"
                             style={{
                                 width: '150px',
                                 margin: '0 auto'
-                            }}/>
+                            }}
+                        />
                     </td>
                     <td style={{boxSizing: 'border-box', padding: '5px'}}>
                         <Input bsSize="sm" onClick={handlerInput} type="checkbox" defaultChecked={post.liberadoFaturamento===true?true:false} name="liberadoFaturamento" style={{

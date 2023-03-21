@@ -15,6 +15,12 @@ import {
 import { Backdrop, Fade, FormControl, InputLabel, MenuItem, Modal, Select } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { api } from 'services/api';
+import DatePicker, { registerLocale } from "react-datepicker";
+import ptBR from 'date-fns/locale/pt-BR';
+import "react-datepicker/dist/react-datepicker.css";
+import { formatDateAmerican } from "../../../../utils/conversor";
+
+registerLocale('pt-br', ptBR);
 
 const useStyles = makeStyles((theme) => ({
     modal: {
@@ -71,7 +77,7 @@ export const THeadList = () => {
                 <th scope="col">Material Descript.</th>
                 <th scope="col">Material Number</th>
                 <th scope="col">ETA Trianon</th>
-                <th scope='col'>Week</th>
+                <th scope='col'>Prevision Fat. (Week)</th>
                 <th scope="col">Status</th>
             </tr>
         </thead>
@@ -428,6 +434,7 @@ const TableModal = (props) => {
     }
 
     const handlerInput = (e) => {
+        if (Object.keys(e).length == 0) return setWeState({...weState, "releaseDate": formatDateAmerican(e)});
         setWeState({...weState, [e.target.name]: e.target.value});
     }
 
@@ -959,13 +966,13 @@ const TableModal = (props) => {
                                                 name="returnDays"/>
                                             </div>
                                             <div className='cell-value-list-duelist-modal clickable-duelist' onDoubleClick={closeEditMode}>
-                                                <Input
-                                                id="dateExternal"
-                                                defaultValue={new Date().getFullYear() + "-11-23T10:30:00"}
-                                                type="date"
-                                                bsSize='sm'
-                                                onChange={handlerInput}
-                                                name="releaseDate"/>
+                                                <DatePicker
+                                                    type="date"
+                                                    locale="pt-br"
+                                                    onChange={handlerInput}
+                                                    value={formatDate(weState.releaseDate)}
+                                                    name="releaseDate"
+                                                    dateFormat="dd/MM/yyyy"/>
                                             </div>
                                         </>
                                     ) : (
