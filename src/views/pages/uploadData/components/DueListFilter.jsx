@@ -84,7 +84,7 @@ export const DuelistFilter = (props) => {
         ["previsionDate","Prevision Date"],
     ];
 
-    const filterOnlyFields = filterFields.map((fieldItem) => fieldItem[1]).sort();
+    const filterOnlyFields = filterFields.map((fieldItem) => fieldItem[1]).sort((a, b) => a.toUpperCase() == b.toUpperCase() ? 0 : a.toUpperCase() > b.toUpperCase() ? 1 : -1);
 
     const handlerInputFilter = (e) => {
         if(e.target.name === "field" && e.target.value === "Status"){

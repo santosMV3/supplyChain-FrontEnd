@@ -776,7 +776,7 @@ const TableModal = (props) => {
                                         {order.fullDelivery}
                                     </div>
                                     <div className='cell-value-list-duelist-modal'>
-                                        {order.PCInvoice}
+                                        {order.producingCompany}
                                     </div>
                                     <div className='cell-value-list-duelist-modal'>
                                         {formatDate(order.PCInvoiceDate)}
@@ -831,7 +831,7 @@ const TableModal = (props) => {
                                         Dead Line Fat.
                                     </div>
                                     <div className='cell-title-list-duelist-modal'>
-                                        PC Invoice
+                                        Purch. no.
                                     </div>
                                     <div className='cell-title-list-duelist-modal'>
                                         Conf. Delivery Date
@@ -848,7 +848,7 @@ const TableModal = (props) => {
                                         {order.deadLineFat}
                                     </div>
                                     <div className='cell-value-list-duelist-modal'>
-                                        {order.producingCompany}
+                                        {order.purchNo}
                                     </div>
                                     <div className='cell-value-list-duelist-modal'>
                                         {formatDate(order.confDeliveryDate)}
@@ -867,7 +867,7 @@ const TableModal = (props) => {
                                         SO Creation Date
                                     </div>
                                     <div className='cell-title-list-duelist-modal'>
-                                        Purch. no.
+                                        External Service
                                     </div>
                                 </div>
                                 <div className='column-list-duelist-modal'>
@@ -881,7 +881,7 @@ const TableModal = (props) => {
                                         {formatDate(order.SOCreationDate)}
                                     </div>
                                     <div className='cell-value-list-duelist-modal'>
-                                        {order.purchNo}
+                                        {order.externalService ? "Yes" : "No"}
                                     </div>
                                 </div>
                             </div>
@@ -889,9 +889,6 @@ const TableModal = (props) => {
                                 <div className='column-list-duelist-modal'>
                                     <div className='cell-title-list-duelist-modal clickable-duelist' onDoubleClick={modalEdit?closeEditMode:openEditMode}>
                                         Prevision Fat. (Week)
-                                    </div>
-                                    <div className='cell-title-list-duelist-modal'>
-                                        External Service
                                     </div>
                                     <div className='cell-title-list-duelist-modal clickable-duelist' onDoubleClick={modalEdit?closeEditMode:openEditMode}>
                                         Supplier
@@ -930,9 +927,6 @@ const TableModal = (props) => {
                                             {order.previsionWeek ? order.previsionWeek : "N/A"}
                                         </div>
                                     )}
-                                    <div className='cell-value-list-duelist-modal'>
-                                        {order.externalService ? "Yes" : "No"}
-                                    </div>
                                     {modalEdit && order.externalService ? (
                                         <>
                                             <div className='cell-value-list-duelist-modal clickable-duelist' onDoubleClick={closeEditMode}>
