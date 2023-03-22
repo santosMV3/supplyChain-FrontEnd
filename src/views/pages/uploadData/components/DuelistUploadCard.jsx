@@ -91,6 +91,8 @@ export const UploadCard = () => {
                 color: "danger"
             });
             console.error(request);
+            const response = request.response.data;
+            if(Object.keys(response).indexOf("error") > -1) return window.alert(response.error);
         });
     }
 
