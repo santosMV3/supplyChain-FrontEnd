@@ -528,26 +528,16 @@ const TableModal = (props) => {
         } else {
             api.patch(`/logisticMap/${order.id}/`, {
                 previsionWeek: weState.previsionWeek,
-                supplier: weState.supplier
             }).then(() => {
-                api.post(`/history/`, {
+                let historicData = {
                     page: "DueList",
-                    before: order.previsionWeek,
-                    after: weState.previsionWeek,
+                    after: `New Prevision Week value: "${weState.previsionWeek}"`,
                     action: "update",
                     SO: order.soLine,
-                    so: [
-                        {
-                            before: order.returnDays,
-                            after: weState.returnDays,
-                            action: "update"
-                        },{
-                            before: order.supplier,
-                            after: weState.supplier,
-                            action: "update"
-                        }
-                    ]
-                }).then(() => {
+                }
+                if (order.previsionWeek) historicData.before = `Old Prevision Week value: "${order.previsionWeek}"`;
+
+                api.post(`/history/`, historicData).then(() => {
                     window.alert("Order update success!");
                     reload(endpoint);
                     closeEditMode();

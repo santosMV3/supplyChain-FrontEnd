@@ -25,15 +25,50 @@ const ImportationLine = ({post, deleteExt, getExtData}) => {
 
     const updateExternalService = () => {
         api.patch(`/externalServices/${post.id}/`, extDataUpdate).then((response) => {
-            Promise.all([
-                // api.post("/history/", { before: post.SSKProject, after: extDataUpdate.SSKProject, page: "External Services", action: "update" }),
-                api.post("/history/", { before: post.externalServices.toString(), after: extDataUpdate.externalServices.toString(), page: "External Services", action: "update" }),
-                // api.post("/history/", { before: post.documentNumber, after: extDataUpdate.documentNumber, page: "External Services", action: "update" })
-            ]).then(() => {
-                window.alert("Update success!");
-                closeEditMode();
-                getExtData();
-            }).catch(console.error);
+            let historicData = {
+                before: null,
+                after: null,
+                page: "External Services",
+                action: null,
+                so: []
+            };
+
+            const changes = [];
+
+            if (post.externalServices.toString() !== extDataUpdate.externalServices.toString()) changes.push({
+                before: `Old External services value: "${post.externalServices.toString()}"`,
+                after: `New External services value: "${extDataUpdate.externalServices.toString()}"`,
+                action: "update"
+            });
+
+            if (post.SSKProject !== extDataUpdate.SSKProject) changes.push({
+                before: `Old SSKProject value: "${post.SSKProject.toString()}"`,
+                after: `New SSKProject value: "${extDataUpdate.SSKProject.toString()}"`,
+                action: "update"
+            });
+
+            if (post.documentNumber.toString() !== extDataUpdate.documentNumber.toString()) changes.push({
+                before: `Old Document number value: "${post.documentNumber.toString()}"`,
+                after: `New Document number value: "${extDataUpdate.documentNumber.toString()}"`,
+                action: "update"
+            });
+
+            if (changes.length > 0){
+                const bodyChange = changes.shift();
+                historicData.before = bodyChange.before;
+                historicData.after = bodyChange.after;
+                historicData.action = bodyChange.action;
+
+                historicData.so = changes;
+
+                api.post("/history/", historicData).then(() => {
+                    window.alert("Update success!");
+                    closeEditMode();
+                    return getExtData();
+                }).catch(console.error);
+            }
+
+            return closeEditMode();
         }).catch(console.error);
     }
 

@@ -1,7 +1,12 @@
 import React, {useState} from 'react';
-
 import "./styles/style-duelist-filter.css";
 import {Button, Input} from "reactstrap";
+import DatePicker, { registerLocale } from "react-datepicker";
+import ptBR from 'date-fns/locale/pt-BR';
+import "react-datepicker/dist/react-datepicker.css";
+import { formatDateAmerican, formatDate } from "../../../../utils/conversor";
+
+registerLocale('pt-br', ptBR);
 
 export const DuelistFilter = (props) => {
 
@@ -87,6 +92,7 @@ export const DuelistFilter = (props) => {
     const filterOnlyFields = filterFields.map((fieldItem) => fieldItem[1]).sort((a, b) => a.toUpperCase() == b.toUpperCase() ? 0 : a.toUpperCase() > b.toUpperCase() ? 1 : -1);
 
     const handlerInputFilter = (e) => {
+        if (Object.keys(e).length == 0) return setFilterValue({...filterValue, "value": formatDateAmerican(e)});
         if(e.target.name === "field" && e.target.value === "Status"){
             setFilterValue({...filterValue, [e.target.name]: e.target.value});
             return openStatusMode();
@@ -185,7 +191,7 @@ export const DuelistFilter = (props) => {
                         <option value="">Fields</option>
                         {filterOnlyFields.map((field, index) => (<option key={`filter-field-${index}`} value={field}>{field}</option>))}
                     </Input>
-                    {filterValue.field === "externalService" ? (
+                    {filterValue.field === "Ext. Service" ? (
                         <div className="custom-control custom-checkbox duelist-filter-input-checkbox">
                             <input
                                 className="custom-control-input"
@@ -198,7 +204,16 @@ export const DuelistFilter = (props) => {
                                 Value
                             </label>
                         </div>
-                    ):(
+                    ): filterValue.field === "ETA TRIANON" ? (
+                        <DatePicker
+                        id="duelist-filter-input-select-status"
+                        type="date"
+                        locale="pt-br"
+                        onChange={handlerInputFilter}
+                        value={formatDate(filterValue.value)}
+                        name="releaseDate"
+                        dateFormat="dd/MM/yyyy"/>
+                    ) : (
                         <>
                             {statusMode ? (
                                 <>
@@ -242,7 +257,7 @@ export const DuelistFilter = (props) => {
                                 {filterItem.field[1]}:&nbsp;
                             </div>
                             <div>
-                                {filterItem.value.length > 0 ? filterItem.value.replace("billed", "Green").replace("undefined", "White").replace("transport", "Yellow"):"Null"}&nbsp;
+                                {filterItem.field[1] == "ETA TRIANON" ? formatDate(filterItem.value) : filterItem.value.length > 0 ? filterItem.value.replace("billed", "Green").replace("undefined", "White").replace("transport", "Yellow"):"Null"}&nbsp;
                             </div>
                             <Button color='danger' outline onClick={deleteFilter} value={index} className='button-filter-bubble-delete' size='sm'>
                                 x
