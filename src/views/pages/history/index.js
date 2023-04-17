@@ -86,8 +86,6 @@ const HistoryPage = () => {
         const historicPage = ordenedHistoric.page
         ordenedHistoric = Object.assign({}, ordenedHistoric, { idHistoric: true });
 
-        console.log(ordenedHistoric)
-
         historicItens = historicItens.concat(ordenedHistoric.so_item)
         historicItens.push(ordenedHistoric);
         historicItens.sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
@@ -120,7 +118,8 @@ const HistoryPage = () => {
                 <>
                     <div style={{
                         width: "100%",
-                        height: "30px",
+                        minHeight: "30px",
+                        height: "auto",
                         display: "flex",
                         flexDirection: "row",
                         alignItems: "center",
@@ -134,8 +133,9 @@ const HistoryPage = () => {
                             flexDirection: "row",
                             alignItems: "center",
                             justifyContent: "center",
+                            textAlign: "center"
                         }}>
-                            <p className="mt-3 text-sm">
+                            <p className="mt-3 text-sm" style={{margin: "0"}}>
                                 <span className="text-danger mr-2">
                                     <i className="fa fa-arrow-down" />
                                 </span>
@@ -157,8 +157,9 @@ const HistoryPage = () => {
                             flexDirection: "row",
                             alignItems: "center",
                             justifyContent: "center",
+                            textAlign: "center"
                         }}>
-                            <p className="mt-3 text-sm">
+                            <p className="mt-3 text-sm" style={{margin: "0"}}>
                                 <span className="text-success mr-2">
                                     <i className="fa fa-arrow-up" />
                                 </span>
@@ -183,6 +184,9 @@ const HistoryPage = () => {
                                     flexDirection: "row",
                                     justifyContent: "space-around"
                                 }}>
+                                    <div>
+                                        <span style={{fontWeight: "bold"}}>Action:</span> {props.data.action}
+                                    </div>
                                     <div>
                                         <span style={{fontWeight: "bold"}}>User:</span> {user}
                                     </div>

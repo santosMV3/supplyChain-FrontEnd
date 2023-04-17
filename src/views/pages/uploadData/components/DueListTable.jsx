@@ -180,10 +180,12 @@ const RowList = (props) => {
     }
 
     const updateOrder = async () => {
-        api.patch(`/logisticMap/${order.id}/`, {previsionWeek: weState}).then((response) => {
+        api.patch(`/logisticMap/${order.id}/`, {previsionWeek: weState.previsionWeek, previsionTrianom: weState.previsionTrianom}).then((response) => {
             let historicData = {
                 page: "duelist",
                 after: `New Prevision Week value: "${weState}"`,
+                SO: order.soLine,
+                so: [],
                 action: "update",
             }
 
@@ -418,7 +420,8 @@ const TableModal = (props) => {
         previsionWeek: order.previsionWeek,
         supplier: order.supplier,
         returnDays: order.returnDays,
-        releaseDate: order.releaseDate
+        releaseDate: order.releaseDate,
+        previsionTrianom: order.previsionTrianom
     });
 
     const [commentState, setCommentState] = useState({
@@ -433,13 +436,17 @@ const TableModal = (props) => {
         return setCommentState({...commentState, [e.target.name]: comment});
     }
 
-    const handlerInput = (e) => {
-        if (Object.keys(e).length == 0) return setWeState({...weState, "releaseDate": formatDateAmerican(e)});
+    const handlerInput = (e, input=null) => {
+        if(input) return setWeState({...weState, [input]: formatDateAmerican(e)});
         setWeState({...weState, [e.target.name]: e.target.value});
     }
 
     const handlerStatusSelect = (e) => {
         setOrderStatus(e.target.value);
+    }
+
+    const clearInputWe = (input=null) => {
+        setWeState({...weState, [input]: ""});
     }
 
     const saveStatusOrder = (e) => {
@@ -487,17 +494,23 @@ const TableModal = (props) => {
     }
 
     const updateOrder = () => {
-        if(order.externalService && weState.returnDays && weState.releaseDate) {
+        if(order.externalService) {
+            if ((!weState.supplier || weState.supplier.length === 0) || (!weState.returnDays || weState.returnDays.length === 0) || (!weState.releaseDate || weState.releaseDate.length === 0)) return window.alert("Required fields cannot be empty.");
             api.patch(`/logMapExternalCalc/${order.id}/`, weState).then(() => {
                 let historicData = {
                     page: "DueList",
-                    after: `New Prevision Week value: "${weState.previsionWeek}"`,
+                    after: null,
+                    before: null,
                     action: "update",
                     SO: order.soLine,
                     so: []
                 }
 
-                if (order.previsionWeek) historicData.before = `Old Prevision Week value: "${order.previsionWeek}"`;
+                if(order.previsionWeek !== weState.previsionWeek) historicData.so.push({
+                    before: `Old Prevision Week value: "${order.previsionWeek}"`,
+                    after: `New Prevision Week value: "${weState.previsionWeek}"`,
+                    action: "update"
+                });
 
                 if (parseInt(order.returnDays) !== parseInt(weState.returnDays)) {
                     historicData.so.push({
@@ -515,11 +528,26 @@ const TableModal = (props) => {
                     });
                 }
 
-                api.post(`/history/`, historicData).then(() => {
-                    window.alert("Order update success!");
-                    reload(endpoint);
+                if (order.supplier !== weState.supplier) historicData.so.push({
+                    before: `Old Supplier value: "${order.supplier}"`,
+                    after: `New Supplier value: "${weState.supplier}"`,
+                    action: "update"
+                });
+
+                const historicItem = historicData.so.shift();
+                if (historicItem) {
+                    historicData.before = historicItem.before;
+                    historicData.after = historicItem.after;
+                    historicData.action = historicItem.action;
+
+                    api.post(`/history/`, historicData).then(() => {
+                        window.alert("Order update success!");
+                        reload(endpoint);
+                        closeEditMode();
+                    });
+                } else {
                     closeEditMode();
-                })
+                }
             }).catch((error) => {
                 window.alert("Error to update this order.");
                 console.error(error);
@@ -528,20 +556,43 @@ const TableModal = (props) => {
         } else {
             api.patch(`/logisticMap/${order.id}/`, {
                 previsionWeek: weState.previsionWeek,
+                previsionTrianom: weState.previsionTrianom
             }).then(() => {
                 let historicData = {
                     page: "DueList",
-                    after: `New Prevision Week value: "${weState.previsionWeek}"`,
-                    action: "update",
+                    after: null,
+                    action: null,
+                    before: null,
                     SO: order.soLine,
+                    so: []
                 }
-                if (order.previsionWeek) historicData.before = `Old Prevision Week value: "${order.previsionWeek}"`;
 
-                api.post(`/history/`, historicData).then(() => {
-                    window.alert("Order update success!");
-                    reload(endpoint);
+                if (order.previsionWeek !== weState.previsionWeek) historicData.so.push({
+                    after: `New Prevision Week value: "${weState.previsionWeek}"`,
+                    before: `Old Prevision Week value: "${order.previsionWeek}"`,
+                    action: "update"
+                });
+
+                if(order.previsionTrianom !== weState.previsionTrianom) historicData.so.push({
+                    before: `Old Prevision Trianom value: "${order.previsionTrianom}"`,
+                    after: `New Prevision Trianom value: "${weState.previsionTrianom}"`,
+                    action: "update"
+                });
+
+                const historicItem = historicData.so.shift();
+                if(historicItem){
+                    historicData.after = historicItem.after;
+                    historicData.before = historicItem.before;
+                    historicData.action = historicItem.action;
+
+                    api.post(`/history/`, historicData).then(() => {
+                        window.alert("Order update success!");
+                        reload(endpoint);
+                        closeEditMode();
+                    })
+                } else {
                     closeEditMode();
-                })
+                }
             }).catch((error) => {
                 window.alert("Error to update this order.");
                 console.error(error);
@@ -792,7 +843,7 @@ const TableModal = (props) => {
                                     <div className='cell-title-list-duelist-modal'>
                                         SO - Linha
                                     </div>
-                                    <div className='cell-title-list-duelist-modal'>
+                                    <div className='cell-title-list-duelist-modal clickable-duelist' onDoubleClick={modalEdit?closeEditMode:openEditMode}>
                                         ETA Trianon
                                     </div>
                                     <div className='cell-title-list-duelist-modal'>
@@ -809,9 +860,21 @@ const TableModal = (props) => {
                                     <div className='cell-value-list-duelist-modal'>
                                         {order.soLine}
                                     </div>
-                                    <div className='cell-value-list-duelist-modal'>
-                                        {formatDate(order.previsionTrianom)}
-                                    </div>
+                                    {modalEdit ? (
+                                        <div className='cell-value-list-duelist-modal clickable-duelist' onDoubleClick={() => clearInputWe("previsionTrianom")}>
+                                            <DatePicker
+                                                type="date"
+                                                locale="pt-br"
+                                                onChange={(e) => handlerInput(e, "previsionTrianom")}
+                                                value={formatDate(weState.previsionTrianom)}
+                                                name="previsionTrianom"
+                                                dateFormat="dd/MM/yyyy"/>
+                                        </div>
+                                    ) : (
+                                        <div className='cell-value-list-duelist-modal clickable-duelist' onDoubleClick={modalEdit?closeEditMode:openEditMode}>
+                                            {formatDate(order.previsionTrianom)}
+                                        </div>
+                                    )}
                                     <div className='cell-value-list-duelist-modal'>
                                         {order.importation}
                                     </div>
@@ -949,11 +1012,11 @@ const TableModal = (props) => {
                                                 onChange={handlerInput}
                                                 name="returnDays"/>
                                             </div>
-                                            <div className='cell-value-list-duelist-modal clickable-duelist' onDoubleClick={closeEditMode}>
+                                            <div className='cell-value-list-duelist-modal clickable-duelist' onDoubleClick={() => clearInputWe("releaseDate")}>
                                                 <DatePicker
                                                     type="date"
                                                     locale="pt-br"
-                                                    onChange={handlerInput}
+                                                    onChange={(e) => handlerInput(e, "releaseDate")}
                                                     value={formatDate(weState.releaseDate)}
                                                     name="releaseDate"
                                                     dateFormat="dd/MM/yyyy"/>
@@ -1017,7 +1080,7 @@ const TableModal = (props) => {
                                 </div>
                                 <div className='container-register-note-duelist-modal'>
                                     <div className='box-register-note-duelist-modal'>
-                                        <Button color="primary" size='sm' onClick={createNote} outline> Salvar {order.id} </Button>
+                                        <Button color="primary" size='sm' onClick={createNote} outline> Salvar </Button>
                                         <Input type='textarea' name='comment' onChange={handlerComment} value={commentState.comment}/>
                                     </div>
                                 </div>

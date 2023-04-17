@@ -359,6 +359,8 @@ const ListUsers = () => {
     
         const ModalEdit = ({...props}) => {
             const [selected, setSelect] = useState(permission.length>0?permission[0].idPermission:"");
+            const [permissions, setPermission] = useState([]);
+
             const handleChange = (event) => {
                 setSelect(event.target.value);
             };
@@ -371,6 +373,17 @@ const ListUsers = () => {
                 groups: props.post.groups,
                 is_superuser: props.post.is_superuser,
             }
+
+            useEffect(() => {
+                let abortController = new AbortController();
+                const getPermissions = () => {
+                    api.get('/permissions/').then((response) => setPermission(response.data))
+                    .catch(console.error);
+                }
+
+                getPermissions();
+                return () => abortController.abort();
+            }, []);
     
             const updateInfo = async (e) => {
                 e.preventDefault();
@@ -386,28 +399,68 @@ const ListUsers = () => {
                 api.patch(`/users/${post.id}/`, userData).then(() => {
                     api.patch(`/user-permission/${permission[0].idUserPermission}/`,{idPermission: userData.permission})
                     .then((response) => {
-                        window.alert("Update Succesfully!");
-                        closeModalEdit();
-                        reloadData();
+                        let historicData = {
+                            page: "Users",
+                            before: null,
+                            after: null,
+                            action: null,
+                            SO: null,
+                            so: []
+                        };
+
+                        if (userData.first_name !== post.first_name) historicData.so.push({
+                            before: `Old first name value: "${post.first_name}"`,
+                            after: `New first name value: "${userData.first_name}" for user: "${userData.username}"`,
+                            action: "update",
+                        });
+
+                        if (userData.last_name !== post.last_name) historicData.so.push({
+                            before: `Old last name value: "${post.last_name}"`,
+                            after: `New last name value: "${userData.last_name}" for user: "${userData.username}"`,
+                            action: "update",
+                        });
+
+                        if (userData.username !== post.username) historicData.so.push({
+                            before: `Old username value: "${post.username}"`,
+                            after: `New username value: "${userData.username}"`,
+                            action: "update",
+                        });
+
+                        if (userData.email !== post.email) historicData.so.push({
+                            before: `Old e-mail value: "${post.email}"`,
+                            after: `New e-mail value: "${userData.email}" for user: "${userData.username}"`,
+                            action: "update",
+                        });
+
+                        if(permission[0].idPermission !== selected.idPermission) {
+                            const oldPermissionName = permissions.filter((permissionItem) => permissionItem.idPermission === permission[0].idPermission)[0];
+                            const newPermissionName = permissions.filter((permissionItem) => permissionItem.idPermission === selected)[0];
+
+                            historicData.so.push({
+                                before: `Old permission value: "${oldPermissionName.name}"`,
+                                after: `New permission value: "${newPermissionName.name}" for user: "${userData.username}"`,
+                                action: "update",
+                            });
+                        }
+
+                        const historicBody = historicData.so.shift();
+                        if(historicBody){
+                            historicData.before = historicBody.before;
+                            historicData.after = historicBody.after;
+                            historicData.action = historicBody.action;
+                        }
+
+                        api.post(`/history/`, historicData).then(() => {
+                            window.alert("Update Succesfully!");
+                            closeModalEdit();
+                            reloadData();
+                        });
                     }).catch(console.error);
                 }).catch(console.error);
             }
 
             const UserForm = () => {
                 const classes = useStyles();
-                const [permission, setPermission] = useState([]);
-
-                useEffect(() => {
-                    let abortController = new AbortController();
-                    const getPermissions = () => {
-                        api.get('/permissions/').then((response) => setPermission(response.data))
-                        .catch(console.error);
-                    }
-
-                    getPermissions();
-                    return () => abortController.abort();
-                }, []);
-
                 return (
                     <>
                         <Navbar className="navbar-horizontal navbar-dark bg-default"expand="lg" style={{
@@ -461,7 +514,7 @@ const ListUsers = () => {
                                                 <MenuItem value="">
                                                 <em>None</em>
                                                 </MenuItem>
-                                                {permission.map((data, index) => (<MenuItem key={`permission-${index}`} value={data.idPermission}>{data.name}</MenuItem>))}
+                                                {permissions.map((data, index) => (<MenuItem key={`permission-${index}`} value={data.idPermission}>{data.name}</MenuItem>))}
                                         </Select>
                                     </FormControl>
                                 )}

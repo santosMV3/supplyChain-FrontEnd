@@ -68,7 +68,7 @@ const CreatePermission = ({...props}) => {
         permissionsState.idPages = permissions
 
         api.post('/permissions/', permissionsState).then(() => {
-            api.post("/history/", { page: "Permissions", after: `Created a new permission: ${permissionsState.name}`, action: "create" }).then(() => {
+            api.post("/history/", { page: "Permissions", after: `Created a new permission: "${permissionsState.name}"`, action: "create" }).then(() => {
                 window.alert("Permission has created successfully!");
                 props.closeCreate();
             }).catch(console.error);

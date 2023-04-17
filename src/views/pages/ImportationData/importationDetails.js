@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react"
 
 import { 
     Button,
-    Input
+    Input,
+    UncontrolledTooltip,
 } from "reactstrap";
 import DatePicker, { registerLocale } from "react-datepicker";
 import ptBR from 'date-fns/locale/pt-BR';
@@ -43,10 +44,62 @@ const ImportationLine = ({post, deleteFactory, getImp}) => {
     const updateImpExecute = (e) => {
         e.target.disabled = true;
         api.patch(`/importationDetails/${post.id}/`, impUpdate).then(() => {
-            window.alert("Update Sucess!");
-            e.target.disabled = false;
-            closeEditMode();
-            getImp();
+            let historicData = {
+                page: "Importation Details",
+                before: null,
+                after: null,
+                action: null,
+                so: []
+            }
+
+            if (impUpdate.imp !== post.imp) {
+                historicData.so.push({
+                    before: `Old imp value: "${post.imp}"`,
+                    after: `New imp value: "${impUpdate.imp}" for Doc Sap: "${impUpdate.docSap}"`,
+                    action: "update"
+                })
+            }
+
+            if (impUpdate.docSap !== post.docSap) {
+                historicData.so.push({
+                    before: `Old DocSap value: "${post.DocSap}"`,
+                    after: `New DocSap value: "${impUpdate.docSap}"`,
+                    action: "update"
+                })
+            }
+
+            if (impUpdate.prevChegadaTrianon !== post.prevChegadaTrianon) {
+                historicData.so.push({
+                    before: `Old Prevision Trianom value: "${post.prevChegadaTrianon}"`,
+                    after: `New Prevision Trianom value: "${impUpdate.prevChegadaTrianon}" for Doc Sap: "${impUpdate.docSap}"`,
+                    action: "update"
+                })
+            }
+
+            if (impUpdate.liberadoFaturamento !== post.liberadoFaturamento) {
+                historicData.so.push({
+                    before: `Old Released to Invoiced value: "${post.liberadoFaturamento}"`,
+                    after: `New Released to Invoiced value: "${impUpdate.liberadoFaturamento}" for Doc Sap: "${impUpdate.docSap}"`,
+                    action: "update"
+                })
+            }
+
+            const historicBody = historicData.so.shift();
+            if(historicBody){
+                historicData.action = historicBody.action;
+                historicData.after = historicBody.after;
+                historicData.before = historicBody.before;
+
+                api.post(`/history/`, historicData).then(() => {
+                    window.alert("Update Sucess!");
+                    e.target.disabled = false;
+                    closeEditMode();
+                    getImp();  
+                });
+            } else {
+                closeEditMode();
+            }
+
         }).catch(console.error);
     }
 
@@ -109,7 +162,7 @@ const ImportationLine = ({post, deleteFactory, getImp}) => {
                         <Button color="primary" outline size="sm" onClick={openEditMode}>
                             Edit
                         </Button>
-                        <Button color="danger" size="sm" outline onClick={() => deleteFactory(post.id)}>
+                        <Button color="danger" size="sm" outline onClick={() => deleteFactory(post.id, post.docSap)}>
                             Delete
                         </Button>
                     </td>
@@ -130,7 +183,7 @@ const ImportationLine = ({post, deleteFactory, getImp}) => {
                     </td>
                     <td style={{boxSizing: 'border-box', padding: '5px'}} onDoubleClick={() => {
                         setImpUpdate({...impUpdate, "prevChegadaTrianon": null});
-                    }}>
+                    }} id={`date-field-${post.docSap}`}>
                         <DatePicker
                             type="date"
                             locale="pt-br"
@@ -143,6 +196,13 @@ const ImportationLine = ({post, deleteFactory, getImp}) => {
                                 margin: '0 auto'
                             }}
                         />
+                        <UncontrolledTooltip
+                            delay={0}
+                            placement="left"
+                            target={`date-field-${post.docSap}`}
+                        >
+                            Double click to clear date field
+                        </UncontrolledTooltip>
                     </td>
                     <td style={{boxSizing: 'border-box', padding: '5px'}}>
                         <Input bsSize="sm" onClick={handlerInput} type="checkbox" defaultChecked={post.liberadoFaturamento===true?true:false} name="liberadoFaturamento" style={{
@@ -192,11 +252,20 @@ const ImportationDetails = () => {
         api.get("/importationDetails/").then((response) => setImpData(response.data)).catch(console.error);
     }
 
-    const deleteFactory = (idImp) => {
+    const deleteFactory = (idImp, docSap=undefined) => {
         if(!(window.confirm("Confirm to delete the Importation Date:"))) return null;
         api.delete(`/importationDetails/${idImp}`).then(() => {
-            window.alert('Deleted success.');
-            getImp();
+            let historicData = {
+                page: "Importation Details",
+                before: `doc sap: "${docSap}"`,
+                after: "Deleted this docSap.",
+                action: "delete",
+            }
+
+            api.post(`/history/`, historicData).then(() => {
+                window.alert('Deleted success.');
+                getImp();
+            });
         }).catch(console.error);
     }
 

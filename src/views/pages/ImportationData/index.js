@@ -44,9 +44,52 @@ const FactoryItem = ({deleteFactory, post, getFactory}) => {
 
     const updateFactory = () => {       
         api.patch(`/factoryDate/${post.id}/`, factoryUpdateData).then(() => {
-            window.alert("Factory updated success.");
-            getFactory();
-            closeEditMode();
+            let historicData = {
+                page: "Boarding Date PC",
+                before: null,
+                after: null,
+                action: null,
+                so: []
+            };
+
+            if (post.PC !== factoryUpdateData.PC) historicData.so.push({
+                before: `Old PC value: "${post.PC}"`,
+                after: `New PC value: "${factoryUpdateData.PC}"`,
+                action: "update"
+            });
+
+            if (post.dataEmbarque !== factoryUpdateData.dataEmbarque) historicData.so.push({
+                before: `Old Date of shipment value: "${post.dataEmbarque}"`,
+                after: `New Date of shipment value: "${factoryUpdateData.dataEmbarque}" for PC: "${factoryUpdateData.PC}"`,
+                action: "update"
+            });
+
+            if (post.fabrica !== factoryUpdateData.fabrica) historicData.so.push({
+                before: `Old fabric value: "${post.fabrica}"`,
+                after: `New fabric value: "${factoryUpdateData.fabrica}" for PC: "${factoryUpdateData.PC}"`,
+                action: "update"
+            });
+
+            if (post.fields !== factoryUpdateData.fields) historicData.so.push({
+                before: `Old days of the week values: "${post.fields}"`,
+                after: `New days of the week values: "${factoryUpdateData.fields}" for PC: "${factoryUpdateData.PC}"`,
+                action: "update"
+            });
+
+            const historicBody = historicData.so.shift();
+            if(historicBody){
+                historicData.action = historicBody.action;
+                historicData.after = historicBody.after;
+                historicData.before = historicBody.before;
+
+                api.post(`/history/`, historicData).then(() => {
+                    window.alert("Factory updated success.");
+                    getFactory();
+                    closeEditMode(); 
+                });
+            } else {
+                closeEditMode();
+            }
         }).catch(console.error)
     }
 
@@ -145,7 +188,7 @@ const FactoryItem = ({deleteFactory, post, getFactory}) => {
                         <Button color="primary" onClick={openEditMode} size="sm" outline>
                             Edit
                         </Button>
-                        <Button size="sm" outline color="danger" onClick={() => {deleteFactory(post.id)}}>
+                        <Button size="sm" outline color="danger" onClick={() => {deleteFactory(post.id, post.fabrica)}}>
                             Delete
                         </Button>
                     </td>
@@ -296,10 +339,10 @@ const FactoryPage = () => {
 
     }
 
-    const deleteFactory = (idFactory) => {
-        if(!(window.confirm("Confirm to delete the factory data:"))) return null;
+    const deleteFactory = (idFactory, fabric) => {
+        if(!(window.confirm(`Confirm to delete the fabric data: ${fabric}`))) return null;
         api.delete(`/factoryDate/${idFactory}`).then(() => {
-            api.post("/history/", { page: "Boarding Date PC", after: `Deleted a fabric.`, action: "delete" }).then(() => {
+            api.post("/history/", { page: "Boarding Date PC", after: `Deleted the fabric: ${fabric}`, action: "delete" }).then(() => {
                 window.alert('Deleted success.');
                 getFactory();
             }).catch(console.error);

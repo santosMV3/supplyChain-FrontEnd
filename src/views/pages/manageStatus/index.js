@@ -154,9 +154,19 @@ const ListStatus = () => {
         const deleteStatus = (e) => {
             e.target.disabled = true;
             api.patch(`/status/${e.target.value}/`, {is_active: false}).then(() => {
-                e.target.disabled = true;
-                getStatus();
-                handleOpenSuccessAlert('Success for disable status!!!');
+                let historicData = {
+                    page: "Status Management",
+                    before: null,
+                    after: `${post.name} status disabled`,
+                    action: "update",
+                    so: []
+                }
+
+                api.post(`/history/`, historicData).then(() => {
+                    e.target.disabled = true;
+                    getStatus();
+                    handleOpenSuccessAlert('Success for disable status!!!');
+                }).catch(console.error);
             }
             ).catch(console.error);
         }
@@ -164,9 +174,19 @@ const ListStatus = () => {
         const activeStatus = (e) => {
             e.target.disabled = true;
             api.patch(`/status/${e.target.value}/`, {is_active: true}).then(() => {
-                e.target.disabled = true;
-                getStatus();
-                handleOpenSuccessAlert('Success for active status!!!');
+                let historicData = {
+                    page: "Status Management",
+                    before: null,
+                    after: `${post.name} status enabled`,
+                    action: "update",
+                    so: []
+                }
+
+                api.post(`/history/`, historicData).then(() => {
+                    e.target.disabled = true;
+                    getStatus();
+                    handleOpenSuccessAlert('Success for active status!!!');
+                }).catch(console.error);
             }
             ).catch(console.error);
         }
@@ -185,9 +205,41 @@ const ListStatus = () => {
             if(inputDescription.value.length>0) data.description = inputDescription.value;
 
             api.patch(`/status/${post.idStatus}/`, data).then((response) => {
-                e.target.disabled = false;
-                getStatus();
-                handleOpenSuccessAlert("Success for update data!!!");
+                let historicData = {
+                    page: "Status Management",
+                    before: null,
+                    after: null,
+                    action: null,
+                    so: []
+                }
+
+                if(post.name !== data.name) historicData.so.push({
+                    before: `Old status name: "${post.name}"`,
+                    after: `New status name: "${data.name}"`,
+                    action: "update",
+                });
+
+                if(post.description !== data.description) historicData.so.push({
+                    before: `Old status description: "${post.description}"`,
+                    after: `New status description: "${data.description}" for Status: "${data.name}"`,
+                    action: "update",
+                });
+
+                const historicBody = historicData.so.shift();
+                if(historicBody) {
+                    historicData.before = historicBody.before;
+                    historicData.after = historicBody.after;
+                    historicData.action = historicBody.action;
+
+                    api.post(`/history/`, historicData).then(() => {
+                        e.target.disabled = false;
+                        getStatus();
+                        handleOpenSuccessAlert("Success for update status!!!");
+                    }).catch(console.error);
+                } else {
+                    e.target.disabled = false;
+                    getStatus();
+                }
             }).catch(console.error);
 
         }

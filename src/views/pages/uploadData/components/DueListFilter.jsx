@@ -45,18 +45,18 @@ export const DuelistFilter = (props) => {
         ["item","Item"],
         ["PONumber","PO Number"],
         ["openValueLocalCurrency","Open Value"],
-        ["firstDate","First Date"],
-        ["schedIDate","Sched. L. Date"],
-        ["SOCreationDate","SO Creation Date"],
-        ["confDeliveryDate","Conf. Delivery Date"],
+        ["firstDate","First Date", "date"],
+        ["schedIDate","Sched. L. Date", "date"],
+        ["SOCreationDate","SO Creation Date", "date"],
+        ["confDeliveryDate","Conf. Delivery Date", "date"],
         ["delay","Delay"],
-        ["deliveryDate","Delivery Date"],
-        ["availabilityCustomerDelvDate","Customer Delv. Date"],
+        ["deliveryDate","Delivery Date", "date"],
+        ["availabilityCustomerDelvDate","Customer Delv. Date", "date"],
         ["itemCategory","Categ"],
         ["purchNo","Purch. No."],
         ["producingCompany","PC"],
         ["importNo","Import. No."],
-        ["GRDate","GR. Date"],
+        ["GRDate","GR. Date", "date"],
         ["GRQuantity","GR. Quantity"],
         ["materialNumber","Material Number"],
         ["materialDescript","Material Descript"],
@@ -70,23 +70,23 @@ export const DuelistFilter = (props) => {
         ["spCarrierPartner","SP. Carrier Partner"],
         ["spName","Carrier"],
         ["confirmationTypeSC","Confirm. SC."],
-        ["dateOfNotification","Date Of Notification"],
+        ["dateOfNotification","Date Of Notification", "date"],
         ["fullDelivery","Full. Delivery"],
         ["PCInvoice","PC. Invoice"],
-        ["PCInvoiceDate","PC. Invoice Date"],
+        ["PCInvoiceDate","PC. Invoice Date", "date"],
         ["situation","Color"],
         ["deliveryFactory","Delivery Factory"],
         ["importation","Importation"],
-        ["previsionTrianom","ETA TRIANON"],
-        ["previsionFatSystem","Est. NF. Date (sys)"],
+        ["previsionTrianom","ETA TRIANON", "date"],
+        ["previsionFatSystem","Est. NF. Date (sys)", "date"],
         ["materiaDays","Material Days"],
         ["deadLineFat","Dead Line Fat."],
         ["previsionWeek","Prevision Fat. (Week)"],
         ["externalService","Ext. Service"],
         ["supplier","Supplier"],
         ["returnDays","Return Days"],
-        ["releaseDate","Release Date"],
-        ["previsionDate","Prevision Date"],
+        ["releaseDate","Release Date", "date"],
+        ["previsionDate","Prevision Date", "date"],
     ];
 
     const filterOnlyFields = filterFields.map((fieldItem) => fieldItem[1]).sort((a, b) => a.toUpperCase() == b.toUpperCase() ? 0 : a.toUpperCase() > b.toUpperCase() ? 1 : -1);
@@ -122,6 +122,7 @@ export const DuelistFilter = (props) => {
         }
 
         let filterData = {...filterValue};
+        filterData.value = filterData.field === "Ext. Service" && filterData.value === "" ? false : filterData.value;
         filterData.field = filterField;
         filterData.status = likeMode;
 
@@ -199,6 +200,7 @@ export const DuelistFilter = (props) => {
                                 name='value'
                                 type="checkbox"
                                 onClick={handlerInputFilter}
+                                defaultChecked={filterValue.value ? true : false}
                             />
                             <label className="custom-control-label" htmlFor="value">
                                 Value
@@ -257,7 +259,7 @@ export const DuelistFilter = (props) => {
                                 {filterItem.field[1]}:&nbsp;
                             </div>
                             <div>
-                                {filterItem.field[1] == "ETA TRIANON" ? formatDate(filterItem.value) : filterItem.value.length > 0 ? filterItem.value.replace("billed", "Green").replace("undefined", "White").replace("transport", "Yellow"):"Null"}&nbsp;
+                                {filterItem.field[1] === "ETA TRIANON" ? formatDate(filterItem.value) : filterItem.field[1] === "Ext. Service" ? filterItem.value ? "Yes" : "No" : filterItem.value.length > 0 ? filterItem.value.replace("billed", "Green").replace("undefined", "White").replace("transport", "Yellow"):"Null"}&nbsp;
                             </div>
                             <Button color='danger' outline onClick={deleteFilter} value={index} className='button-filter-bubble-delete' size='sm'>
                                 x

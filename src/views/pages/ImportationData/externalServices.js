@@ -37,13 +37,13 @@ const ImportationLine = ({post, deleteExt, getExtData}) => {
 
             if (post.externalServices.toString() !== extDataUpdate.externalServices.toString()) changes.push({
                 before: `Old External services value: "${post.externalServices.toString()}"`,
-                after: `New External services value: "${extDataUpdate.externalServices.toString()}"`,
+                after: `New External services value: "${extDataUpdate.externalServices.toString()}" for Document Number: "${extDataUpdate.documentNumber}"`,
                 action: "update"
             });
 
             if (post.SSKProject !== extDataUpdate.SSKProject) changes.push({
                 before: `Old SSKProject value: "${post.SSKProject.toString()}"`,
-                after: `New SSKProject value: "${extDataUpdate.SSKProject.toString()}"`,
+                after: `New SSKProject value: "${extDataUpdate.SSKProject.toString()}" for Document Number: "${extDataUpdate.documentNumber}"`,
                 action: "update"
             });
 
@@ -111,7 +111,7 @@ const ImportationLine = ({post, deleteExt, getExtData}) => {
                         <Button size="sm" color="primary" outline onClick={openEditMode}>
                             Edit
                         </Button>
-                        <Button size="sm" color="danger" outline onClick={() => deleteExt(post.id)}>
+                        <Button size="sm" color="danger" outline onClick={() => deleteExt(post.id, post.documentNumber)}>
                             Delete
                         </Button>
                     </td>
@@ -179,11 +179,13 @@ const ExternalServices = () => {
         return () => abortController.abort();
     }, []);
 
-    const deleteExt = (idExt) => {
-        if(!(window.confirm("Confirm to delete the External Service:"))) return null;
+    const deleteExt = (idExt, documentNumber) => {
+        if(!(window.confirm(`Confirm to delete the External Service: ${documentNumber}`))) return null;
         api.delete(`/externalServices/${idExt}`).then(() => {
-            window.alert('Deleted success.');
-            getExtData();
+            api.post("/history/", { after: `Deleted a External Service: ${documentNumber}`, page: "External Services", action: "create" }).then(() => {
+                window.alert('Deleted success.');
+                getExtData();
+            }).catch(console.error);
         }).catch(console.error);
     }
 
@@ -197,11 +199,7 @@ const ExternalServices = () => {
 
     const createExternalService = () => {
         api.post('/externalServices/', extCreate).then(() => {
-            Promise.all([
-                // api.post("/history/", { after: extCreate.SSKProject, page: "External Services", action: "create" }),
-                api.post("/history/", { after: extCreate.externalServices.toString(), page: "External Services", action: "create" }),
-                // api.post("/history/", { after: extCreate.documentNumber, page: "External Services", action: "create" })
-            ]).then(() => {
+            api.post("/history/", { after: `Created new External Service: ${extCreate.documentNumber.toString()}`, page: "External Services", action: "create" }).then(() => {
                 window.alert("Create Success!");
                 getExtData();
                 closeRegister();

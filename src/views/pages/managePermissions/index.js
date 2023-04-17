@@ -413,11 +413,52 @@ const ListPermissions = () => {
 
 
                 api.patch(`/permissions/${post.idPermission}/`, permissionsState).then(() => {
-                    api.post("/history/", { page: "Permissions", after: `Edited a permission: ${permissionsState.name}`, before: `Old permission name: ${post.name}`, action: "update" }).then(() => {
+                    let historicData = {
+                        page: "Permissions",
+                        before: null,
+                        after: null,
+                        action: null,
+                        SO: null,
+                        so: []
+                    }
+
+                    if(post.name !== permissionsState.name) historicData.so.push({
+                        before: `Old permission name: "${post.name}"`,
+                        after: `New permission name: "${permissionsState.name}"`,
+                        action: "update"
+                    });
+
+                    if(String(post.idPages) !== String(permissionsState.idPages)) {
+                        const newPermissionPagesID = permissionsState.idPages.split(",").map((idPage) => idPage.split(".")[0]);
+                        const newPermissionPagesNames = newPermissionPagesID.map((permissionPage) => pagesState.filter((page) => page.idPage === parseInt(permissionPage)).map((page) => page.name).shift());
+
+                        const oldPermissionPagesID = post.idPages.split(",").map((idPage) => idPage.split(".")[0]);
+                        const oldPermissionPagesNames = oldPermissionPagesID.map((permissionPage) => pagesState.filter((page) => page.idPage === parseInt(permissionPage)).map((page) => page.name).shift());
+
+                        historicData.so.push({
+                            before: `Old permissions pages: "${oldPermissionPagesNames.join(", ")}"`,
+                            after: `New permissions pages: "${newPermissionPagesNames.join(", ")}" for permission: ${permissionsState.name}`,
+                            action: "update"
+                        });
+                    }
+
+                    const historicBody = historicData.so.shift();
+                    if (historicBody) {
+                        historicData.before = historicBody.before;
+                        historicData.after = historicBody.after;
+                        historicData.action = historicBody.action;
+                    } else {
+                        return handleClose();
+                    }
+
+                    api.post("/history/", historicData).then(() => {
                         window.alert("Permission has updated successfully!");
                         getPermissions();
                         handleClose();
-                    }).catch(console.error);
+                    }).catch((error) => {
+                        console.error(error);
+                        console.log(historicData);
+                    });
                 }).catch(console.error);
 
             }
@@ -513,8 +554,17 @@ const ListPermissions = () => {
                     } else {
                         if (window.confirm('Do you want to delete this permission?')) {
                             api.delete(`/permissions/${post.idPermission}/`).then(() => {
-                                getPermissions();
-                                window.alert('Permission deleted has successfully.');
+                                let historicData = {
+                                    page: "Permissions",
+                                    before: `Permission name: "${post.name}"`,
+                                    after: "Deleted this permission.",
+                                    action: "delete",
+                                }
+
+                                api.post(`/history/`, historicData).then(() => {
+                                    getPermissions();
+                                    window.alert('Permission deleted has successfully.');
+                                });
                             }).catch(console.error);
                         }
                     }
