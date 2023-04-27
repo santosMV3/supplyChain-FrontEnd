@@ -12,7 +12,7 @@ import FormControl from '@material-ui/core/FormControl';
 import { MenuItem } from "@material-ui/core";
 import Select from '@material-ui/core/Select';
 import { makeStyles } from '@material-ui/core/styles';
-
+import LoaderBox from "../components/custom/loader/loaderBox";
 
 const useStyles = makeStyles((theme) => ({
     modal: {
@@ -39,12 +39,18 @@ const useStyles = makeStyles((theme) => ({
 const HistoryPage = () => {
     const [historyData, setHistoryData] = useState([]);
     const [filterState, setFilterState] = useState(false);
+    const [loader, setLoader] = useState(false);
     // const openFilterMode = () => setFilterState(true);
     const closeFilterMode = () => {
         const getHistoric = () => {
+            setLoader(true);
             api.get('/history/').then((response) => {
                 setHistoryData(response.data.results);
-            }).catch();
+                setLoader(false);
+            }).catch((error) => {
+                console.error(error);
+                setLoader(false);
+            });
         }
 
         getHistoric();
@@ -54,9 +60,14 @@ const HistoryPage = () => {
     useEffect(() => {
         let abortController = new AbortController();
         const getHistoric = () => {
+            setLoader(true);
             api.get('/history/').then((response) => {
                 setHistoryData(response.data.results);
-            }).catch();
+                setLoader(false);
+            }).catch((error) => {
+                console.error(error);
+                setLoader(false);
+            });
         }
 
         getHistoric();
@@ -309,10 +320,14 @@ const HistoryPage = () => {
             if(!selectValue) return window.alert("Please select an option to filter.");
 
             if(filterValue.length < 1) return window.alert("Type something to filter.");
-
+            setLoader(true);
             api.get(`/history?${selectValue}=${filterValue}`).then((response) => {
                 setHistoryData(response.data.results);
-            }).catch(console.error);
+                setLoader(false);
+            }).catch((error) => {
+                console.error(error);
+                setLoader(false);
+            });
             setFilterState(true);
         }
 
@@ -374,95 +389,99 @@ const HistoryPage = () => {
     return (
         <Container>
             <Filter/>
-            <Row className="justify-content-center">
-                <Col style={{padding: '0'}}>
-                    <div style={{
-                        width: '97%',
-                        height: '75vh',
-                        backgroundColor: '#ffffff',
-                        boxShadow: '0px 0px 5px gray',
-                        borderRadius: '10px',
-                        margin: '10px auto',
-                        overflow: 'auto',
-                    }}>
-                        <table style={{
-                            width: '100%',
+            {loader ? (
+                <LoaderBox message="Loading historic, please wait!"/>
+            ) : (
+                <Row className="justify-content-center">
+                    <Col style={{padding: '0'}}>
+                        <div style={{
+                            width: '97%',
+                            height: '75vh',
                             backgroundColor: '#ffffff',
+                            boxShadow: '0px 0px 5px gray',
                             borderRadius: '10px',
-                            boxShadow: '0px 0px 5px gray',  
+                            margin: '10px auto',
+                            overflow: 'auto',
                         }}>
-                            <thead>
-                                <tr style={{backgroundColor: "rgb(225, 225, 225)"}}>
-                                    <th style={{
-                                        fontSize: '0.9em',
-                                        fontFamily: 'calibri',
-                                        textAlign: 'center',
-                                        padding: "5px"
-                                    }}>
-                                        User
-                                    </th>
-                                    <th style={{
-                                        fontSize: '0.9em',
-                                        fontFamily: 'calibri',
-                                        textAlign: 'center',
-                                        padding: "5px"
-                                    }}>
-                                        Page
-                                    </th>
-                                    <th style={{
-                                        fontSize: '0.9em',
-                                        fontFamily: 'calibri',
-                                        textAlign: 'center',
-                                        padding: "5px"
-                                    }}>
-                                        Action
-                                    </th>
-                                    <th style={{
-                                        fontSize: '0.9em',
-                                        fontFamily: 'calibri',
-                                        textAlign: 'center',
-                                        padding: "5px"
-                                    }}>
-                                        Datetime
-                                    </th>
-                                    <th style={{
-                                        fontSize: '0.9em',
-                                        fontFamily: 'calibri',
-                                        textAlign: 'center',
-                                        padding: "5px"
-                                    }}>
-                                        SO
-                                    </th>
-                                    <th/>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {historyData.length === 0?(
-                                    <tr style={{
-                                        lineHeight: '0px'
-                                    }}>
-                                        <td colSpan="5" style={{
-                                            textAlign: "center",
-                                            fontSize: "1.0em",
-                                            fontFamily: "calibri",
-                                            height: '1px',
-                                            padding: '15px',
+                            <table style={{
+                                width: '100%',
+                                backgroundColor: '#ffffff',
+                                borderRadius: '10px',
+                                boxShadow: '0px 0px 5px gray',  
+                            }}>
+                                <thead>
+                                    <tr style={{backgroundColor: "rgb(225, 225, 225)"}}>
+                                        <th style={{
+                                            fontSize: '0.9em',
+                                            fontFamily: 'calibri',
+                                            textAlign: 'center',
+                                            padding: "5px"
                                         }}>
-                                            There are no registered records
-                                        </td>
+                                            User
+                                        </th>
+                                        <th style={{
+                                            fontSize: '0.9em',
+                                            fontFamily: 'calibri',
+                                            textAlign: 'center',
+                                            padding: "5px"
+                                        }}>
+                                            Page
+                                        </th>
+                                        <th style={{
+                                            fontSize: '0.9em',
+                                            fontFamily: 'calibri',
+                                            textAlign: 'center',
+                                            padding: "5px"
+                                        }}>
+                                            Action
+                                        </th>
+                                        <th style={{
+                                            fontSize: '0.9em',
+                                            fontFamily: 'calibri',
+                                            textAlign: 'center',
+                                            padding: "5px"
+                                        }}>
+                                            Datetime
+                                        </th>
+                                        <th style={{
+                                            fontSize: '0.9em',
+                                            fontFamily: 'calibri',
+                                            textAlign: 'center',
+                                            padding: "5px"
+                                        }}>
+                                            SO
+                                        </th>
+                                        <th/>
                                     </tr>
-                                ):(
-                                    <>
-                                        {historyData.map((historic, index) => (
-                                            <HistoricItem key={`historic-${index}`} historic={historic} index={index}/>
-                                        ))}
-                                    </>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                </Col>
-            </Row>
+                                </thead>
+                                <tbody>
+                                    {historyData.length === 0?(
+                                        <tr style={{
+                                            lineHeight: '0px'
+                                        }}>
+                                            <td colSpan="5" style={{
+                                                textAlign: "center",
+                                                fontSize: "1.0em",
+                                                fontFamily: "calibri",
+                                                height: '1px',
+                                                padding: '15px',
+                                            }}>
+                                                There are no registered records
+                                            </td>
+                                        </tr>
+                                    ):(
+                                        <>
+                                            {historyData.map((historic, index) => (
+                                                <HistoricItem key={`historic-${index}`} historic={historic} index={index}/>
+                                            ))}
+                                        </>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </Col>
+                </Row>
+            )}
         </Container>
     )
 }

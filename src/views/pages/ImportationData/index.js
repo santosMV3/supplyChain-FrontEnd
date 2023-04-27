@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {api} from '../../../services/api';
-
+import LoaderBox from '../components/custom/loader/loaderBox';
 import {
     Button,
     Input,
@@ -289,20 +289,24 @@ const FactoryPage = () => {
     const [registerState, setRegisterState] = useState(false);
     const openRegister = () => setRegisterState(true);
     const closeRegister = () => setRegisterState(false);
+    const [loader, setLoader] = useState(false);
+
+    const getFactory = () => {
+        setLoader(true);
+        api.get('/factoryDate/').then((response) => {
+            setFactoryDataState(response.data);
+            setLoader(false);
+        }).catch((error) => {
+            console.error(error);
+            setLoader(false);
+        });
+    };
 
     useEffect(() => {
         let abortController = new AbortController();
-        const getFactory = () => {
-            api.get('/factoryDate/').then((response) => setFactoryDataState(response.data)).catch(console.error);
-        };
-
         getFactory();
         return () => abortController.abort();
     }, []);
-
-    const getFactory = () => {
-        api.get('/factoryDate/').then((response) => setFactoryDataState(response.data)).catch(console.error);
-    };
 
     const handlerFields = (e) => {
         if(e.target.value === "") return e.target.value = 0;
@@ -358,237 +362,241 @@ const FactoryPage = () => {
                 padding: '5px',
                 height: 'auto'
             }}>
-                <table style={{
-                    with: '100%',
-                    minHeight: '10px',
-                    maxHeight: '70vh',
-                    height: 'auto',
-                    margin: '0 auto',
-                    borderRadius: '10px',
-                    overflow: 'hidden',
-                    boxShadow: '0px 0px 5px gray',
-                    fontFamily: 'calibri',
-                }}>
-                    <thead>
-                        <tr style={{
-                            backgroundColor: '#e1e1e1',
-                            fontFamily: 'calibri',
-                            fontSize: '0.9em'
-                        }}>
-                            <th style={{
-                                boxSizing: 'border-box',
-                                padding: '5px 15px',
-                                boxShadow: '0px 0px 1px black',
-                                position: 'sticky',
-                                textAlign: 'center'
-                            }}>
-                                PC
-                            </th>
-                            <th style={{
-                                boxSizing: 'border-box',
-                                padding: '5px 15px',
-                                boxShadow: '0px 0px 1px black',
-                                position: 'sticky',
-                                textAlign: 'center'
-                            }}>
-                                Factory
-                            </th>
-                            <th style={{
-                                boxSizing: 'border-box',
-                                padding: '5px 15px',
-                                boxShadow: '0px 0px 1px black',
-                                position: 'sticky',
-                                textAlign: 'center'
-                            }}>
-                                Date of shipment
-                            </th>
-                            <th style={{
-                                boxSizing: 'border-box',
-                                padding: '5px 15px',
-                                boxShadow: '0px 0px 1px black',
-                                position: 'sticky',
-                                textAlign: 'center'
-                            }}>
-                                Monday
-                            </th>
-                            <th style={{
-                                boxSizing: 'border-box',
-                                padding: '5px 15px',
-                                boxShadow: '0px 0px 1px black',
-                                position: 'sticky',
-                                textAlign: 'center'
-                            }}>
-                                Tuesday
-                            </th>
-                            <th style={{
-                                boxSizing: 'border-box',
-                                padding: '5px 15px',
-                                boxShadow: '0px 0px 1px black',
-                                position: 'sticky',
-                                textAlign: 'center'
-                            }}>
-                                Wednesday
-                            </th>
-                            <th style={{
-                                boxSizing: 'border-box',
-                                padding: '5px 15px',
-                                boxShadow: '0px 0px 1px black',
-                                position: 'sticky',
-                                textAlign: 'center'
-                            }}>
-                                Thursday
-                            </th>
-                            <th style={{
-                                boxSizing: 'border-box',
-                                padding: '5px 15px',
-                                boxShadow: '0px 0px 1px black',
-                                position: 'sticky',
-                                textAlign: 'center'
-                            }}>
-                                Friday
-                            </th>
-                            <th style={{
-                                boxSizing: 'border-box',
-                                padding: '5px 15px',
-                                boxShadow: '0px 0px 1px black',
-                                position: 'sticky',
-                                textAlign: 'center'
-                            }}>
-                                Saturday
-                            </th>
-                            <th style={{
-                                boxSizing: 'border-box',
-                                padding: '5px 15px',
-                                boxShadow: '0px 0px 1px black',
-                                position: 'sticky',
-                                textAlign: 'center'
-                            }}>
-                                Sunday
-                            </th>
-                            <th/>
-                        </tr>
-                    </thead>
-                    <tbody style={{
+                {loader ? (
+                    <LoaderBox/>
+                ): (
+                    <table style={{
+                        with: '100%',
+                        minHeight: '10px',
+                        maxHeight: '70vh',
                         height: 'auto',
-                        maxHeight: '200px',
-                        overflow: 'scroll',
-                        position: 'sticky'
+                        margin: '0 auto',
+                        borderRadius: '10px',
+                        overflow: 'hidden',
+                        boxShadow: '0px 0px 5px gray',
+                        fontFamily: 'calibri',
                     }}>
-                        {factoryDataState.length > 0?(
-                            <>
-                                {factoryDataState.map((post, index) => (<FactoryItem key={`factory-${index}`} deleteFactory={deleteFactory} getFactory={getFactory} post={post}/>))}
-                            </>
-                        ): (
-                            <tr>
-                                <td colSpan="11" style={{
-                                    textAlign: 'center',
+                        <thead>
+                            <tr style={{
+                                backgroundColor: '#e1e1e1',
+                                fontFamily: 'calibri',
+                                fontSize: '0.9em'
+                            }}>
+                                <th style={{
                                     boxSizing: 'border-box',
-                                    padding: '5px'
+                                    padding: '5px 15px',
+                                    boxShadow: '0px 0px 1px black',
+                                    position: 'sticky',
+                                    textAlign: 'center'
                                 }}>
-                                    There are no records in memory.
+                                    PC
+                                </th>
+                                <th style={{
+                                    boxSizing: 'border-box',
+                                    padding: '5px 15px',
+                                    boxShadow: '0px 0px 1px black',
+                                    position: 'sticky',
+                                    textAlign: 'center'
+                                }}>
+                                    Factory
+                                </th>
+                                <th style={{
+                                    boxSizing: 'border-box',
+                                    padding: '5px 15px',
+                                    boxShadow: '0px 0px 1px black',
+                                    position: 'sticky',
+                                    textAlign: 'center'
+                                }}>
+                                    Date of shipment
+                                </th>
+                                <th style={{
+                                    boxSizing: 'border-box',
+                                    padding: '5px 15px',
+                                    boxShadow: '0px 0px 1px black',
+                                    position: 'sticky',
+                                    textAlign: 'center'
+                                }}>
+                                    Monday
+                                </th>
+                                <th style={{
+                                    boxSizing: 'border-box',
+                                    padding: '5px 15px',
+                                    boxShadow: '0px 0px 1px black',
+                                    position: 'sticky',
+                                    textAlign: 'center'
+                                }}>
+                                    Tuesday
+                                </th>
+                                <th style={{
+                                    boxSizing: 'border-box',
+                                    padding: '5px 15px',
+                                    boxShadow: '0px 0px 1px black',
+                                    position: 'sticky',
+                                    textAlign: 'center'
+                                }}>
+                                    Wednesday
+                                </th>
+                                <th style={{
+                                    boxSizing: 'border-box',
+                                    padding: '5px 15px',
+                                    boxShadow: '0px 0px 1px black',
+                                    position: 'sticky',
+                                    textAlign: 'center'
+                                }}>
+                                    Thursday
+                                </th>
+                                <th style={{
+                                    boxSizing: 'border-box',
+                                    padding: '5px 15px',
+                                    boxShadow: '0px 0px 1px black',
+                                    position: 'sticky',
+                                    textAlign: 'center'
+                                }}>
+                                    Friday
+                                </th>
+                                <th style={{
+                                    boxSizing: 'border-box',
+                                    padding: '5px 15px',
+                                    boxShadow: '0px 0px 1px black',
+                                    position: 'sticky',
+                                    textAlign: 'center'
+                                }}>
+                                    Saturday
+                                </th>
+                                <th style={{
+                                    boxSizing: 'border-box',
+                                    padding: '5px 15px',
+                                    boxShadow: '0px 0px 1px black',
+                                    position: 'sticky',
+                                    textAlign: 'center'
+                                }}>
+                                    Sunday
+                                </th>
+                                <th/>
+                            </tr>
+                        </thead>
+                        <tbody style={{
+                            height: 'auto',
+                            maxHeight: '200px',
+                            overflow: 'scroll',
+                            position: 'sticky'
+                        }}>
+                            {factoryDataState.length > 0?(
+                                <>
+                                    {factoryDataState.map((post, index) => (<FactoryItem key={`factory-${index}`} deleteFactory={deleteFactory} getFactory={getFactory} post={post}/>))}
+                                </>
+                            ): (
+                                <tr>
+                                    <td colSpan="11" style={{
+                                        textAlign: 'center',
+                                        boxSizing: 'border-box',
+                                        padding: '5px'
+                                    }}>
+                                        There are no records in memory.
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                        <tbody>
+                        {registerState?
+                            (<tr>
+                                <td style={{boxSizing: 'border-box', padding: '5px'}}>
+                                    <Input bsSize="sm" id="PC" max="9999" min="0" type="number" onChange={handlerInput} style={{
+                                        width: '70px',
+                                        margin: '0 auto'
+                                    }}/>
+                                </td>
+                                <td style={{boxSizing: 'border-box', padding: '5px'}}>
+                                    <Input bsSize="sm" id="fabrica" onChange={handlerInput} type="text" style={{
+                                        width: '150px',
+                                        margin: '0 auto'
+                                    }}/>
+                                </td>
+                                <td style={{boxSizing: 'border-box', padding: '5px'}}>
+                                    <Input bsSize="sm" id="dataEmbarque" onChange={handlerInput} type="text" style={{
+                                        width: '150px',
+                                        margin: '0 auto'
+                                    }}/>
+                                </td>
+                                <td style={{boxSizing: 'border-box', padding: '5px'}}>
+                                    <Input bsSize="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
+                                        width: '60px',
+                                        margin: '0 auto'
+                                    }}/>
+                                </td>
+                                <td style={{boxSizing: 'border-box', padding: '5px'}}>
+                                    <Input bsSize="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
+                                        width: '60px',
+                                        margin: '0 auto'
+                                    }}/>
+                                </td>
+                                <td style={{boxSizing: 'border-box', padding: '5px'}}>
+                                    <Input bsSize="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
+                                        width: '60px',
+                                        margin: '0 auto'
+                                    }}/>
+                                </td>
+                                <td style={{boxSizing: 'border-box', padding: '5px'}}>
+                                    <Input bsSize="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
+                                        width: '60px',
+                                        margin: '0 auto'
+                                    }}/>
+                                </td>
+                                <td style={{boxSizing: 'border-box', padding: '5px'}}>
+                                    <Input bsSize="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
+                                        width: '60px',
+                                        margin: '0 auto'
+                                    }}/>
+                                </td>
+                                <td style={{boxSizing: 'border-box', padding: '5px'}}>
+                                    <Input bsSize="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
+                                        width: '60px',
+                                        margin: '0 auto'
+                                    }}/>
+                                </td>
+                                <td style={{boxSizing: 'border-box', padding: '5px'}}>
+                                    <Input bsSize="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
+                                        width: '60px',
+                                        margin: '0 auto',
+                                    }}/>
+                                </td>
+                                <td style={{
+                                    boxSizing: 'border-box',
+                                    padding: '5px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                    }}>
+                                    <Button onClick={saveFactory} size='sm' color='success' outline>
+                                        Save
+                                    </Button>
+                                    <Button onClick={closeRegister} size='sm' color='danger' outline>
+                                        Cancel
+                                    </Button>
+                                </td>
+                            </tr>):(<tr>
+                                <td style={{boxSizing: 'border-box', padding: '5px'}} colSpan="11">
+                                <div onDoubleClick={openRegister} style={{
+                                        width: '100%',
+                                        height: '30px',
+                                        backgroundColor: 'rgb(255, 255, 255)',
+                                        boxShadow: '0px 0px 2px gray',
+                                        borderRadius: '5px',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        boxSizing: 'border-box',
+                                        paddingLeft: '5px'
+                                    }}>
+                                        Double click unlock register.
+                                    </div>
                                 </td>
                             </tr>
-                        )}
-                    </tbody>
-                    <tbody>
-                    {registerState?
-                        (<tr>
-                            <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                                <Input bsSize="sm" id="PC" max="9999" min="0" type="number" onChange={handlerInput} style={{
-                                    width: '70px',
-                                    margin: '0 auto'
-                                }}/>
-                            </td>
-                            <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                                <Input bsSize="sm" id="fabrica" onChange={handlerInput} type="text" style={{
-                                    width: '150px',
-                                    margin: '0 auto'
-                                }}/>
-                            </td>
-                            <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                                <Input bsSize="sm" id="dataEmbarque" onChange={handlerInput} type="text" style={{
-                                    width: '150px',
-                                    margin: '0 auto'
-                                }}/>
-                            </td>
-                            <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                                <Input bsSize="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
-                                    width: '60px',
-                                    margin: '0 auto'
-                                }}/>
-                            </td>
-                            <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                                <Input bsSize="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
-                                    width: '60px',
-                                    margin: '0 auto'
-                                }}/>
-                            </td>
-                            <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                                <Input bsSize="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
-                                    width: '60px',
-                                    margin: '0 auto'
-                                }}/>
-                            </td>
-                            <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                                <Input bsSize="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
-                                    width: '60px',
-                                    margin: '0 auto'
-                                }}/>
-                            </td>
-                            <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                                <Input bsSize="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
-                                    width: '60px',
-                                    margin: '0 auto'
-                                }}/>
-                            </td>
-                            <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                                <Input bsSize="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
-                                    width: '60px',
-                                    margin: '0 auto'
-                                }}/>
-                            </td>
-                            <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                                <Input bsSize="sm" type="number" className="inputField" defaultValue="0" onChange={handlerFields} min="0" max="100" style={{
-                                    width: '60px',
-                                    margin: '0 auto',
-                                }}/>
-                            </td>
-                            <td style={{
-                                boxSizing: 'border-box',
-                                padding: '5px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center'
-                                }}>
-                                <Button onClick={saveFactory} size='sm' color='success' outline>
-                                    Save
-                                </Button>
-                                <Button onClick={closeRegister} size='sm' color='danger' outline>
-                                    Cancel
-                                </Button>
-                            </td>
-                        </tr>):(<tr>
-                            <td style={{boxSizing: 'border-box', padding: '5px'}} colSpan="11">
-                            <div onDoubleClick={openRegister} style={{
-                                    width: '100%',
-                                    height: '30px',
-                                    backgroundColor: 'rgb(255, 255, 255)',
-                                    boxShadow: '0px 0px 2px gray',
-                                    borderRadius: '5px',
-                                    cursor: 'pointer',
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    boxSizing: 'border-box',
-                                    paddingLeft: '5px'
-                                }}>
-                                    Double click unlock register.
-                                </div>
-                            </td>
-                        </tr>
-                        )}
-                    </tbody>
-                </table>
+                            )}
+                        </tbody>
+                    </table>
+                )}
             </div>
         </>
     )

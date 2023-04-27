@@ -32,7 +32,7 @@ import {ImageLogo,
 } from "../components/custom/login";
 
 import {api} from "../../../services/api";
-
+import LoaderBox from "../components/custom/loader/loaderBox";
 import {signIn, isSignedIn} from "../../../services/security";
 
 function Login() {
@@ -42,17 +42,19 @@ function Login() {
     username: "",
     password: ""
   });
+  const [loader, setLoader] = useState(false);
 
   const handlerInput = (e) => setUsuarioLogin({...usuarioLogin, [e.target.id]: e.target.value});
 
   const loginExecute = async (e) => {
-
     e.preventDefault();
+    setLoader(true);
     api.post('/api-token-auth', usuarioLogin).then((response) => {
       signIn(response.data);
-
+      setLoader(false);
       return history.push('/admin/dashboard');
     }).catch(() => {
+      setLoader(false);
       window.alert('falha ao executar o login do usuario');
     })
   }
@@ -67,90 +69,94 @@ function Login() {
     <>
       <AuthHeader/>
       <Container className="mt--9 pb-5">
-        <Row className="justify-content-center">
-          <Col lg="5" md="7">
-            <Card className="bg-secondary border-0 mb-0">
-              <CardHeader className="bg-transparent" style={{
-                paddingBottom: '0px',
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <Imagefigure>
-                  Endress+Hauser&nbsp;
-                  <ImageLogo src={endressLogo}/>
-                </Imagefigure>
-              </CardHeader>
-              <CardBody className="px-lg-5 py-lg-5" style={{borderBottom: "0.5px solid #DFDFDF"}}>
-                <div className="text-center text-muted mb-4">
-                  <small>Sign in with credentials</small>
-                </div>
-                <Form role="form" onSubmit={loginExecute}>
-                  <FormGroup
-                    className={classnames("mb-3", {
-                      focused: focusedEmail,
-                    })}
-                  >
-                    <InputGroup className="input-group-merge input-group-alternative">
-                      <InputGroupAddon addonType="prepend">
-                        <InputGroupText>
-                          <i className="ni ni-email-83" />
-                        </InputGroupText>
-                      </InputGroupAddon>
-                      <Input
-                        placeholder="Username"
-                        type="text"
-                        id="username"
-                        onFocus={() => setFocusedEmailTrue()}
-                        onBlur={() => setFocusedEmailTrue()}
-                        onChange={handlerInput}
-                      />
-                    </InputGroup>
-                  </FormGroup>
-                  <FormGroup
-                    className={classnames({
-                      focused: focusedPassword,
-                    })}
-                  >
-                    <InputGroup className="input-group-merge input-group-alternative">
-                      <InputGroupAddon addonType="prepend">
-                        <InputGroupText>
-                          <i className="ni ni-lock-circle-open" />
-                        </InputGroupText>
-                      </InputGroupAddon>
-                      <Input
-                        placeholder="Password"
-                        type="password"
-                        id="password"
-                        onFocus={() => setFocusedEmailTrue()}
-                        onBlur={() => setfocusedPassword(true)}
-                        onChange={handlerInput}
-                      />
-                    </InputGroup>
-                  </FormGroup>
-                  <div className="text-center">
-                    <Button className="my-4" color="info" type="submit">
-                      Sign in
-                    </Button>
+        {loader ? (
+          <LoaderBox/>
+        ) : (
+          <Row className="justify-content-center">
+            <Col lg="5" md="7">
+              <Card className="bg-secondary border-0 mb-0">
+                <CardHeader className="bg-transparent" style={{
+                  paddingBottom: '0px',
+                  display: 'flex',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <Imagefigure>
+                    Endress+Hauser&nbsp;
+                    <ImageLogo src={endressLogo}/>
+                  </Imagefigure>
+                </CardHeader>
+                <CardBody className="px-lg-5 py-lg-5" style={{borderBottom: "0.5px solid #DFDFDF"}}>
+                  <div className="text-center text-muted mb-4">
+                    <small>Sign in with credentials</small>
                   </div>
-                </Form>
-              </CardBody>
-              <CardHeader className="bg-transparent" style={{
-                paddingBottom: '0px',
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <MV3Figure>
-                  Developed By &nbsp;
-                  <MV3img src={mv3Logo}/>
-                </MV3Figure>
-              </CardHeader>
-            </Card>
-          </Col>
-        </Row>
+                  <Form role="form" onSubmit={loginExecute}>
+                    <FormGroup
+                      className={classnames("mb-3", {
+                        focused: focusedEmail,
+                      })}
+                    >
+                      <InputGroup className="input-group-merge input-group-alternative">
+                        <InputGroupAddon addonType="prepend">
+                          <InputGroupText>
+                            <i className="ni ni-email-83" />
+                          </InputGroupText>
+                        </InputGroupAddon>
+                        <Input
+                          placeholder="Username"
+                          type="text"
+                          id="username"
+                          onFocus={() => setFocusedEmailTrue()}
+                          onBlur={() => setFocusedEmailTrue()}
+                          onChange={handlerInput}
+                        />
+                      </InputGroup>
+                    </FormGroup>
+                    <FormGroup
+                      className={classnames({
+                        focused: focusedPassword,
+                      })}
+                    >
+                      <InputGroup className="input-group-merge input-group-alternative">
+                        <InputGroupAddon addonType="prepend">
+                          <InputGroupText>
+                            <i className="ni ni-lock-circle-open" />
+                          </InputGroupText>
+                        </InputGroupAddon>
+                        <Input
+                          placeholder="Password"
+                          type="password"
+                          id="password"
+                          onFocus={() => setFocusedEmailTrue()}
+                          onBlur={() => setfocusedPassword(true)}
+                          onChange={handlerInput}
+                        />
+                      </InputGroup>
+                    </FormGroup>
+                    <div className="text-center">
+                      <Button className="my-4" color="info" type="submit">
+                        Sign in
+                      </Button>
+                    </div>
+                  </Form>
+                </CardBody>
+                <CardHeader className="bg-transparent" style={{
+                  paddingBottom: '0px',
+                  display: 'flex',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <MV3Figure>
+                    Developed By &nbsp;
+                    <MV3img src={mv3Logo}/>
+                  </MV3Figure>
+                </CardHeader>
+              </Card>
+            </Col>
+          </Row>
+        )}
       </Container>
     </>
   );

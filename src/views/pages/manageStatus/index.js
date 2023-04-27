@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
-
 import { Table, Media, Button, Input, Container} from 'reactstrap';
-
 import { api } from 'services/api';
-
 import { InfoAlert, SuccessAlert, DangerAlert } from '../components/custom/alerts';
+import LoaderBox from '../components/custom/loader/loaderBox';
 
 const ListStatus = () => {
     const [statusData, setStatusData] = useState([]);
@@ -21,10 +19,17 @@ const ListStatus = () => {
     const handleOpenDangerAlert = (msg="Danger!!!") => setDangerAlert({status: true, message: msg});
     const handleCloseDanger = () => setDangerAlert({status: false});
 
+    const [loader, setLoader] = useState(false);
+
     const getStatus = async () => {
+        setLoader(true);
         api.get('/status/').then((response) => {
             setStatusData(response.data);
-        }).catch(console.error);
+            setLoader(false);
+        }).catch((error) => {
+            console.error(error);
+            setLoader(false);
+        });
     }
 
     useEffect(() => {
@@ -355,46 +360,50 @@ const ListStatus = () => {
                 boxSizing: 'border-box',
                 padding: '30px'
             }}>
-                <div style={{
-                    width: '100%',
-                    maxWidth: '1200px',
-                    height: '60vh',
-                    overflow: 'auto',
-                    borderRadius: '10px',
-                    boxShadow: '0px 0px 5px gray',
-                    boxSizing: 'border-box',
-                }}>
-                    <Table className="align-items-center" responsive>
-                        <thead className="thead-light">
-                            <NewStatus/>
-                            <tr>
-                            <th scope="col" style={{width:"50px", textAlign: 'center'}}>Name</th>
-                            <th scope="col">Description</th>
-                            <th scope="col" style={{width:"50px", textAlign: 'center'}}/>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {statusData.length>0
-                            ?statusData.map((post, index) => (<ListItem key={`statuslist-${index}`} post={post}/>))
-                            :(
+                {loader ? (
+                    <LoaderBox/>
+                ):(
+                    <div style={{
+                        width: '100%',
+                        maxWidth: '1200px',
+                        height: '60vh',
+                        overflow: 'auto',
+                        borderRadius: '10px',
+                        boxShadow: '0px 0px 5px gray',
+                        boxSizing: 'border-box',
+                    }}>
+                        <Table className="align-items-center" responsive>
+                            <thead className="thead-light">
+                                <NewStatus/>
                                 <tr>
-                                    <td colSpan='3' style={{padding:'0'}}>
-                                        <div style={{
-                                            width: '100%',
-                                            boxSizing: 'border-box',
-                                            padding: '5px',
-                                            textAlign: 'center'
-                                        }}>
-                                            <h3>
-                                                No status registered.
-                                            </h3>
-                                        </div>
-                                    </td>
+                                <th scope="col" style={{width:"50px", textAlign: 'center'}}>Name</th>
+                                <th scope="col">Description</th>
+                                <th scope="col" style={{width:"50px", textAlign: 'center'}}/>
                                 </tr>
-                            )}
-                        </tbody>
-                    </Table>
-                </div>
+                            </thead>
+                            <tbody>
+                                {statusData.length>0
+                                ?statusData.map((post, index) => (<ListItem key={`statuslist-${index}`} post={post}/>))
+                                :(
+                                    <tr>
+                                        <td colSpan='3' style={{padding:'0'}}>
+                                            <div style={{
+                                                width: '100%',
+                                                boxSizing: 'border-box',
+                                                padding: '5px',
+                                                textAlign: 'center'
+                                            }}>
+                                                <h3>
+                                                    No status registered.
+                                                </h3>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </Table>
+                    </div>
+                )}
             </div>
         </>
     );

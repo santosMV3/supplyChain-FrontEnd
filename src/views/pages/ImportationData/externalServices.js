@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { Button, Input } from 'reactstrap';
 import { api } from "services/api";
 
+import LoaderBox from '../components/custom/loader/loaderBox';
+
 const ImportationLine = ({post, deleteExt, getExtData}) => {
     const [extDataUpdate, setExtDataUpdate] = useState({
         SSKProject: post.SSKProject,
@@ -169,8 +171,17 @@ const ExternalServices = () => {
     const openRegister = () => setRegisterState(true);
     const closeRegister = () => setRegisterState(false);
 
+    const [loader, setLoader] = useState(false);
+
     const getExtData = () => {
-        api.get('externalServices').then((response) => setExtData(response.data)).catch(console.error);
+        setLoader(true);
+        api.get('externalServices').then((response) => {
+            setExtData(response.data);
+            return setLoader(false);
+        }).catch((error) => {
+            console.error(error);
+            setLoader(false);
+        });
     }
 
     useEffect(() => {
@@ -216,137 +227,141 @@ const ExternalServices = () => {
                 padding: '5px',
                 height: 'auto'
             }}>
-                <table style={{
-                    with: '100%',
-                    minHeight: '10px',
-                    maxHeight: '70vh',
-                    height: 'auto',
-                    margin: '0 auto',
-                    borderRadius: '10px',
-                    overflow: 'hidden',
-                    boxShadow: '0px 0px 5px gray',
-                    fontFamily: 'calibri',
-                }}>
-                    <thead>
-                        <tr style={{
-                            backgroundColor: '#e1e1e1',
-                            fontFamily: 'calibri',
-                            fontSize: '0.9em'
-                        }}>
-                            <th style={{
-                                boxSizing: 'border-box',
-                                padding: '5px 15px',
-                                boxShadow: '0px 0px 1px black',
-                                position: 'sticky',
-                                textAlign: 'center',
-                                wordBreak: 'break-all',
-                                width: '150px'
-                            }}>
-                                Document Number
-                            </th>
-                            <th style={{
-                                boxSizing: 'border-box',
-                                padding: '5px 15px',
-                                boxShadow: '0px 0px 1px black',
-                                position: 'sticky',
-                                textAlign: 'center',
-                                wordBreak: 'break-all',
-                                width: '150px'
-                            }}>
-                                SSK (Projects)
-                            </th>
-                            <th style={{
-                                boxSizing: 'border-box',
-                                padding: '5px 15px',
-                                boxShadow: '0px 0px 1px black',
-                                position: 'sticky',
-                                textAlign: 'center',
-                                wordBreak: 'break-all',
-                                width: '150px'
-                            }}>
-                                External Services
-                            </th>
-                            <th/>
-                        </tr>
-                    </thead>
-                    <tbody style={{
+                { loader ? (
+                    <LoaderBox/>
+                ):(
+                    <table style={{
+                        with: '100%',
+                        minHeight: '10px',
+                        maxHeight: '70vh',
                         height: 'auto',
-                        maxHeight: '200px',
-                        overflow: 'scroll',
-                        position: 'sticky'
+                        margin: '0 auto',
+                        borderRadius: '10px',
+                        overflow: 'hidden',
+                        boxShadow: '0px 0px 5px gray',
+                        fontFamily: 'calibri',
                     }}>
-                        {extData.length > 0 ? (
-                            <>
-                                {extData.map((post, index) => (<ImportationLine key={`importation-${index}`} post={post} deleteExt={deleteExt} getExtData={getExtData} />))}
-                            </>
-                        ):(
+                        <thead>
+                            <tr style={{
+                                backgroundColor: '#e1e1e1',
+                                fontFamily: 'calibri',
+                                fontSize: '0.9em'
+                            }}>
+                                <th style={{
+                                    boxSizing: 'border-box',
+                                    padding: '5px 15px',
+                                    boxShadow: '0px 0px 1px black',
+                                    position: 'sticky',
+                                    textAlign: 'center',
+                                    wordBreak: 'break-all',
+                                    width: '150px'
+                                }}>
+                                    Document Number
+                                </th>
+                                <th style={{
+                                    boxSizing: 'border-box',
+                                    padding: '5px 15px',
+                                    boxShadow: '0px 0px 1px black',
+                                    position: 'sticky',
+                                    textAlign: 'center',
+                                    wordBreak: 'break-all',
+                                    width: '150px'
+                                }}>
+                                    SSK (Projects)
+                                </th>
+                                <th style={{
+                                    boxSizing: 'border-box',
+                                    padding: '5px 15px',
+                                    boxShadow: '0px 0px 1px black',
+                                    position: 'sticky',
+                                    textAlign: 'center',
+                                    wordBreak: 'break-all',
+                                    width: '150px'
+                                }}>
+                                    External Services
+                                </th>
+                                <th/>
+                            </tr>
+                        </thead>
+                        <tbody style={{
+                            height: 'auto',
+                            maxHeight: '200px',
+                            overflow: 'scroll',
+                            position: 'sticky'
+                        }}>
+                            {extData.length > 0 ? (
+                                <>
+                                    {extData.map((post, index) => (<ImportationLine key={`importation-${index}`} post={post} deleteExt={deleteExt} getExtData={getExtData} />))}
+                                </>
+                            ):(
+                                <tr>
+                                    <td colSpan="4" style={{textAlign: 'center'}}>
+                                        There are no records in memory.
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                        <tbody>
+                            {registerState?(
                             <tr>
-                                <td colSpan="4" style={{textAlign: 'center'}}>
-                                    There are no records in memory.
+                                <td style={{boxSizing: 'border-box', padding: '5px'}}>
+                                    <Input bsSize="sm" id="documentNumber" onChange={handlerInput} type="text" style={{
+                                        width: '150px',
+                                        margin: '0 auto'
+                                    }}/>
+                                </td>
+                                <td style={{boxSizing: 'border-box', padding: '5px'}}>
+                                    <Input bsSize="sm" id="SSKProject" onChange={handlerInput} type="text" style={{
+                                        width: '150px',
+                                        margin: '0 auto'
+                                    }}/>
+                                </td>
+                                <td style={{boxSizing: 'border-box', padding: '5px'}}>
+                                    <Input bsSize="sm" type="checkbox" onClick={handlerInput} id="externalServices" style={{
+                                        position: 'relative',
+                                        margin: 'auto',
+                                        display: 'block'
+                                    }}/>
+                                </td>
+                                <td style={{
+                                    boxSizing: 'border-box',
+                                    padding: '5px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                    }}>
+                                    <Button color="success" size="sm" outline onClick={createExternalService}>
+                                        Save
+                                    </Button>
+                                    <Button color="danger" size="sm" outline onClick={closeRegister}>
+                                        Cancel
+                                    </Button>
                                 </td>
                             </tr>
-                        )}
-                    </tbody>
-                    <tbody>
-                        {registerState?(
-                        <tr>
-                            <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                                <Input bsSize="sm" id="documentNumber" onChange={handlerInput} type="text" style={{
-                                    width: '150px',
-                                    margin: '0 auto'
-                                }}/>
-                            </td>
-                            <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                                <Input bsSize="sm" id="SSKProject" onChange={handlerInput} type="text" style={{
-                                    width: '150px',
-                                    margin: '0 auto'
-                                }}/>
-                            </td>
-                            <td style={{boxSizing: 'border-box', padding: '5px'}}>
-                                <Input bsSize="sm" type="checkbox" onClick={handlerInput} id="externalServices" style={{
-                                    position: 'relative',
-                                    margin: 'auto',
-                                    display: 'block'
-                                }}/>
-                            </td>
-                            <td style={{
-                                boxSizing: 'border-box',
-                                padding: '5px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center'
-                                }}>
-                                <Button color="success" size="sm" outline onClick={createExternalService}>
-                                    Save
-                                </Button>
-                                <Button color="danger" size="sm" outline onClick={closeRegister}>
-                                    Cancel
-                                </Button>
-                            </td>
-                        </tr>
-                        ):(
-                        <tr>
-                            <td style={{boxSizing: 'border-box', padding: '5px'}} colSpan="5">
-                                <div onDoubleClick={openRegister} style={{
-                                    width: '100%',
-                                    height: '30px',
-                                    backgroundColor: 'rgb(255, 255, 255)',
-                                    boxShadow: '0px 0px 2px gray',
-                                    borderRadius: '5px',
-                                    cursor: 'pointer',
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    boxSizing: 'border-box',
-                                    paddingLeft: '5px'
-                                }}>
-                                    Double click unlock register.
-                                </div>
-                            </td>
-                        </tr>
-                        )}
-                    </tbody>
-                </table>
+                            ):(
+                            <tr>
+                                <td style={{boxSizing: 'border-box', padding: '5px'}} colSpan="5">
+                                    <div onDoubleClick={openRegister} style={{
+                                        width: '100%',
+                                        height: '30px',
+                                        backgroundColor: 'rgb(255, 255, 255)',
+                                        boxShadow: '0px 0px 2px gray',
+                                        borderRadius: '5px',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        boxSizing: 'border-box',
+                                        paddingLeft: '5px'
+                                    }}>
+                                        Double click unlock register.
+                                    </div>
+                                </td>
+                            </tr>
+                            )}
+                        </tbody>
+                    </table>
+                )}
             </div>
         </>
     );

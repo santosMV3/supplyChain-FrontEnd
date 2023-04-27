@@ -41,7 +41,7 @@ import {api} from "../../../services/api";
 import {
     BodyInfo,
 } from './components'
-
+import LoaderBox from "../components/custom/loader/loaderBox";
 import ManageUsers from ".";
 
 const createStyles = makeStyles((theme) => ({
@@ -81,6 +81,7 @@ const ListUsers = () => {
     const [createModalState, setCreateModal] = useState(false);
     const openCreateModal = () => setCreateModal(true);
     const closeCreateModal = () => setCreateModal(false);
+    const [loader, setLoader] = useState(false);
 
     const CreateModal = ({...props}) => {
         const classes = createStyles();
@@ -111,13 +112,16 @@ const ListUsers = () => {
     useEffect(() => {
         let abortController = new AbortController();
         const usersGetData = async () => {
+            setLoader(true);
             api.get('/users').then((data) => {
                 setUsersData(data.data);
+                setLoader(false);
             }).catch((error) => {
                 if(error.response){
                     window.alert(error.response.data.detail);
                     history.push('/auth/login');
                 }
+                setLoader(false);
             });
         }
         usersGetData();
@@ -125,11 +129,16 @@ const ListUsers = () => {
     }, []);
 
     const reloadData = (modal=false) => {
-        api.get('/users').then((data) => setUsersData(data.data)).catch((error) => {
+        setLoader(true);
+        api.get('/users').then((data) => {
+            setUsersData(data.data);
+            setLoader(false);
+        }).catch((error) => {
             if(error.response){
                 window.alert(error.response.data.detail);
                 history.push('/auth/login');
             }
+            setLoader(false);
         });
 
         if(modal) closeCreateModal();
@@ -695,21 +704,25 @@ const ListUsers = () => {
                 handleClose={closeCreateModal}/>
             </div>
 
-            <ListGroup className="list" flush style={{
-                width: '100%',
-                height: '100%',
-                boxShadow: '0px 0px 3px gray',
-                borderRadius: '10px',
-                overflow: 'hidden'
-            }}>
-                <div style={{
-                    overflowY: 'auto',
-                    overflowX: 'hidden',
-                    padding: '5px',
+            {loader ? (
+                <LoaderBox/>
+            ):(
+                <ListGroup className="list" flush style={{
+                    width: '100%',
+                    height: '100%',
+                    boxShadow: '0px 0px 3px gray',
+                    borderRadius: '10px',
+                    overflow: 'hidden'
                 }}>
-                    {usersData.map((data, index) => (<Users key={`userlist-${index}`} post={data}/>))}
-                </div>
-            </ListGroup>
+                    <div style={{
+                        overflowY: 'auto',
+                        overflowX: 'hidden',
+                        padding: '5px',
+                    }}>
+                        {usersData.map((data, index) => (<Users key={`userlist-${index}`} post={data}/>))}
+                    </div>
+                </ListGroup>
+            )}
       </Container>
     </>
     )

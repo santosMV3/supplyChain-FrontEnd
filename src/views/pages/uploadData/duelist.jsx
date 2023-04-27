@@ -11,6 +11,8 @@ import {DuelistFilter} from "./components/DueListFilter";
 import {DueListPagination} from "./components/DueListPagination";
 import {api} from "../../../services/api";
 
+import LoaderBox from '../components/custom/loader/loaderBox';
+
 const Duelist = () => {
     const [logMapData, setLogMapData] = useState({
         results: null,
@@ -21,8 +23,10 @@ const Duelist = () => {
         nowEndpoint: null,
     });
     const [logOrderStatus, setOrderStatus] = useState([]);
+    const [loader, setLoader] = useState(false);
 
     const getLogMapData = (endpoint="/logisticMapFilter/") => {
+        setLoader(true);
         api.get(endpoint).then((res) => {
             let data = res.data;
             if (endpoint.indexOf("?") > -1 && endpoint.indexOf("page=") > -1){
@@ -33,7 +37,11 @@ const Duelist = () => {
             }
             data.nowEndpoint = endpoint;
             setLogMapData(data);
-        }).catch(console.error);
+            setLoader(false);
+        }).catch((error) => {
+            console.error(error);
+            setLoader(false);
+        });
     }
 
     function getStatus() {
@@ -54,13 +62,19 @@ const Duelist = () => {
     return (
         <div id="ContainerPage">
             <DuelistFilter reload={executeAPIFunctions} endpoint={logMapData.nowEndpoint} orderStatus={logOrderStatus}/>
-            <TableList>
-                <THeadList/>
-                <tbody>
-                    <RenderRowList reload={executeAPIFunctions} endpoint={logMapData.nowEndpoint} data={logMapData.results} ordersStatus={logOrderStatus}/>
-                </tbody>
-            </TableList>
-            <DueListPagination data={[logMapData.count, logMapData.previous, logMapData.next, logMapData.now, logMapData.nowEndpoint]} reload={executeAPIFunctions}/>
+            {loader ? (
+                <LoaderBox message="Loading orders... Please wait!"/>
+            ) : (
+                <>
+                    <TableList>
+                        <THeadList/>
+                        <tbody>
+                            <RenderRowList reload={executeAPIFunctions} endpoint={logMapData.nowEndpoint} data={logMapData.results} ordersStatus={logOrderStatus}/>
+                        </tbody>
+                    </TableList>
+                    <DueListPagination data={[logMapData.count, logMapData.previous, logMapData.next, logMapData.now, logMapData.nowEndpoint]} reload={executeAPIFunctions}/>
+                </>
+            )}
         </div>
     )
 }

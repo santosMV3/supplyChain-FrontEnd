@@ -9,7 +9,7 @@ import DatePicker, { registerLocale } from "react-datepicker";
 import ptBR from 'date-fns/locale/pt-BR';
 import "react-datepicker/dist/react-datepicker.css";
 import { formatDateAmerican, formatDate } from "utils/conversor";
-
+import LoaderBox from "../components/custom/loader/loaderBox";
 import { api } from "services/api";
 
 registerLocale('pt-br', ptBR);
@@ -237,20 +237,24 @@ const ImportationDetails = () => {
     const [registerState, setRegisterState] = useState(false);
     const openRegister = () => setRegisterState(true);
     const closeRegister = () => setRegisterState(false);
+    const [loader, setLoader] = useState(false);
+
+    const getImp = () => {
+        setLoader(true);
+        api.get("/importationDetails/").then((response) => {
+            setImpData(response.data);
+            setLoader(false);
+        }).catch((error) => {
+            console.error(error);
+            setLoader(false);
+        });
+    }
 
     useEffect(() => {
         let abortController = new AbortController();
-        const getImp = () => {
-            api.get("/importationDetails/").then((response) => setImpData(response.data)).catch(console.error);
-        }
-
         getImp();
         return () => abortController.abort();
     }, []);
-
-    const getImp = () => {
-        api.get("/importationDetails/").then((response) => setImpData(response.data)).catch(console.error);
-    }
 
     const deleteFactory = (idImp, docSap=undefined) => {
         if(!(window.confirm("Confirm to delete the Importation Date:"))) return null;
@@ -278,89 +282,93 @@ const ImportationDetails = () => {
                 padding: '5px',
                 height: 'auto'
             }}>
-                <table style={{
-                    with: '100%',
-                    minHeight: '10px',
-                    maxHeight: '70vh',
-                    height: 'auto',
-                    margin: '0 auto',
-                    borderRadius: '10px',
-                    overflow: 'hidden',
-                    boxShadow: '0px 0px 5px gray',
-                    fontFamily: 'calibri',
-                }}>
-                    <thead>
-                        <tr style={{
-                            backgroundColor: '#e1e1e1',
-                            fontFamily: 'calibri',
-                            fontSize: '0.9em'
-                        }}>
-                            <th style={{
-                                boxSizing: 'border-box',
-                                padding: '5px 15px',
-                                boxShadow: '0px 0px 1px black',
-                                position: 'sticky',
-                                textAlign: 'center',
-                                wordBreak: 'break-all',
-                                width: '150px'
-                            }}>
-                                DOC SAP
-                            </th>
-                            <th style={{
-                                boxSizing: 'border-box',
-                                padding: '5px 15px',
-                                boxShadow: '0px 0px 1px black',
-                                position: 'sticky',
-                                textAlign: 'center',
-                                wordBreak: 'break-all',
-                                width: '150px'
-                            }}>
-                                IMP
-                            </th>
-                            <th style={{
-                                boxSizing: 'border-box',
-                                padding: '5px 15px',
-                                boxShadow: '0px 0px 1px black',
-                                position: 'sticky',
-                                textAlign: 'center',
-                                wordBreak: 'break-all',
-                                width: '150px'
-                            }}>
-                                ETA Trianom
-                            </th>
-                            <th style={{
-                                boxSizing: 'border-box',
-                                padding: '5px 15px',
-                                boxShadow: '0px 0px 1px black',
-                                position: 'sticky',
-                                textAlign: 'center',
-                                wordBreak: 'break-word',
-                                width: '150px'
-                            }}>
-                                Released to invoice
-                            </th>
-                            <th/>
-                        </tr>
-                    </thead>
-                    <tbody style={{
+                {loader ? (
+                    <LoaderBox/>
+                ):(
+                    <table style={{
+                        with: '100%',
+                        minHeight: '10px',
+                        maxHeight: '70vh',
                         height: 'auto',
-                        maxHeight: '200px',
-                        overflow: 'scroll',
-                        position: 'sticky'
+                        margin: '0 auto',
+                        borderRadius: '10px',
+                        overflow: 'hidden',
+                        boxShadow: '0px 0px 5px gray',
+                        fontFamily: 'calibri',
                     }}>
-                        {impData.length > 0?(
-                            <>
-                                {impData.map((post, index) => (<ImportationLine key={`imp-${index}`} post={post} deleteFactory={deleteFactory} getImp={getImp}/>))}
-                            </>
-                        ):(
-                            <tr>
-                                <td colSpan="5" style={{textAlign: 'center'}}>
-                                    There are no records in memory.
-                                </td>
+                        <thead>
+                            <tr style={{
+                                backgroundColor: '#e1e1e1',
+                                fontFamily: 'calibri',
+                                fontSize: '0.9em'
+                            }}>
+                                <th style={{
+                                    boxSizing: 'border-box',
+                                    padding: '5px 15px',
+                                    boxShadow: '0px 0px 1px black',
+                                    position: 'sticky',
+                                    textAlign: 'center',
+                                    wordBreak: 'break-all',
+                                    width: '150px'
+                                }}>
+                                    DOC SAP
+                                </th>
+                                <th style={{
+                                    boxSizing: 'border-box',
+                                    padding: '5px 15px',
+                                    boxShadow: '0px 0px 1px black',
+                                    position: 'sticky',
+                                    textAlign: 'center',
+                                    wordBreak: 'break-all',
+                                    width: '150px'
+                                }}>
+                                    IMP
+                                </th>
+                                <th style={{
+                                    boxSizing: 'border-box',
+                                    padding: '5px 15px',
+                                    boxShadow: '0px 0px 1px black',
+                                    position: 'sticky',
+                                    textAlign: 'center',
+                                    wordBreak: 'break-all',
+                                    width: '150px'
+                                }}>
+                                    ETA Trianom
+                                </th>
+                                <th style={{
+                                    boxSizing: 'border-box',
+                                    padding: '5px 15px',
+                                    boxShadow: '0px 0px 1px black',
+                                    position: 'sticky',
+                                    textAlign: 'center',
+                                    wordBreak: 'break-word',
+                                    width: '150px'
+                                }}>
+                                    Released to invoice
+                                </th>
+                                <th/>
                             </tr>
-                        )}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody style={{
+                            height: 'auto',
+                            maxHeight: '200px',
+                            overflow: 'scroll',
+                            position: 'sticky'
+                        }}>
+                            {impData.length > 0?(
+                                <>
+                                    {impData.map((post, index) => (<ImportationLine key={`imp-${index}`} post={post} deleteFactory={deleteFactory} getImp={getImp}/>))}
+                                </>
+                            ):(
+                                <tr>
+                                    <td colSpan="5" style={{textAlign: 'center'}}>
+                                        There are no records in memory.
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                )}
             </div>
         </>
     )

@@ -39,6 +39,7 @@ import {
 import {ExpandMore} from '@material-ui/icons';
 import {DangerAlert} from '../components/custom/alerts/index'
 import CreatePermission from './create';
+import LoaderBox from '../components/custom/loader/loaderBox';
 
 const useStyles = makeStyles((theme) => ({
     modal: {
@@ -60,32 +61,29 @@ const useStyles = makeStyles((theme) => ({
 const ListPermissions = () => {
     const [permissionsState, setPermissionState] = useState([]);
     const [registerState, setRegisterState] = useState(false);
-
-    useEffect(() => {
-        let abortController = new AbortController();
-        const getPermissions = async () => {
-            try {
-                api.get('/permissions/').then((response) => {
-                    setPermissionState(response.data);
-                }).catch(console.error);
-            } catch (error) {
-                console.error(error);
-            }
-        }
-
-        getPermissions();
-        return () => abortController.abort();
-    }, []);
+    const [loader, setLoader] = useState(false);
 
     const getPermissions = () => {
         try {
+            setLoader(true);
             api.get('/permissions/').then((response) => {
                 setPermissionState(response.data);
-            }).catch(console.error);
+                setLoader(false);
+            }).catch((error) => {
+                console.error(error);
+                setLoader(false);
+            });
         } catch (error) {
             console.error(error);
+            setLoader(false);
         }
     }
+
+    useEffect(() => {
+        let abortController = new AbortController();
+        getPermissions();
+        return () => abortController.abort();
+    }, []);
 
     const openRegister = () => setRegisterState(true);
     const closeRegister = () => {
@@ -665,18 +663,22 @@ const ListPermissions = () => {
                     height: "450px",
                     display: "block",
                 }}>
-                    <ListGroup className="list" flush style={{
-                        width: '100%',
-                        height: '100%',
-                        overflowY: 'auto',
-                        overflowX: 'hidden',
-                        padding: '5px',
-                    }}>
-                        {permissionsState.length > 0 ? permissionsState.map((post, index) => (
-                            <PermissionItem key={`permission-${index}`} post={post}/>)) : (
-                            <h2 style={{textAlign: "center", marginTop: "10px"}}>Nenhuma permissão cadastrada.</h2>
-                        )}
-                    </ListGroup>
+                    {loader ? (
+                        <LoaderBox/>
+                    ): (
+                        <ListGroup className="list" flush style={{
+                            width: '100%',
+                            height: '100%',
+                            overflowY: 'auto',
+                            overflowX: 'hidden',
+                            padding: '5px',
+                        }}>
+                            {permissionsState.length > 0 ? permissionsState.map((post, index) => (
+                                <PermissionItem key={`permission-${index}`} post={post}/>)) : (
+                                <h2 style={{textAlign: "center", marginTop: "10px"}}>Nenhuma permissão cadastrada.</h2>
+                            )}
+                        </ListGroup>
+                    )}
                 </Container>
             )}
         </>
