@@ -109,6 +109,10 @@ export const DuelistFilter = (props) => {
         return setFilterValue({...filterValue, [e.target.name]: e.target.value});
     }
 
+    const clearFilterInputValue = () => {
+        setFilterValue({...filterValue, "value": ""});
+    }
+
     const addFilter = () => {
         if (!filterValue.field) return window.alert("Insert a filter to search.");
         // if (!filterValue.value && filterValue.field != "previsionWeek") return window.alert("Insert a value or and a filter to search.");
@@ -207,14 +211,16 @@ export const DuelistFilter = (props) => {
                             </label>
                         </div>
                     ): filterValue.field === "ETA TRIANON" ? (
-                        <DatePicker
-                        id="duelist-filter-input-select-status"
-                        type="date"
-                        locale="pt-br"
-                        onChange={handlerInputFilter}
-                        value={formatDate(filterValue.value)}
-                        name="releaseDate"
-                        dateFormat="dd/MM/yyyy"/>
+                        <div id='duelist-filter-input-select-status' onDoubleClick={clearFilterInputValue}>
+                            <DatePicker
+                            type="date"
+                            locale="pt-br"
+                            onChange={handlerInputFilter}
+                            value={formatDate(filterValue.value)}
+                            name="releaseDate"
+                            dateFormat="dd/MM/yyyy"
+                            isClearable={true}/>
+                        </div>
                     ) : (
                         <>
                             {statusMode ? (
