@@ -437,7 +437,7 @@ const TableModal = (props) => {
     }
 
     const handlerInput = (e, input=null) => {
-        if(input) return setWeState({...weState, [input]: formatDateAmerican(e)});
+        if(input && typeof(input) === "string") return setWeState({...weState, [input]: formatDateAmerican(e)});
         setWeState({...weState, [e.target.name]: e.target.value});
     }
 
@@ -446,7 +446,7 @@ const TableModal = (props) => {
     }
 
     const clearInputWe = (input=null) => {
-        setWeState({...weState, [input]: ""});
+        setWeState({...weState, [input]: null});
     }
 
     const saveStatusOrder = (e) => {
@@ -462,8 +462,8 @@ const TableModal = (props) => {
             idOrder:orderId,
         }
 
-        const statusName = ordersStatus.filter((status) => status.idStatus === orderStatus)[0].name
-        const oldStatusName = ordersStatus.filter((status) => status.idStatus === orderStatusSelected)[0].name
+        const statusName = ordersStatus.filter((status) => status.idStatus === orderStatus)[0].name;
+        const oldStatusName = orderStatusSelected ? ordersStatus.filter((status) => status.idStatus === orderStatusSelected)[0].name : null;
         
         if(action === "create") {
             api.post("/statusOrder/", data).then(() => {
@@ -531,6 +531,12 @@ const TableModal = (props) => {
                 if (order.supplier !== weState.supplier) historicData.so.push({
                     before: `Old Supplier value: "${order.supplier}"`,
                     after: `New Supplier value: "${weState.supplier}"`,
+                    action: "update"
+                });
+
+                if(order.previsionTrianom !== weState.previsionTrianom) historicData.so.push({
+                    before: `Old Prevision Trianom value: "${order.previsionTrianom}"`,
+                    after: `New Prevision Trianom value: "${weState.previsionTrianom}"`,
                     action: "update"
                 });
 
@@ -931,6 +937,9 @@ const TableModal = (props) => {
                                         SO Creation Date
                                     </div>
                                     <div className='cell-title-list-duelist-modal'>
+                                        GR. Date
+                                    </div>
+                                    <div className='cell-title-list-duelist-modal'>
                                         External Service
                                     </div>
                                 </div>
@@ -943,6 +952,9 @@ const TableModal = (props) => {
                                     </div>
                                     <div className='cell-value-list-duelist-modal'>
                                         {formatDate(order.SOCreationDate)}
+                                    </div>
+                                    <div className='cell-value-list-duelist-modal'>
+                                        {formatDate(order.GRDate)}
                                     </div>
                                     <div className='cell-value-list-duelist-modal'>
                                         {order.externalService ? "Yes" : "No"}
