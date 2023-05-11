@@ -1,0 +1,16 @@
+#component-body{
+    width: 80vw;
+    height: 90vh;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#component-container{
+    width: 60vw;
+    height: 60vh;
+    box-shadow: 0px 0px 10px gray;
+    border-radius: 20px;
+}
