@@ -25,6 +25,7 @@ import Sidebar from "components/Sidebar/Sidebar.js";
 import {api} from "../services/api";
 import { useHistory } from "react-router-dom";
 import routes from "routes.js";
+import Unauthorized from "./components/unauthorized";
 
 function Admin() {
   const [sidenavOpen, setSidenavOpen] = React.useState(true);
@@ -50,44 +51,72 @@ function Admin() {
     history.push('/auth/login');
   }
 
+  const getPagePermissions = () => {
+    Promise.all([
+      api.get(`user-permission?idUser=${localStorage.getItem("AUTHOR_ID")}`),
+      api.get(`/users/${localStorage.getItem("AUTHOR_ID")}`),
+      api.get("/pages")
+    ]).then((responses) => {
+      if ((responses[0].data.length === 0) && !(responses[1].data.is_superuser)) {
+        localStorage.clear();
+        history.push("/auth/login");
+      }
+
+      let pagesAllowed = [];
+      console.log(responses[1].data.is_superuser);
+      if(responses[1].data.is_superuser) {
+        const pageNames = responses[2].data.map((page) => page.name);
+        pagesAllowed = pagesAllowed.concat(pageNames);
+        return setPageState(pagesAllowed);
+      } else {
+        api.get(`/permissions/${responses[0].data[0].idPermission}`).then((permission) => {
+
+          responses[2].data.forEach((page) => {
+            if (permission.data.idPages.indexOf(page.idPage) > -1){
+              pagesAllowed.push(page.name);
+            }
+          });
+  
+          setPageState(pagesAllowed);
+  
+        }).catch((error) => {
+          console.error(error);
+          window.alert("An error occurred while trying to collect your permissions. [1]");
+          localStorage.clear();
+          history.push("/auth/login");
+        }); 
+      }
+
+    }).catch((error) => {
+      console.error(error);
+      window.alert("An error occurred while trying to collect your permissions. [0]");
+      localStorage.clear();
+      history.push("/auth/login");
+    })
+  }
+
   React.useEffect(() => {
     document.documentElement.scrollTop = 0;
     document.scrollingElement.scrollTop = 0;
     mainContentRef.current.scrollTop = 0;
   }, [location]);
+
+  React.useEffect(() => {
+    getPagePermissions();
+  }, [])
+
   const getRoutes = (routes) => {
     return routes.map((prop, key) => {
       if (prop.collapse) {
         return getRoutes(prop.views);
       }
-      if(pageState.indexOf(prop.name) > -1) return null;
-      api.get(`user-permission?idUser=${localStorage.getItem("AUTHOR_ID")}`).then((response) => {
-        if(response.data.length === 0) {
-          api.get(`/users/${localStorage.getItem("AUTHOR_ID")}`).then((response) => {
-            if(!(response.data.is_superuser)) {
-              localStorage.clear();
-              history.push('/auth/login');
-            };
-          }).catch(console.error)
-        } else {
-          api.get(`/permissions/${response.data[0].idPermission}`).then((response) => {
-            let permissions = response.data;
-            api.get(`/pages?name=${prop.name.toLowerCase()}`).then((responsePage => {
-              if(responsePage.data.length < 1){
-                let page = pageState;
-                page.push(prop.name);
-                setPageState(page);
-              } else {
-                if(permissions.idPages.indexOf(responsePage.data[0].idPage) === -1){
-                  let page = pageState;
-                  page.push(prop.name);
-                  setPageState(page);
-                }
-              }
-            })).catch(console.error);
-          }).catch(console.error);
-        }
-      }).catch(console.error);
+
+      if(pageState.indexOf(prop.name.toLowerCase()) === -1) return (
+        <>
+          <Unauthorized/>
+        </>
+      );
+
       if (prop.layout === "/admin") {
         return (
           <Route
