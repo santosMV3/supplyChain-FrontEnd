@@ -27,7 +27,7 @@ import { useHistory } from "react-router-dom";
 import routes from "routes.js";
 import Unauthorized from "./components/unauthorized";
 
-function Admin() {
+function Admin({...props}) {
   const [sidenavOpen, setSidenavOpen] = React.useState(true);
   const [pageState, setPageState] = useState([]);
   const location = useLocation();
@@ -111,7 +111,13 @@ function Admin() {
       }
 
       if (prop.layout === "/admin") {
-        if(pageState.indexOf(prop.name.toLowerCase()) === -1) return null;
+        if(pageState.indexOf(prop.name.toLowerCase()) === -1) return (
+          <Route
+            path={prop.layout + prop.path}
+            render={() => <Unauthorized/>}
+            key={key}
+          />
+        );
 
         return (
           <Route

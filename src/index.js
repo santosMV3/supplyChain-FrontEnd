@@ -45,7 +45,7 @@ ReactDOM.render(
       <Route path="/rtl" render={(props) => <RTLLayout {...props} />} />
       <Route path="/auth" render={(props) => <AuthLayout {...props} />} />
       <Route path="/" render={(props) => <IndexView {...props} />} />
-      <Redirect from="*" to="/" />
+      <Redirect from="*" to="/admin" />
     </Switch>
   </BrowserRouter>,
   document.getElementById("root"),
