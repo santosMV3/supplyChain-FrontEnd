@@ -29,7 +29,7 @@ import Unauthorized from "./components/unauthorized";
 
 function Admin() {
   const [sidenavOpen, setSidenavOpen] = React.useState(true);
-  const [pageState, setPageState] = useState([])
+  const [pageState, setPageState] = useState([]);
   const location = useLocation();
   const mainContentRef = React.useRef(null);
   const history = useHistory();
@@ -63,7 +63,6 @@ function Admin() {
       }
 
       let pagesAllowed = [];
-      console.log(responses[1].data.is_superuser);
       if(responses[1].data.is_superuser) {
         const pageNames = responses[2].data.map((page) => page.name);
         pagesAllowed = pagesAllowed.concat(pageNames);
@@ -111,13 +110,9 @@ function Admin() {
         return getRoutes(prop.views);
       }
 
-      if(pageState.indexOf(prop.name.toLowerCase()) === -1) return (
-        <>
-          <Unauthorized/>
-        </>
-      );
-
       if (prop.layout === "/admin") {
+        if(pageState.indexOf(prop.name.toLowerCase()) === -1) return null;
+
         return (
           <Route
             path={prop.layout + prop.path}
