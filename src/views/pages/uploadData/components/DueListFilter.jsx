@@ -186,7 +186,7 @@ export const DuelistFilter = (props) => {
                         </Button>
                     )}
                     {endpoint && endpoint.indexOf("?") > -1 ? (
-                        <Button color="danger" onClick={() => reload("/logisticMapFilter/")} outline size="sm" type="button">
+                        <Button color="danger" onClick={() => reload("/logisticMap/")} outline size="sm" type="button">
                             Remove Filter
                         </Button>
                     ):null}
