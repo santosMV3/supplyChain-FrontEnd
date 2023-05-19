@@ -304,7 +304,7 @@ const HistoryPage = () => {
             ["User", "idUser"],
             ["SO", "SO"],
             ["Action", "action"],
-            ["Page", "page"]
+            ["Page", "page_search"]
         ];
 
         const handlerSelect = (e) => {
@@ -321,7 +321,7 @@ const HistoryPage = () => {
 
             if(filterValue.length < 1) return window.alert("Type something to filter.");
             setLoader(true);
-            api.get(`/history?${selectValue}=${filterValue}`).then((response) => {
+            api.get(`/historicFilter?${selectValue}=${filterValue}`).then((response) => {
                 setHistoryData(response.data.results);
                 setLoader(false);
             }).catch((error) => {
