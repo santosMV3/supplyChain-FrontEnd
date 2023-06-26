@@ -165,6 +165,8 @@ const RowList = (props) => {
     const [selectedStatus, setSelectedStatus] = useState(orderStatusSelected);
     const [weState, setWeState] = useState(order.previsionWeek);
     const [ weEditMode, setWeEditMode ] = useState(false);
+    const openWeEditMode = () => setWeEditMode(true);
+    const closeWeEditMode = () => setWeEditMode(false);
 
     const [modalState, setModalState] = useState(false);
     const openModal = () => setModalState(true);
@@ -175,15 +177,14 @@ const RowList = (props) => {
     }
 
     const handlerInput = async (e) => {
-        setWeState(e.target.value);
-        await updateOrder();
+        await updateOrderWeek(e.target.value);
     }
 
-    const updateOrder = async () => {
-        api.patch(`/logisticMap/${order.id}/`, {previsionWeek: weState.previsionWeek, previsionTrianom: weState.previsionTrianom}).then((response) => {
+    const updateOrderWeek = async (newValue) => {
+        api.patch(`/logisticMap/${order.id}/`, {previsionWeek: newValue}).then((response) => {
             let historicData = {
                 page: "duelist",
-                after: `New Prevision Week value: "${weState}"`,
+                after: `New Prevision Week value: "${newValue}"`,
                 SO: order.soLine,
                 so: [],
                 action: "update",
@@ -193,6 +194,8 @@ const RowList = (props) => {
 
             api.post("/history/", historicData).then(() => {
                 setWeState(response.data.previsionWeek);
+                order.previsionWeek = response.data.previsionWeek;
+                closeWeEditMode();
             }).catch(console.error);
         }).catch((error) => {
             console.error(error);
@@ -316,7 +319,10 @@ const RowList = (props) => {
                             </Select>
                         </FormControl>
                     ) : (
-                        <RenderMediaList index={i} id={(Math.random() * 1000000).toFixed()} data={order.previsionWeek}/>
+                        // <RenderMediaList index={i} id={(Math.random() * 1000000).toFixed()} data={order.previsionWeek}/>
+                        <Button size='sm' color={weState ? 'default' : 'primary'} onClick={openWeEditMode}>
+                            {weState ? weState : "Empty"}
+                        </Button>
                     )}
                 </td>
                 <td>
