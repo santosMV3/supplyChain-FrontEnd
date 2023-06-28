@@ -24,6 +24,7 @@ const Duelist = () => {
     });
     const [logOrderStatus, setOrderStatus] = useState([]);
     const [loader, setLoader] = useState(false);
+    const [weList, setWeList] = useState([]);
 
     const getLogMapData = (endpoint="/logisticMapFilter/") => {
         setLoader(true);
@@ -50,9 +51,16 @@ const Duelist = () => {
         }).catch(console.error);
     }
 
+    const getWeeks = () => {
+        api.get("weeks").then((response) => {
+            setWeList(response.data);
+        }).catch(console.error);
+    }
+
     const executeAPIFunctions = (endpoint="/logisticMapFilter/?excludeStatus=FATURADO") => {
         getStatus();
         getLogMapData(endpoint);
+        getWeeks();
     }
 
     useEffect(() => {
@@ -69,7 +77,7 @@ const Duelist = () => {
                     <TableList>
                         <THeadList/>
                         <tbody>
-                            <RenderRowList reload={executeAPIFunctions} endpoint={logMapData.nowEndpoint} data={logMapData.results} ordersStatus={logOrderStatus}/>
+                            <RenderRowList reload={executeAPIFunctions} endpoint={logMapData.nowEndpoint} data={logMapData.results} ordersStatus={logOrderStatus} weList={weList}/>
                         </tbody>
                     </TableList>
                     <DueListPagination data={[logMapData.count, logMapData.previous, logMapData.next, logMapData.now, logMapData.nowEndpoint]} reload={executeAPIFunctions}/>

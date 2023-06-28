@@ -85,19 +85,7 @@ export const THeadList = () => {
 };
 
 export const RenderRowList = (props) => {
-    const { data, ordersStatus, reload, endpoint } = props;
-
-    const weList = [];
-
-    for ( let i = 1; i < 61; i++ ){
-        const value = `WE${i}`;
-
-        weList.push(
-            <MenuItem value={value}>
-                <em>{value}</em>
-            </MenuItem>
-        )
-    }
+    const { data, ordersStatus, reload, endpoint, weList } = props;
 
     const filterOrderStatus = (idOrder) => {
 
@@ -315,7 +303,11 @@ const RowList = (props) => {
                                 <MenuItem value="">
                                     <em>None</em>
                                 </MenuItem>
-                                {weList}
+                                {weList.map((week, index) => (
+                                    <MenuItem key={`WEEK-${week}-${index}`} value={week}>
+                                        <em>{week}</em>
+                                    </MenuItem>
+                                ))}
                             </Select>
                         </FormControl>
                     ) : (
