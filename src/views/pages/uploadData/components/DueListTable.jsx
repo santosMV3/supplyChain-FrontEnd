@@ -371,7 +371,6 @@ const RowList = (props) => {
                 </td>
             </tr>
             <TableModal
-                weList={weList}
                 ordersStatus={ordersStatus}
                 selectedStatus={selectedStatus}
                 modalState={modalState}
@@ -389,8 +388,7 @@ const TableModal = (props) => {
     const { 
         modalState, 
         closeModal, 
-        order, 
-        weList, 
+        order,
         reload, 
         endpoint,
         selectedStatus,
@@ -415,7 +413,6 @@ const TableModal = (props) => {
     const closeExpandNotes = () => setExpandNotes(false);
 
     const [weState, setWeState] = useState({
-        previsionWeek: order.previsionWeek,
         supplier: order.supplier,
         returnDays: order.returnDays,
         releaseDate: order.releaseDate,
@@ -504,12 +501,6 @@ const TableModal = (props) => {
                     so: []
                 }
 
-                if(order.previsionWeek !== weState.previsionWeek) historicData.so.push({
-                    before: `Old Prevision Week value: "${order.previsionWeek}"`,
-                    after: `New Prevision Week value: "${weState.previsionWeek}"`,
-                    action: "update"
-                });
-
                 if (parseInt(order.returnDays) !== parseInt(weState.returnDays)) {
                     historicData.so.push({
                         before: `Old Return Days value: "${order.returnDays}"`,
@@ -559,7 +550,6 @@ const TableModal = (props) => {
             });
         } else {
             api.patch(`/logisticMap/${order.id}/`, {
-                previsionWeek: weState.previsionWeek,
                 previsionTrianom: weState.previsionTrianom
             }).then(() => {
                 let historicData = {
@@ -570,12 +560,6 @@ const TableModal = (props) => {
                     SO: order.soLine,
                     so: []
                 }
-
-                if (order.previsionWeek !== weState.previsionWeek) historicData.so.push({
-                    after: `New Prevision Week value: "${weState.previsionWeek}"`,
-                    before: `Old Prevision Week value: "${order.previsionWeek}"`,
-                    action: "update"
-                });
 
                 if(order.previsionTrianom !== weState.previsionTrianom) historicData.so.push({
                     before: `Old Prevision Trianom value: "${order.previsionTrianom}"`,
@@ -961,7 +945,7 @@ const TableModal = (props) => {
                             </div>
                             <div className='row-list-duelist-modal'>
                                 <div className='column-list-duelist-modal'>
-                                    <div className='cell-title-list-duelist-modal clickable-duelist' onDoubleClick={modalEdit?closeEditMode:openEditMode}>
+                                    <div className='cell-title-list-duelist-modal'>
                                         Prevision Fat. (Week)
                                     </div>
                                     <div className='cell-title-list-duelist-modal clickable-duelist' onDoubleClick={modalEdit?closeEditMode:openEditMode}>
@@ -975,32 +959,9 @@ const TableModal = (props) => {
                                     </div>
                                 </div>
                                 <div className='column-list-duelist-modal'>
-                                    {modalEdit?(
-                                        <div className='cell-value-list-duelist-modal clickable-duelist' onDoubleClick={closeEditMode}>
-                                            <FormControl variant="standard" required
-                                            className={classes.formControl}>
-                                                <InputLabel id="demo-simple-select-outlined-label">
-                                                    Week
-                                                </InputLabel>
-                                                <Select
-                                                labelId="demo-simple-select-outlined-label"
-                                                id="demo-simple-select-outlined"
-                                                label="Permission"
-                                                value={weState.previsionWeek}
-                                                onChange={handlerInput}
-                                                name="previsionWeek">
-                                                    <MenuItem value="">
-                                                        <em>None</em>
-                                                    </MenuItem>
-                                                    {weList}
-                                                </Select>
-                                            </FormControl>
-                                        </div>
-                                    ):(
-                                        <div className='cell-value-list-duelist-modal clickable-duelist' onDoubleClick={openEditMode}>
-                                            {order.previsionWeek ? order.previsionWeek : "N/A"}
-                                        </div>
-                                    )}
+                                    <div className='cell-value-list-duelist-modal'>
+                                        {order.previsionWeek ? order.previsionWeek : "N/A"}
+                                    </div>
                                     {modalEdit && order.externalService ? (
                                         <>
                                             <div className='cell-value-list-duelist-modal clickable-duelist' onDoubleClick={closeEditMode}>
