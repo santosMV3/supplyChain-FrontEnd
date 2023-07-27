@@ -26,8 +26,8 @@ const Duelist = () => {
     const [loader, setLoader] = useState(false);
     const [weList, setWeList] = useState([]);
 
-    const getLogMapData = (endpoint="/logisticMapFilter/") => {
-        setLoader(true);
+    const getLogMapData = (endpoint="/logisticMapFilter/", options={ loader: true }) => {
+        if (options.loader) setLoader(true);
         api.get(endpoint).then((res) => {
             let data = res.data;
             if (endpoint.indexOf("?") > -1 && endpoint.indexOf("page=") > -1){
@@ -57,9 +57,9 @@ const Duelist = () => {
         }).catch(console.error);
     }
 
-    const executeAPIFunctions = (endpoint="/logisticMapFilter/?excludeStatus=FATURADO") => {
+    const executeAPIFunctions = (endpoint="/logisticMapFilter/", options={ loader: true }) => {
         getStatus();
-        getLogMapData(endpoint);
+        getLogMapData(endpoint, options);
         getWeeks();
     }
 
