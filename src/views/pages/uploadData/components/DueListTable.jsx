@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './styles/style-duelist-table.css';
 import {
     Button,
@@ -214,7 +214,7 @@ const RowList = (props) => {
                 api.post("/history/", { page: "DueList", after: `Added the status ${statusName} for this order.`, action: "create", SO: order.soLine }).then(() => {
                     closeStatusState();
                     window.alert("Successful to adding status.");
-                    reload(endpoint);
+                    reload(endpoint, {loader: false});
                 }).catch(console.error);
             }).catch((error) => {
                 window.alert("Error adding status to order.");
@@ -225,7 +225,7 @@ const RowList = (props) => {
                 api.post("/history/", { page: "DueList", before: `Old status ${oldStatusName}`, after: `Added the status ${statusName} for this order.`, action: "update", SO: order.soLine }).then(() => {
                     closeStatusState();
                     window.alert("Success to update status.");
-                    reload(endpoint);
+                    reload(endpoint, {loader: false});
                 }).catch(console.error);
             }).catch((error) => {
                 window.alert("Error updating status of this order.");
@@ -311,7 +311,6 @@ const RowList = (props) => {
                             </Select>
                         </FormControl>
                     ) : (
-                        // <RenderMediaList index={i} id={(Math.random() * 1000000).toFixed()} data={order.previsionWeek}/>
                         <Button size='sm' color={weState ? 'default' : 'primary'} onClick={openWeEditMode}>
                             {weState ? weState : "Empty"}
                         </Button>
@@ -354,9 +353,18 @@ const RowList = (props) => {
                         <Media className="align-items-center">
                             <Media>
                                 {orderStatus?(
-                                    <Button className='custom-duelist-button-status' onClick={openStatusState} name="update" size="sm" color="default">
-                                        {orderStatus[0].name}
-                                    </Button>
+                                    <>
+                                        <Button className='custom-duelist-button-status' id={`status-${i}`} onClick={openStatusState} name="update" size="sm" color="default">
+                                            {orderStatus[0].name}
+                                        </Button>
+                                        <UncontrolledTooltip
+                                            delay={0}
+                                            placement="bottom"
+                                            target={`status-${i}`}
+                                        >
+                                            {orderStatus[0].name}
+                                        </UncontrolledTooltip>
+                                    </>
                                 ):(
                                     <Button className='custom-duelist-button-no-status' onClick={openStatusState} name="create" size="sm" color="primary">
                                         Add Status
@@ -465,7 +473,7 @@ const TableModal = (props) => {
                 api.post("/history/", { page: "DueList", after: `Added the status ${statusName} for this order.`, action: "create", SO: order.soLine }).then(() => {
                     closeStatusMode();
                     window.alert("Successful to adding status.");
-                    reload(endpoint);
+                    reload(endpoint, {loader: false});
                     closeModal();
                 }).catch(console.error);
             }).catch((error) => {
@@ -478,7 +486,7 @@ const TableModal = (props) => {
                     closeStatusMode();
                     window.alert("Success to update status.");
                     console.log(selectedStatusName)
-                    reload(endpoint);
+                    reload(endpoint, {loader: false});
                     closeModal();
                 }).catch(console.error);
             }).catch((error) => {
@@ -537,7 +545,7 @@ const TableModal = (props) => {
 
                     api.post(`/history/`, historicData).then(() => {
                         window.alert("Order update success!");
-                        reload(endpoint);
+                        reload(endpoint, {loader: false});
                         closeEditMode();
                     });
                 } else {
@@ -575,7 +583,7 @@ const TableModal = (props) => {
 
                     api.post(`/history/`, historicData).then(() => {
                         window.alert("Order update success!");
-                        reload(endpoint);
+                        reload(endpoint, {loader: false});
                         closeEditMode();
                     })
                 } else {
@@ -598,7 +606,7 @@ const TableModal = (props) => {
             api.post("/history/", {page: "duelist", after: `Added a new note to this order: "${commentState.comment}"`, action: "create", SO: order.soLine}).then(() => {
                 window.alert("Comment created success!");
                 setCommentState({...commentState, comment: ""});
-                reload(endpoint);
+                reload(endpoint, {loader: false});
             }).catch(console.error)
         }).catch((error) => {
             window.alert("Error to create this comment...");
@@ -1065,6 +1073,8 @@ const TableModal = (props) => {
 }
 
 const NoteItem = (props) => {
+    const noteTextRef = useRef(null);
+
     const { note, endpoint, reload } = props;
 
     const [ buttonState, setButtonState ] = useState(false);
@@ -1083,10 +1093,22 @@ const NoteItem = (props) => {
         comment: note.comment
     });
 
+    const [noteExpanded, setNoteExpanded] = useState(false);
+    const [isTextOverflowing, setIsTextOverflowing] = useState(false);
+
+    useEffect(() => {
+        const textElement = noteTextRef.current;
+        if (textElement) {
+            setIsTextOverflowing(textElement.scrollHeight > 100);
+        }
+    }, []);
+
     const handleInput = (e) => {
         if(e.target.value > 500) return;
         return setValueEdit({...valueEdit, [e.target.name]: e.target.value});
     }
+
+    const handleExpanded = () => setNoteExpanded(!noteExpanded);
 
     const updateNote = () => {
         if(valueEdit.comment.length === 0) return window.alert("Insert a comment to update this note!");
@@ -1095,7 +1117,7 @@ const NoteItem = (props) => {
             api.post("/history/", {page: "duelist", before: `Old note value: "${note.comment}"`, after: `Updated a note of this order: "${valueEdit.comment}"`, action: "update", SO: props.order.soLine}).then(() => {
                 window.alert("Comment updated success!");
                 closeEditMode();
-                reload(endpoint);
+                reload(endpoint, {loader: false});
             }).catch(console.error);
         }).catch((error) => {
             window.alert("Error to update this comment...");
@@ -1108,7 +1130,7 @@ const NoteItem = (props) => {
             api.post("/history/", {page: "duelist", before: note.comment, after: "Deleted this note.", action: "delete", SO: props.order.soLine}).then(() => {
                 window.alert("Comment deleted success!");
                 closeEditMode();
-                reload(endpoint);
+                reload(endpoint, {loader: false});
             }).catch(console.error);
         }).catch((error) => {
             window.alert("Error to delete this comment...");
@@ -1117,7 +1139,7 @@ const NoteItem = (props) => {
     }
 
     return (
-        <div className='container-note-duelist-modal' onMouseEnter={openActionButtons} onMouseLeave={closeActionButtons}>
+        <div className={`container-note-duelist-modal ${noteExpanded ? "container-note-duelist-modal-expanded" : ""}`} onMouseEnter={openActionButtons} onMouseLeave={closeActionButtons}>
             <div className="note-duelist-modal">
                 <div className='autor-note-duelist-modal'>
                     <div className='text-note-duelist-modal'>
@@ -1148,6 +1170,11 @@ const NoteItem = (props) => {
                                             </>
                                         ):(
                                             <>
+                                                {isTextOverflowing && (
+                                                    <Button color={noteExpanded ? "default" : "primary"} onClick={handleExpanded} size="sm">
+                                                        {noteExpanded ? 'Less' : 'More'}
+                                                    </Button>
+                                                )}
                                                 <Button color="primary" onClick={openEditMode} size="sm">
                                                     Edit
                                                 </Button>
@@ -1167,7 +1194,7 @@ const NoteItem = (props) => {
                         {formatDateTime(note.dateComment)}
                     </div>
                 </div>
-                <p>
+                <p ref={noteTextRef}>
                     {editMode?(
                         <Input type='textarea' name='comment' value={valueEdit.comment} onChange={handleInput}/>
                     ): note.comment}

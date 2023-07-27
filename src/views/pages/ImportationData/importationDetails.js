@@ -94,7 +94,7 @@ const ImportationLine = ({post, deleteFactory, getImp}) => {
                     window.alert("Update Sucess!");
                     e.target.disabled = false;
                     closeEditMode();
-                    getImp();  
+                    getImp({loader: false});  
                 });
             } else {
                 closeEditMode();
@@ -239,8 +239,8 @@ const ImportationDetails = () => {
     const closeRegister = () => setRegisterState(false);
     const [loader, setLoader] = useState(false);
 
-    const getImp = () => {
-        setLoader(true);
+    const getImp = (options={loader: true}) => {
+        if (options.loader) setLoader(true);
         api.get("/importationDetails/").then((response) => {
             setImpData(response.data);
             setLoader(false);
@@ -268,7 +268,7 @@ const ImportationDetails = () => {
 
             api.post(`/history/`, historicData).then(() => {
                 window.alert('Deleted success.');
-                getImp();
+                getImp({loader: false});
             });
         }).catch(console.error);
     }

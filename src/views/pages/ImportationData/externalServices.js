@@ -66,7 +66,7 @@ const ImportationLine = ({post, deleteExt, getExtData}) => {
                 api.post("/history/", historicData).then(() => {
                     window.alert("Update success!");
                     closeEditMode();
-                    return getExtData();
+                    return getExtData({loader: false});
                 }).catch(console.error);
             }
 
@@ -173,8 +173,8 @@ const ExternalServices = () => {
 
     const [loader, setLoader] = useState(false);
 
-    const getExtData = () => {
-        setLoader(true);
+    const getExtData = (options={loader: true}) => {
+        if(options.loader) setLoader(true);
         api.get('externalServices').then((response) => {
             setExtData(response.data);
             return setLoader(false);
@@ -195,7 +195,7 @@ const ExternalServices = () => {
         api.delete(`/externalServices/${idExt}`).then(() => {
             api.post("/history/", { after: `Deleted a External Service: ${documentNumber}`, page: "External Services", action: "create" }).then(() => {
                 window.alert('Deleted success.');
-                getExtData();
+                getExtData({loader: false});
             }).catch(console.error);
         }).catch(console.error);
     }
@@ -212,7 +212,7 @@ const ExternalServices = () => {
         api.post('/externalServices/', extCreate).then(() => {
             api.post("/history/", { after: `Created new External Service: ${extCreate.documentNumber.toString()}`, page: "External Services", action: "create" }).then(() => {
                 window.alert("Create Success!");
-                getExtData();
+                getExtData({loader: false});
                 closeRegister();
             }).catch(console.error);
         }).catch(console.error);
