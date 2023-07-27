@@ -1,10 +1,11 @@
 import React, {useState} from 'react';
 import "./styles/style-duelist-filter.css";
-import {Button, Input} from "reactstrap";
+import {Button, Input, UncontrolledTooltip} from "reactstrap";
 import DatePicker, { registerLocale } from "react-datepicker";
 import ptBR from 'date-fns/locale/pt-BR';
 import "react-datepicker/dist/react-datepicker.css";
 import { formatDateAmerican, formatDate } from "../../../../utils/conversor";
+import filterFields, { filterOnlyFields } from "../../../../services/duelistFilters";
 
 registerLocale('pt-br', ptBR);
 
@@ -14,7 +15,8 @@ export const DuelistFilter = (props) => {
 
     const [filterValue, setFilterValue] = useState({
         field: "",
-        value: ""
+        value: "",
+        values: []
     });
     const [filters, setFilters] = useState([]);
     const [filterState, setFilterState] = useState(false);
@@ -32,67 +34,21 @@ export const DuelistFilter = (props) => {
     const [likeMode, setLikeMode] = useState(true);
     const openLikeMode = () => setLikeMode(true);
     const closeLikeMode = () => setLikeMode(false);
-    
-    const filterFields = [
-        ['orderStatus', 'Status'],
-        ["salesRep", "Sales Rep"],
-        ["competenceName", "Logistic Responsible"],
-        ["custNumber","Cust. Number"],
-        ["custName","Cust. Name"],
-        ["docType","Document Type"],
-        ["AGRegion","Region"],
-        ["documentNumber","SO"],
-        ["item","Item"],
-        ["PONumber","PO Number"],
-        ["openValueLocalCurrency","Open Value"],
-        ["firstDate","First Date", "date"],
-        ["schedIDate","Sched. L. Date", "date"],
-        ["SOCreationDate","SO Creation Date", "date"],
-        ["confDeliveryDate","Conf. Delivery Date", "date"],
-        ["delay","Delay"],
-        ["deliveryDate","Delivery Date", "date"],
-        ["availabilityCustomerDelvDate","Customer Delv. Date", "date"],
-        ["itemCategory","Categ"],
-        ["purchNo","Purch. No."],
-        ["producingCompany","PC"],
-        ["importNo","Import. No."],
-        ["GRDate","GR. Date", "date"],
-        ["GRQuantity","GR. Quantity"],
-        ["materialNumber","Material Number"],
-        ["materialDescript","Material Descript"],
-        ["ordercode","Ordercode"],
-        ["commQuantity","Comm. Quantity"],
-        ["externalStock","External Stock"],
-        ["deliveryBlock","Delivery Block"],
-        ["termDescription","Payment"],
-        ["incoterms","Incoterms"],
-        ["route","Route"],
-        ["spCarrierPartner","SP. Carrier Partner"],
-        ["spName","Carrier"],
-        ["confirmationTypeSC","Confirm. SC."],
-        ["dateOfNotification","Date Of Notification", "date"],
-        ["fullDelivery","Full. Delivery"],
-        ["PCInvoice","PC. Invoice"],
-        ["PCInvoiceDate","PC. Invoice Date", "date"],
-        ["situation","Color"],
-        ["deliveryFactory","Delivery Factory"],
-        ["importation","Importation"],
-        ["previsionTrianom","ETA TRIANON", "date"],
-        ["previsionFatSystem","Est. NF. Date (sys)", "date"],
-        ["materiaDays","Material Days"],
-        ["deadLineFat","Dead Line Fat."],
-        ["previsionWeek","Prevision Fat. (Week)"],
-        ["externalService","Ext. Service"],
-        ["supplier","Supplier"],
-        ["returnDays","Return Days"],
-        ["releaseDate","Release Date", "date"],
-        ["previsionDate","Prevision Date", "date"],
-    ];
 
-    const filterOnlyFields = filterFields.map((fieldItem) => fieldItem[1]).sort((a, b) => a.toUpperCase() == b.toUpperCase() ? 0 : a.toUpperCase() > b.toUpperCase() ? 1 : -1);
+    const [filterType, setFilterType] = useState("string");
+
+    const [keyMore, setKeyMore] = useState(null);
 
     const handlerInputFilter = (e) => {
         if (Object.keys(e).length == 0) return setFilterValue({...filterValue, "value": formatDateAmerican(e)});
+
+        let filterObject = null;
+        if(e.target.name === "field"){
+            filterObject = filterFields.filter((filterItem) => filterItem[1] === e.target.value);
+            if (filterObject[0].length < 3 || filterObject[0][2] === "string") setFilterType("string");
+            else setFilterType(filterObject[0][2]);
+        }
+
         if(e.target.name === "field" && e.target.value === "Status"){
             setFilterValue({...filterValue, [e.target.name]: e.target.value});
             return openStatusMode();
@@ -126,34 +82,54 @@ export const DuelistFilter = (props) => {
         }
 
         let filterData = {...filterValue};
-        filterData.value = filterData.field === "Ext. Service" && filterData.value === "" ? false : filterData.value;
+        filterData.value = filterType === "boolean" && filterData.value === "" ? false : filterData.value;
         filterData.field = filterField;
         filterData.status = likeMode;
+        filterData.type = String(filterType);
+        filterData.values = [filterType === "boolean" && filterData.value === "" ? false : filterData.value];
 
         // const copyFilters = filters.filter((item) => item.field[0] === filterValue.field);
         // if (copyFilters.length > 0) return window.alert("Filter name has exist.");
-        const filterFiltered = filters.filter((filterItem) => filterItem.field[0].replace("not_", "") == filterData.field[0]);
-        if(filterFiltered.length > 0) return window.alert("This field is already being filtered.");
-        setFilters([...filters, filterData]);
+        let filterFiltered = filters.filter((filterItem) => filterItem.field[0].replace("not_", "") == filterData.field[0]);
+        if(filterFiltered.length > 0) {
+            filterFiltered = filterFiltered[0];
+            const filtersCopy = [...filters];
+            const filterFilteredIndex = filtersCopy.indexOf(filterFiltered[0]);
+
+            filterFiltered.values.push(filterData.value)
+
+            filtersCopy[filterFilteredIndex] = filterFiltered;
+        } else {
+            setFilters([...filters, filterData]);
+        }
+        
         setFilterValue({
             field: "",
-            value: ""
+            value: "",
+            values: []
         });
         closeColorMode();
         closeStatusMode();
     }
 
     const deleteFilter = (e) => {
+        const AllIndex = e.target.value;
         let copyFilters = [...filters];
-        copyFilters.splice(e.target.value, e.target.value + 1);
+
+        if( AllIndex[1] === 0 && copyFilters[AllIndex[0]].values.length === 1) {
+            copyFilters.splice(e.target.value, 1);
+        } else {
+            copyFilters[AllIndex[0]].values.splice(AllIndex[1], 1);
+        }
+
         setFilters(copyFilters);
     }
 
     const editFilter = (index) => {
-        let filterItem = filters[index];
+        let filterItem = filters[index[0]];
         setFilterValue({
             field: filterItem.field[1],
-            value: filterItem.value
+            value: filterItem.values[index[1]]
         });
         setLikeMode((filterItem.field[0].indexOf("not_") > -1) || (filterItem.field[0] === "excludeStatus") ? false : true);
         deleteFilter({ target: { value: index } });
@@ -164,16 +140,35 @@ export const DuelistFilter = (props) => {
     const searchFilters = () => {
         let url = `/logisticMapFilter/?`;
         filters.forEach((filterItem) => {
-            url += `${filterItem.field[0]}=${filterItem.value}&`;
+            let allFilterItemValues = "";
+
+            filterItem.values.forEach((filterItemValue) => {
+                allFilterItemValues += `${filterItemValue}|`;
+            });
+            allFilterItemValues = allFilterItemValues.slice(0, allFilterItemValues.length - 1);
+            url += `${filterItem.field[0]}=${allFilterItemValues}&`;
         });
         url = url.slice(0, url.length - 1);
-        console.log(url)
         reload(url);
     }
 
+    const handleKeyPress = (e) => {
+        if (e.key === "Control") setKeyMore('Control');
+        if (e.key === "Enter" && !keyMore) return addFilter();
+        if (e.key === "Enter" && keyMore === "Control") {
+            setKeyMore(null);
+            return searchFilters();
+        }
+    }
+
+    const handleKeyUp = (e) => {
+        if (keyMore) setKeyMore(null);
+    }
+
+
     return (
         <>
-        <div id="container-duelist-filter" className={filterState ? "container-duelist-filter-opened" : "container-duelist-filter-closed"}>
+        <div id="container-duelist-filter" onKeyDownCapture={handleKeyPress} onKeyUpCapture={handleKeyUp} className={filterState ? "container-duelist-filter-opened" : "container-duelist-filter-closed"}>
             <div id="container-duelist-filter-itens">
                 <div id="container-duelist-filter-button">
                     {filterState ? (
@@ -186,7 +181,7 @@ export const DuelistFilter = (props) => {
                         </Button>
                     )}
                     {endpoint && endpoint.indexOf("?") > -1 ? (
-                        <Button color="danger" onClick={() => reload("/logisticMap/")} outline size="sm" type="button">
+                        <Button color="danger" onClick={() => reload("/logisticMapFilter/")} outline size="sm" type="button">
                             Remove Filter
                         </Button>
                     ):null}
@@ -196,7 +191,7 @@ export const DuelistFilter = (props) => {
                         <option value="">Fields</option>
                         {filterOnlyFields.map((field, index) => (<option key={`filter-field-${index}`} value={field}>{field}</option>))}
                     </Input>
-                    {filterValue.field === "Ext. Service" ? (
+                    {filterType === "boolean" ? (
                         <div className="custom-control custom-checkbox duelist-filter-input-checkbox">
                             <input
                                 className="custom-control-input"
@@ -210,18 +205,19 @@ export const DuelistFilter = (props) => {
                                 Value
                             </label>
                         </div>
-                    ): filterValue.field === "ETA TRIANON" ? (
+                    ): filterType === "date" ? (
                         <div id='duelist-filter-input-select-status' onDoubleClick={clearFilterInputValue}>
                             <DatePicker
                             type="date"
                             locale="pt-br"
                             onChange={handlerInputFilter}
                             value={formatDate(filterValue.value)}
-                            name="releaseDate"
                             dateFormat="dd/MM/yyyy"
                             isClearable={true}/>
                         </div>
-                    ) : (
+                    ) : filterType === "string" ? (
+                        <Input id="duelist-filter-input-text" onChange={handlerInputFilter} value={filterValue.value} name='value' type="text" bsSize="sm"/>
+                    ) : filterType === "select" && (
                         <>
                             {statusMode ? (
                                 <>
@@ -232,15 +228,13 @@ export const DuelistFilter = (props) => {
                                 </>
                             ):(
                                 <>
-                                    {colorMode ?(
+                                    {colorMode && (
                                         <Input id="duelist-filter-input-select-status" name='value' value={filterValue.value} onChange={handlerInputFilter} bsSize="sm" type="select">
                                             <option value="">Colors</option>
                                             <option value="billed">Green</option>
                                             <option value="transport">Yellow</option>
                                             <option value="undefined">White</option>
                                         </Input>
-                                    ):(
-                                        <Input id="duelist-filter-input-text" onChange={handlerInputFilter} value={filterValue.value} name='value' type="text" bsSize="sm"/>
                                     )}
                                 </>
                             )}
@@ -250,28 +244,50 @@ export const DuelistFilter = (props) => {
                         <Button id="duelist-filter-button-like" className='duelist-filter-button' color={likeMode ? "info":"danger"} onClick={likeMode ? closeLikeMode:openLikeMode} size="sm" type="button">
                             {likeMode?"Have":"Don't Have"}
                         </Button>
-                        <Button className="duelist-filter-button" onClick={addFilter} color="info" size="sm" type="button">
+                        <Button id="duelist-filter-button-add" className="duelist-filter-button" onClick={addFilter} color="info" size="sm" type="button">
                             Add
                         </Button>
-                        <Button className="duelist-filter-button" onClick={searchFilters} color="info" size="sm" type="button">
+                        <Button id="duelist-filter-button-search" className="duelist-filter-button" onClick={searchFilters} color="info" size="sm" type="button">
                             Search
                         </Button>
+                        <UncontrolledTooltip
+                            delay={0}
+                            placement="bottom"
+                            target="duelist-filter-button-add"
+                        >
+                            Press <b>"ENTER"</b> to add a filter too.
+                        </UncontrolledTooltip>
+                        <UncontrolledTooltip
+                            delay={0}
+                            placement="bottom"
+                            target="duelist-filter-button-search"
+                        >
+                            Press <b>"CTRL + ENTER"</b> to search too.
+                        </UncontrolledTooltip>
                     </div>
                 </div>
                 <div className='duelist-filter-container-bubble'>
-                    {filters.map((filterItem, index) => (
-                        <div key={`${index}-filter-item`} onDoubleClick={() => editFilter(index)} className={filterItem.status?'duelist-filter-bubble':'duelist-filter-bubble-not-like'}>
-                            <div className='duelist-filter-bubble-title'>
-                                {filterItem.field[1]}:&nbsp;
+                    {filters.map((filterItem, index) => 
+                        filterItem.values.map((filterItemValue, indexItem) => (
+                            <div key={`${index}-filter-item`} onDoubleClick={() => editFilter([index, indexItem])} className={filterItem.status?'duelist-filter-bubble':'duelist-filter-bubble-not-like'}>
+                                <div className='duelist-filter-bubble-title'>
+                                    {filterItem.field[1]}:&nbsp;
+                                </div>
+                                <div>
+                                    {
+                                        filterItemValue.length === 0 ? "Empty":
+                                        filterItem.type === "string" ? filterItemValue:
+                                        filterItem.type === "boolean" ? filterItemValue ? "Yes" : "No":
+                                        filterItem.type === "date" ? formatDate(filterItemValue):
+                                        filterItem.type === "select" && filterItemValue.replace("billed", "Green").replace("undefined", "White").replace("transport", "Yellow")
+                                    }
+                                    &nbsp;
+                                </div>
+                                <Button color='danger' outline onClick={deleteFilter} value={[index, indexItem]} className='button-filter-bubble-delete' size='sm'>
+                                    x
+                                </Button>
                             </div>
-                            <div>
-                                {filterItem.field[1] === "ETA TRIANON" ? formatDate(filterItem.value) : filterItem.field[1] === "Ext. Service" ? filterItem.value ? "Yes" : "No" : filterItem.value.length > 0 ? filterItem.value.replace("billed", "Green").replace("undefined", "White").replace("transport", "Yellow"):"Null"}&nbsp;
-                            </div>
-                            <Button color='danger' outline onClick={deleteFilter} value={index} className='button-filter-bubble-delete' size='sm'>
-                                x
-                            </Button>
-                        </div>
-                    ))}
+                        )))}
                 </div>
             </div>
         </div>
