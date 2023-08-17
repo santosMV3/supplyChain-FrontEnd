@@ -11,7 +11,7 @@ registerLocale('pt-br', ptBR);
 
 export const DuelistFilter = (props) => {
 
-    const { reload, endpoint, orderStatus } = props;
+    const { reload, endpoint, orderStatus, isOpen } = props;
 
     const [filterValue, setFilterValue] = useState({
         field: "",
@@ -19,7 +19,7 @@ export const DuelistFilter = (props) => {
         values: []
     });
     const [filters, setFilters] = useState([]);
-    const [filterState, setFilterState] = useState(false);
+    const [filterState, setFilterState] = useState(isOpen);
     const openFilterState = () => setFilterState(true);
     const closeFilterState = () => setFilterState(false);
 
@@ -35,7 +35,7 @@ export const DuelistFilter = (props) => {
     const openLikeMode = () => setLikeMode(true);
     const closeLikeMode = () => setLikeMode(false);
 
-    const [filterType, setFilterType] = useState("string");
+    const [filterType, setFilterType] = useState(null);
 
     const [keyMore, setKeyMore] = useState(null);
 
@@ -62,7 +62,7 @@ export const DuelistFilter = (props) => {
             closeStatusMode();   
         }
         if (e.target.type === "checkbox") return setFilterValue({...filterValue, [e.target.name]: e.target.checked});
-        return setFilterValue({...filterValue, [e.target.name]: e.target.value});
+        return setFilterValue({...filterValue, [e.target.name]: String(e.target.value).replace("@not@", "")});
     }
 
     const clearFilterInputValue = () => {
@@ -75,28 +75,34 @@ export const DuelistFilter = (props) => {
         let filterField = filterFields.filter((filterItem) => filterItem[1] === filterValue.field);
         filterField = filterField[0];
 
-        if (filterField[0] !== "orderStatus"){
-            filterField[0] = likeMode ? filterField[0] : `not_${filterField[0]}`;
+        let filterData = {...filterValue};
+        filterData.value = filterType === "boolean" && filterData.value === "" ? false : filterData.value;
+
+        if (filterField[0] !== "orderStatus" && filterField[0] !== "excludeStatus"){
+            if (filterType !== "boolean"){
+                filterData.value = likeMode ? filterData.value : `@not@${filterData.value}`;
+            } else {
+                filterData.value = likeMode ? filterData.value : !(filterData.value);
+            }
         } else {
             filterField[0] = likeMode? "orderStatus" : "excludeStatus";
         }
 
-        let filterData = {...filterValue};
-        filterData.value = filterType === "boolean" && filterData.value === "" ? false : filterData.value;
         filterData.field = filterField;
-        filterData.status = likeMode;
+        filterData.status = [likeMode];
         filterData.type = String(filterType);
         filterData.values = [filterType === "boolean" && filterData.value === "" ? false : filterData.value];
 
         // const copyFilters = filters.filter((item) => item.field[0] === filterValue.field);
         // if (copyFilters.length > 0) return window.alert("Filter name has exist.");
-        let filterFiltered = filters.filter((filterItem) => filterItem.field[0].replace("not_", "") == filterData.field[0]);
+        let filterFiltered = filters.filter((filterItem) => filterItem.field[0].replace("@not@", "") == filterData.field[0]);
         if(filterFiltered.length > 0) {
             filterFiltered = filterFiltered[0];
             const filtersCopy = [...filters];
             const filterFilteredIndex = filtersCopy.indexOf(filterFiltered[0]);
 
             filterFiltered.values.push(filterData.value)
+            filterFiltered.status.push(likeMode);
 
             filtersCopy[filterFilteredIndex] = filterFiltered;
         } else {
@@ -108,18 +114,23 @@ export const DuelistFilter = (props) => {
             value: "",
             values: []
         });
+        openLikeMode();
         closeColorMode();
         closeStatusMode();
+        setFilterType(null);
     }
 
     const deleteFilter = (e) => {
-        const AllIndex = e.target.value;
+        const index = e.target.value;
         let copyFilters = [...filters];
+        let filterItem = copyFilters[index[0]];
 
-        if( AllIndex[1] === 0 && copyFilters[AllIndex[0]].values.length === 1) {
-            copyFilters.splice(e.target.value, 1);
+        if (filterItem.values.length === 1){
+            copyFilters.splice(index[0], 1);
         } else {
-            copyFilters[AllIndex[0]].values.splice(AllIndex[1], 1);
+            filterItem.values.splice(index[1], 1);
+            filterItem.status.splice(index[1], 1);
+            copyFilters[index[0]] = filterItem;
         }
 
         setFilters(copyFilters);
@@ -127,11 +138,20 @@ export const DuelistFilter = (props) => {
 
     const editFilter = (index) => {
         let filterItem = filters[index[0]];
-        setFilterValue({
-            field: filterItem.field[1],
-            value: filterItem.values[index[1]]
-        });
-        setLikeMode((filterItem.field[0].indexOf("not_") > -1) || (filterItem.field[0] === "excludeStatus") ? false : true);
+        setFilterType(filterItem.type);
+        
+        if ( filterItem.type !== "boolean" ){
+            setFilterValue({
+                field: filterItem.field[1],
+                value: String(filterItem.values[index[1]]).replace("@not@", "")
+            });
+        } else {
+            setFilterValue({
+                field: filterItem.field[1],
+                value: filterItem.values[index[1]]
+            });
+        }
+        setLikeMode((String(filterItem.values[index[1]]).indexOf("@not@") > -1) || (filterItem.field[0] === "excludeStatus") ? false : true);
         deleteFilter({ target: { value: index } });
         if(filterItem.field[1] === "Status") openStatusMode();
         if(filterItem.field[1] === "Color") openColorMode();
@@ -165,28 +185,29 @@ export const DuelistFilter = (props) => {
         if (keyMore) setKeyMore(null);
     }
 
-
     return (
         <>
-        <div id="container-duelist-filter" onKeyDownCapture={handleKeyPress} onKeyUpCapture={handleKeyUp} className={filterState ? "container-duelist-filter-opened" : "container-duelist-filter-closed"}>
+        <div id="container-duelist-filter" className={filterState ? "container-duelist-filter-opened" : "container-duelist-filter-closed"}>
             <div id="container-duelist-filter-itens">
-                <div id="container-duelist-filter-button">
-                    {filterState ? (
-                        <Button color="danger" size="sm" type="button" onClick={closeFilterState}>
-                            Close
-                        </Button>
-                    ) : (
-                        <Button color="primary" size="sm" type="button" onClick={openFilterState}>
-                            Filter
-                        </Button>
-                    )}
-                    {endpoint && endpoint.indexOf("?") > -1 ? (
-                        <Button color="danger" onClick={() => reload("/logisticMapFilter/")} outline size="sm" type="button">
-                            Remove Filter
-                        </Button>
-                    ):null}
-                </div>
-                <div id="container-duelist-filter-input">
+                {!(isOpen) ? (
+                    <div id="container-duelist-filter-button">
+                        {filterState ? (
+                            <Button color="danger" size="sm" type="button" onClick={closeFilterState}>
+                                Close
+                            </Button>
+                        ) : (
+                            <Button color="primary" size="sm" type="button" onClick={openFilterState}>
+                                Filter
+                            </Button>
+                        )}
+                        {endpoint && endpoint.indexOf("?") > -1 ? (
+                            <Button color="danger" onClick={() => reload("/logisticMapFilter/")} outline size="sm" type="button">
+                                Remove Filter
+                            </Button>
+                        ):null}
+                    </div>
+                ):null}
+                <div id="container-duelist-filter-input" onKeyDownCapture={handleKeyPress} onKeyUpCapture={handleKeyUp} tabIndex="0">
                     <Input id="duelist-filter-input-select" onChange={handlerInputFilter} value={filterValue.field} name='field' bsSize="sm" type="select">
                         <option value="">Fields</option>
                         {filterOnlyFields.map((field, index) => (<option key={`filter-field-${index}`} value={field}>{field}</option>))}
@@ -255,31 +276,31 @@ export const DuelistFilter = (props) => {
                             placement="bottom"
                             target="duelist-filter-button-add"
                         >
-                            Press <b>"ENTER"</b> to add a filter too.
+                            Press <b>"ENTER"</b> to add a filter.
                         </UncontrolledTooltip>
                         <UncontrolledTooltip
                             delay={0}
                             placement="bottom"
                             target="duelist-filter-button-search"
                         >
-                            Press <b>"CTRL + ENTER"</b> to search too.
+                            Press <b>"CTRL + ENTER"</b> to search.
                         </UncontrolledTooltip>
                     </div>
                 </div>
                 <div className='duelist-filter-container-bubble'>
                     {filters.map((filterItem, index) => 
                         filterItem.values.map((filterItemValue, indexItem) => (
-                            <div key={`${index}-filter-item`} onDoubleClick={() => editFilter([index, indexItem])} className={filterItem.status?'duelist-filter-bubble':'duelist-filter-bubble-not-like'}>
+                            <div key={`${index}-filter-item-${indexItem}`} onDoubleClick={() => editFilter([index, indexItem])} className={filterItem.status[indexItem]?'duelist-filter-bubble':'duelist-filter-bubble-not-like'}>
                                 <div className='duelist-filter-bubble-title'>
                                     {filterItem.field[1]}:&nbsp;
                                 </div>
                                 <div>
                                     {
                                         filterItemValue.length === 0 ? "Empty":
-                                        filterItem.type === "string" ? filterItemValue:
+                                        filterItem.type === "string" ? filterItemValue.replace("@not@", "") :
                                         filterItem.type === "boolean" ? filterItemValue ? "Yes" : "No":
-                                        filterItem.type === "date" ? formatDate(filterItemValue):
-                                        filterItem.type === "select" && filterItemValue.replace("billed", "Green").replace("undefined", "White").replace("transport", "Yellow")
+                                        filterItem.type === "date" ? String(formatDate(filterItemValue)).replace("@not@", ""):
+                                        filterItem.type === "select" && filterItemValue.replace("billed", "Green").replace("undefined", "White").replace("transport", "Yellow").replace("@not@", "")
                                     }
                                     &nbsp;
                                 </div>
