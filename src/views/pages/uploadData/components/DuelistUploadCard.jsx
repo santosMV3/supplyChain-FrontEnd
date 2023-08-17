@@ -171,9 +171,9 @@ export const UploadCard = () => {
                                 <label htmlFor="switch-buttom-file">
                                     ZZORDER
                                 </label>
-                                <label class="switch">
+                                <label className="switch">
                                     <input type="checkbox" onChange={handlerImportCheck} id="switch-buttom-file"/>
-                                    <span class="slider round"/>
+                                    <span className="slider round"/>
                                 </label>
                                 <label htmlFor="switch-buttom-file">
                                     DUE LIST
