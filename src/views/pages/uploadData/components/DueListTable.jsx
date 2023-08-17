@@ -474,7 +474,6 @@ const TableModal = (props) => {
                     closeStatusMode();
                     window.alert("Successful to adding status.");
                     reload(endpoint, {loader: false});
-                    closeModal();
                 }).catch(console.error);
             }).catch((error) => {
                 window.alert("Error adding status to order.");
@@ -487,7 +486,6 @@ const TableModal = (props) => {
                     window.alert("Success to update status.");
                     console.log(selectedStatusName)
                     reload(endpoint, {loader: false});
-                    closeModal();
                 }).catch(console.error);
             }).catch((error) => {
                 window.alert("Error updating status of this order.");
@@ -1146,6 +1144,11 @@ const NoteItem = (props) => {
                         {note.user.first_name.length > 0?`${note.user.first_name} ${note.user.last_name}`:`${note.user.username}`}
                         {localStorage.getItem("AUTHOR_ID") === note.idUser.toString() ? " (you)" : null}
                     </div>
+                    {isTextOverflowing && buttonState && !editMode && !confirmDelete &&  (
+                        <Button color={noteExpanded ? "default" : "primary"} onClick={handleExpanded} size="sm">
+                            {noteExpanded ? 'Less' : 'More'}
+                        </Button>
+                    )}
                     {localStorage.getItem("AUTHOR_ID") === note.idUser.toString() ?(
                         <>
                             {editMode?(
@@ -1170,11 +1173,6 @@ const NoteItem = (props) => {
                                             </>
                                         ):(
                                             <>
-                                                {isTextOverflowing && (
-                                                    <Button color={noteExpanded ? "default" : "primary"} onClick={handleExpanded} size="sm">
-                                                        {noteExpanded ? 'Less' : 'More'}
-                                                    </Button>
-                                                )}
                                                 <Button color="primary" onClick={openEditMode} size="sm">
                                                     Edit
                                                 </Button>
