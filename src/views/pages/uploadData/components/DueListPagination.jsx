@@ -77,7 +77,7 @@ export const DueListPagination = (props) => {
                                     <i className="ni ni-world-2"/>
                                     <span className="sr-only">Search</span>
                                 </PaginationLink>
-                                <input type="number" min="1" max={() => maxPage()} value={pageNumber} onChange={changeInput} id="input-search-duelist-pagination"/>
+                                <input type="number" min="1" value={pageNumber} onChange={changeInput} id="input-search-duelist-pagination"/>
                                 <Button id="button-search-duelist-pagination" onClick={goToPage} color="primary" outline size="sm" type="button">
                                     Go
                                 </Button>
