@@ -1,0 +1,50 @@
+.my-custom-div-table{
+    width: 100%;
+    height: 38vh;
+    overflow: auto;
+}
+
+.my-custom-div-table tr{
+    background-color: #dfdfdf;
+    box-shadow: 0 0 5px gray;
+}
+
+.my-custom-div-table tr:nth-child(2n+2){
+    background-color: #fff;
+}
+
+.duelist-color{
+    height: 100%;
+    width: 20px;
+    background-color: red;
+}
+
+.custom-duelist-span{
+    font-size: 1.0em;
+    text-overflow: ellipsis;
+    max-width: 20ch;
+    overflow: hidden;
+}
+
+.custom-duelist-index{
+    width: 30px;
+    height: 30px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    border-radius: 100%;
+    color: #FFFFFF;
+}
+
+.custom-duelist-index-undefined {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    border-radius: 100%;
+    color: #000;
+    box-shadow: 0 0 5px gray;
+}
