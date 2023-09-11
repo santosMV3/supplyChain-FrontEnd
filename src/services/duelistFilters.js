@@ -1,4 +1,5 @@
 let filterFields = []
+export let filterFieldsUpdate = []
 
 const filters = [
     ['orderStatus', 'Status', 'select'],
@@ -56,7 +57,63 @@ const filters = [
     ["previsionDate","Prevision Date", "date"],
 ];
 
+const filtersWithFieldToUpdate = [
+    ['orderStatus', 'Status', 'select'],
+    ["salesRep", "Sales Rep"],
+    ["competenceName", "Logistic Responsible"],
+    ["custNumber","Cust. Number", "number"],
+    ["custName","Cust. Name"],
+    ["docType","Document Type"],
+    ["AGRegion","Region"],
+    ["PONumber","PO Number", "number"],
+    ["openValueLocalCurrency","Open Value", "number"],
+    ["firstDate","First Date", "date"],
+    ["schedIDate","Sched. L. Date", "date"],
+    ["SOCreationDate","SO Creation Date", "date"],
+    ["confDeliveryDate","Conf. Delivery Date", "date"],
+    ["delay","Delay"],
+    ["deliveryDate","Delivery Date", "date"],
+    ["availabilityCustomerDelvDate","Customer Delv. Date", "date"],
+    ["itemCategory","Categ"],
+    ["purchNo","Purch. No."],
+    ["producingCompany","PC"],
+    ["importNo","Import. No."],
+    ["GRDate","GR. Date", "date"],
+    ["GRQuantity","GR. Quantity", "number"],
+    ["materialNumber","Material Number", "number"],
+    ["materialDescript","Material Descript"],
+    ["ordercode","Ordercode"],
+    ["commQuantity","Comm. Quantity", "number"],
+    ["externalStock","External Stock", "number"],
+    ["deliveryBlock","Delivery Block", "number"],
+    ["termDescription","Payment"],
+    ["incoterms","Incoterms"],
+    ["route","Route"],
+    ["spCarrierPartner","SP. Carrier Partner"],
+    ["spName","Carrier"],
+    ["confirmationTypeSC","Confirm. SC."],
+    ["dateOfNotification","Date Of Notification", "date"],
+    ["fullDelivery","Full. Delivery"],
+    ["PCInvoice","PC. Invoice"],
+    ["PCInvoiceDate","PC. Invoice Date", "date"],
+    ["situation","Color", "select"],
+    ["deliveryFactory","Delivery Factory"],
+    ["importation","Importation"],
+    ["previsionTrianom","ETA TRIANON", "date"],
+    ["previsionFatSystem","Est. NF. Date (sys)", "date"],
+    ["materiaDays","Material Days"],
+    ["deadLineFat","Dead Line Fat."],
+    ["previsionWeek","Prevision Fat. (Week)", "select"],
+    ["externalService","Ext. Service", "boolean"],
+    ["supplier","Supplier"],
+    ["returnDays","Return Days", "number"],
+    ["releaseDate","Release Date", "date"],
+    ["previsionDate","Prevision Date", "date"],
+    ["orderNote", "Note"]
+];
+
 filterFields = filterFields.concat(filters.sort((a, b) => a[1].toUpperCase() == b[1].toUpperCase() ? 0 : a[1].toUpperCase() > b[1].toUpperCase() ? 1 : -1));
+filterFieldsUpdate = filterFieldsUpdate.concat(filtersWithFieldToUpdate.sort((a, b) => a[1].toUpperCase() == b[1].toUpperCase() ? 0 : a[1].toUpperCase() > b[1].toUpperCase() ? 1 : -1));
 
 export const filterOnlyFields = filters.map((fieldItem) => fieldItem[1]);
 
