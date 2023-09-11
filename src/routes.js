@@ -22,13 +22,13 @@ import Login from "views/pages/examples/Login.js";
 import ListUsers from "views/pages/manageUsers/list";
 import ListPermissions from "views/pages/managePermissions";
 import ListStatus from "views/pages/manageStatus";
-import UploadPage from "views/pages/uploadData";
 import ImportationData from "views/pages/ImportationData";
 import ImportationDetails from "./views/pages/ImportationData/importationDetails";
 import ExternalServices from "views/pages/ImportationData/externalServices";
 import HistoryPage from "views/pages/history";
 import Duelist from "views/pages/uploadData/duelist";
 import DuelistUpload from "views/pages/uploadData/uploadPage";
+import BatchPage from "views/pages/batchUpdates";
 
 const routes = [
   {
@@ -135,6 +135,21 @@ const routes = [
     ]
   },
   {
+    collapse: true,
+    name: "Advanced",
+    icon: "ni ni-ungroup text-orange",
+    state: "advancedCollapse",
+    views: [
+      {
+        path: "/multiplesUpdates",
+        name: "Multiples Updates",
+        miniName: "MU",
+        component: BatchPage,
+        layout: "/admin",
+      },
+    ],
+  },
+  {
     collapse: false,
     name: "Historic",
     icon: "ni ni-books text-black",
@@ -143,7 +158,7 @@ const routes = [
     miniName: "HS",
     component: HistoryPage,
     layout: "/admin"
-  }
+  },
 ];
 
 export default routes;
