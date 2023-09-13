@@ -11,7 +11,7 @@ registerLocale('pt-br', ptBR);
 
 export const DuelistFilter = (props) => {
 
-    const { reload, endpoint, orderStatus, isOpen } = props;
+    const { reload, endpoint, orderStatus, isOpen, executeExport } = props;
 
     const [filterValue, setFilterValue] = useState({
         field: "",
@@ -157,6 +157,29 @@ export const DuelistFilter = (props) => {
         if(filterItem.field[1] === "Color") openColorMode();
     }
 
+    const getFilterParams = () => {
+        const data = {
+            filters: [],
+            status_filter: [],
+            status_exclude: [],
+            multiple_filters: [],
+            multiple_status_filters: [],
+            multiple_status_exclude: []
+        }
+
+        filters.forEach((filterItem) => {
+            if (filterItem.values.length === 1){
+                filterItem.values.forEach((value) => {
+                    if (filterItem.field[0] === "orderStatus") return data.status_filter.push([filterItem.field[0], value]);
+                    if (filterItem.field[0] === "excludeStatus") return data.status_exclude.push([filterItem.field[0], value]);
+                    return data.filters.push([filterItem.field[0], value]);
+                });
+            }
+        });
+
+        return data;
+    }
+
     const searchFilters = () => {
         let url = `/logisticMapFilter/?`;
         filters.forEach((filterItem) => {
@@ -205,6 +228,9 @@ export const DuelistFilter = (props) => {
                                 Remove Filter
                             </Button>
                         ):null}
+                        <Button color="default" size='sm' type='button' onClick={(e) => executeExport(e, getFilterParams())}>
+                            Export Excel
+                        </Button>
                     </div>
                 ):null}
                 <div id="container-duelist-filter-input" onKeyDownCapture={handleKeyPress} onKeyUpCapture={handleKeyUp} tabIndex="0">

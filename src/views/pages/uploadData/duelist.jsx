@@ -25,6 +25,7 @@ const Duelist = () => {
     const [logOrderStatus, setOrderStatus] = useState([]);
     const [loader, setLoader] = useState(false);
     const [weList, setWeList] = useState([]);
+    const [message, setMessage] = useState(null);
 
     const getLogMapData = (endpoint="/logisticMapFilter/", options={ loader: true }) => {
         if (options.loader) setLoader(true);
@@ -63,15 +64,43 @@ const Duelist = () => {
         getWeeks();
     }
 
+    const getExportedExcel = (e, data={}) => {
+        // return console.log(data);
+        e.target.disabled = true;
+        setMessage("Generating excel file... Please wait!");
+        setLoader(true);
+        api.post("/exportExcel", {data},{ responseType: "blob" }).then((response) => {
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+
+            const link = document.createElement('a');
+            link.href = url;
+
+            link.setAttribute('download', 'duelist_exported.xlsx');
+
+            document.body.appendChild(link);
+            link.click();
+
+            window.URL.revokeObjectURL(url);
+            setLoader(false);
+            setMessage(null);
+            e.target.disabled = false;
+        }).catch((error) => {
+            console.error(error);
+            setLoader(false);
+            setMessage(null);
+            e.target.disabled = false;
+        });
+    }
+
     useEffect(() => {
         executeAPIFunctions();
     }, []);
 
     return (
         <div id="ContainerPage">
-            <DuelistFilter reload={executeAPIFunctions} endpoint={logMapData.nowEndpoint} orderStatus={logOrderStatus}/>
+            <DuelistFilter reload={executeAPIFunctions} endpoint={logMapData.nowEndpoint} orderStatus={logOrderStatus} executeExport={getExportedExcel}/>
             {loader ? (
-                <LoaderBox message="Loading orders... Please wait!"/>
+                <LoaderBox message={message ? message : "Loading orders... Please wait!"}/>
             ) : (
                 <>
                     <TableList>
