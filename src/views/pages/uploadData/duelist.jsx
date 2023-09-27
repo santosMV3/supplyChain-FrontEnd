@@ -64,22 +64,17 @@ const Duelist = () => {
         getWeeks();
     }
 
-    const getExportedExcel = (e, data={}) => {
-        // return console.log(data);
+    const getExportedExcel = (e, data={}, filename) => {
         e.target.disabled = true;
         setMessage("Generating excel file... Please wait!");
         setLoader(true);
         api.post("/exportExcel", {data},{ responseType: "blob" }).then((response) => {
             const url = window.URL.createObjectURL(new Blob([response.data]));
-
             const link = document.createElement('a');
             link.href = url;
-
-            link.setAttribute('download', 'duelist_exported.xlsx');
-
+            link.setAttribute('download', filename);
             document.body.appendChild(link);
             link.click();
-
             window.URL.revokeObjectURL(url);
             setLoader(false);
             setMessage(null);

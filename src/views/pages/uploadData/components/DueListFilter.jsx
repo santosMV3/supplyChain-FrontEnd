@@ -1,6 +1,20 @@
 import React, {useState} from 'react';
 import "./styles/style-duelist-filter.css";
-import {Button, Input, UncontrolledTooltip} from "reactstrap";
+import {
+    Button,
+    Input,
+    UncontrolledTooltip,
+    Card,
+    CardBody,
+    FormGroup,
+    Form,
+    InputGroupAddon,
+    InputGroupText,
+    InputGroup,
+    Modal,
+} from "reactstrap";
+import classnames from "classnames";
+import Select2 from "react-select2-wrapper";
 import DatePicker, { registerLocale } from "react-datepicker";
 import ptBR from 'date-fns/locale/pt-BR';
 import "react-datepicker/dist/react-datepicker.css";
@@ -9,9 +23,98 @@ import filterFields, { filterOnlyFields } from "../../../../services/duelistFilt
 
 registerLocale('pt-br', ptBR);
 
+const ExcelModal = (props) => {
+    const { formModal, setFormModal, execute, filterParams } = props
+    const [ focusedFilename, setFocusedFilename ] = useState(false);
+
+    const getDefaultFilename = () => {
+        const dataAtual = new Date();
+        // Obtendo os componentes da data
+        const dia = dataAtual.getDate();
+        const mes = dataAtual.getMonth() + 1; // O mês é base 0, então somamos 1
+        const ano = dataAtual.getFullYear();
+        // Formato da string da data (por exemplo, "DD/MM/AAAA")
+        const dataFormatada = `${dia}-${mes}-${ano}`;
+        const fileNameDefault = `duelist_exported_${dataFormatada}`
+        return fileNameDefault
+    }
+
+    const [ filename, setFilename ] = useState(getDefaultFilename());
+
+    const handlerFilenameField = (e) => {
+        const regex = /[^a-zA-Z0-9-_]/g;
+
+        setFilename(e.target.value.replace(regex, ""));
+    }
+
+    return (
+        <Modal
+        className="modal-dialog-centered"
+        size="sm"
+        isOpen={formModal}
+        toggle={() => setFormModal(false)}
+        >
+            <div className="modal-body p-0">
+            <Card className="bg-secondary border-0 mb-0">
+                <CardBody className="px-lg-5 py-lg-5">
+                <div className="text-center text-muted mb-4">
+                    <small>Set the excel filename</small>
+                </div>
+                <Form role="form">
+                    <FormGroup
+                    className={classnames("mb-3", {
+                        focused: focusedFilename,
+                    })}
+                    >
+                    <InputGroup className="input-group-merge input-group-alternative">
+                        <InputGroupAddon addonType="prepend">
+                        <InputGroupText>
+                            <i className="ni ni-bold-right" />
+                        </InputGroupText>
+                        </InputGroupAddon>
+                        <Input
+                        placeholder="FileName"
+                        type="text"
+                        onFocus={() => setFocusedFilename(true)}
+                        onBlur={() => setFocusedFilename(false)}
+                        onChange={handlerFilenameField}
+                        value={filename}
+                        />
+                    </InputGroup>
+                    </FormGroup>
+                    <div className="text-center">
+                        <Button
+                            className="my-4"
+                            color="primary"
+                            type="button"
+                            onClick={(e) => {
+                                execute(e, filterParams(), filename + ".xlsx");
+                                setFormModal(false);
+                            }}
+                            disabled = {filename.length === 0 ? true : false}
+                        >
+                            Extract
+                        </Button>
+                        <Button
+                            className="my-4"
+                            color="primary"
+                            type="button"
+                            onClick={() => setFilename(getDefaultFilename())}
+                        >
+                            Default Filename
+                        </Button>
+                    </div>
+                </Form>
+                </CardBody>
+            </Card>
+            </div>
+        </Modal>
+    )
+}
+
 export const DuelistFilter = (props) => {
 
-    const { reload, endpoint, orderStatus, isOpen, executeExport } = props;
+    const { reload, endpoint, orderStatus, isOpen, executeExport, getFilters } = props;
 
     const [filterValue, setFilterValue] = useState({
         field: "",
@@ -38,6 +141,11 @@ export const DuelistFilter = (props) => {
     const [filterType, setFilterType] = useState(null);
 
     const [keyMore, setKeyMore] = useState(null);
+
+    const [ formModal, setFormModal ] = useState(false);
+    const openModal = () => {
+        setFormModal(true);
+    }
 
     const handlerInputFilter = (e) => {
         if (Object.keys(e).length == 0) return setFilterValue({...filterValue, "value": formatDateAmerican(e)});
@@ -134,6 +242,7 @@ export const DuelistFilter = (props) => {
         }
 
         setFilters(copyFilters);
+        getFilters(copyFilters);
     }
 
     const editFilter = (index) => {
@@ -174,6 +283,10 @@ export const DuelistFilter = (props) => {
                     if (filterItem.field[0] === "excludeStatus") return data.status_exclude.push([filterItem.field[0], value]);
                     return data.filters.push([filterItem.field[0], value]);
                 });
+            } else if (filterItem.values.length > 1) {
+                if (filterItem.field[0] === "orderStatus") return data.multiple_status_filters.push([filterItem.field[0], filterItem.values.join("|")]);
+                if (filterItem.field[0] === "excludeStatus") return data.multiple_status_exclude.push([filterItem.field[0], filterItem.values.join("|")]);
+                return data.multiple_filters.push([filterItem.field[0], filterItem.values.join("|")]);
             }
         });
 
@@ -182,7 +295,8 @@ export const DuelistFilter = (props) => {
 
     const searchFilters = () => {
         let url = `/logisticMapFilter/?`;
-        filters.forEach((filterItem) => {
+        const filtersCopy = [...filters]
+        filtersCopy.forEach((filterItem) => {
             let allFilterItemValues = "";
 
             filterItem.values.forEach((filterItemValue) => {
@@ -193,6 +307,7 @@ export const DuelistFilter = (props) => {
         });
         url = url.slice(0, url.length - 1);
         reload(url);
+        if (getFilters) getFilters([...filtersCopy]);
     }
 
     const handleKeyPress = (e) => {
@@ -228,11 +343,12 @@ export const DuelistFilter = (props) => {
                                 Remove Filter
                             </Button>
                         ):null}
-                        <Button color="default" size='sm' type='button' onClick={(e) => executeExport(e, getFilterParams())}>
+                        <Button color="default" size='sm' type='button' onClick={openModal}>
                             Export Excel
                         </Button>
                     </div>
                 ):null}
+                <ExcelModal formModal={formModal} setFormModal={setFormModal} execute={executeExport} filterParams={getFilterParams} />
                 <div id="container-duelist-filter-input" onKeyDownCapture={handleKeyPress} onKeyUpCapture={handleKeyUp} tabIndex="0">
                     <Input id="duelist-filter-input-select" onChange={handlerInputFilter} value={filterValue.field} name='field' bsSize="sm" type="select">
                         <option value="">Fields</option>
