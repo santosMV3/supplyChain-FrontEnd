@@ -96,6 +96,13 @@ const routes = [
         layout: "/admin",
         name: 'Status Management'
       },
+    ],
+  },{
+    collapse: true,
+    name: "Operational",
+    icon: "ni ni-laptop text-blue",
+    state: "listOperational",
+    views: [
       {
         path: "/importationDetails",
         miniName: "IMP",
@@ -109,8 +116,15 @@ const routes = [
         component: ExternalServices,
         layout: "/admin",
         name: 'External Services'
-      }
-    ],
+      },
+      {
+        path: "/multiplesUpdates",
+        name: "Multiples Updates",
+        miniName: "MU",
+        component: BatchPage,
+        layout: "/admin",
+      },
+    ]
   },
   {
     collapse: true,
@@ -133,21 +147,6 @@ const routes = [
         layout: "/admin"
       }
     ]
-  },
-  {
-    collapse: true,
-    name: "Advanced",
-    icon: "ni ni-ungroup text-orange",
-    state: "advancedCollapse",
-    views: [
-      {
-        path: "/multiplesUpdates",
-        name: "Multiples Updates",
-        miniName: "MU",
-        component: BatchPage,
-        layout: "/admin",
-      },
-    ],
   },
   {
     collapse: false,
