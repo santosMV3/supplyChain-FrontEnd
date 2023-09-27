@@ -166,6 +166,16 @@ const ChangesComponent = (props) => {
                                     onSelect={handlerInput}
                                     data={optionsData}
                                     value={changeState.changeField}
+                                    multiple={false}
+                                    onOpen={() => {
+                                        const select2 = document.getElementsByClassName('select2-search__field');
+                                        select2[0].focus();
+                                    }}
+                                    onClose={() => {
+                                        const body = document.querySelector("body");
+                                        body.tabIndex = 0;
+                                        body.focus();
+                                    }}
                                 />
                             </FormGroup>
                         </Col>
@@ -215,9 +225,7 @@ const ChangesComponent = (props) => {
                                 ) : inputType === "date" ? (
                                     <div id='duelist-filter-input-select-status' onDoubleClick={clearFilterInputValue}>
                                         <InputGroup
-                                            className={classnames("input-group-merge", {
-                                            focused: changeValueFocus,
-                                            })}
+                                            className={classnames("input-group-merge")}
                                         >
                                             <DatePicker
                                             type="date"
@@ -243,6 +251,15 @@ const ChangesComponent = (props) => {
                                                     'White'
                                                 ]}
                                                 value={changeState.changeValue}
+                                                onOpen={() => {
+                                                    const select2 = document.getElementsByClassName('select2-search__field');
+                                                    select2[0].focus();
+                                                }}
+                                                onClose={() => {
+                                                    const body = document.querySelector("body");
+                                                    body.tabIndex = 0;
+                                                    body.focus();
+                                                }}
                                             />
                                         ) :
                                         selectField === "week" ? (
@@ -253,6 +270,15 @@ const ChangesComponent = (props) => {
                                                 onSelect={handlerInput}
                                                 data={weList}
                                                 value={changeState.changeValue}
+                                                onOpen={() => {
+                                                    const select2 = document.getElementsByClassName('select2-search__field');
+                                                    select2[0].focus();
+                                                }}
+                                                onClose={() => {
+                                                    const body = document.querySelector("body");
+                                                    body.tabIndex = 0;
+                                                    body.focus();
+                                                }}
                                             />
                                         ) :
                                         selectField === "status" && (
@@ -263,6 +289,15 @@ const ChangesComponent = (props) => {
                                                 onSelect={handlerInput}
                                                 data={statusNames}
                                                 value={changeState.changeValue}
+                                                onOpen={() => {
+                                                    const select2 = document.getElementsByClassName('select2-search__field');
+                                                    select2[0].focus();
+                                                }}
+                                                onClose={() => {
+                                                    const body = document.querySelector("body");
+                                                    body.tabIndex = 0;
+                                                    body.focus();
+                                                }}
                                             />
                                         )}
                                     </FormGroup>
