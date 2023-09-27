@@ -26,6 +26,7 @@ const BatchPage = () => {
     const [logOrderStatus, setOrderStatus] = useState([]);
     const [loader, setLoader] = useState(false);
     const [weList, setWeList] = useState([]);
+    const [filters, setFilters] = useState([]);
 
     const [ changesList, setChangesList ] = useState([]);
     const [ ordersAdded, setOrdersAdded ] = useState([]);
@@ -36,6 +37,27 @@ const BatchPage = () => {
     const notificationAlertRef = React.useRef(null);
 
     const [alert, setAlert] = useState(null);
+
+    const notify = (data={title: "Attention", message: ""}) => {
+        let options = {
+        place: "tc",
+        message: (
+            <div className="alert-text">
+                <span className="alert-title" data-notify="title">
+                    {" "}
+                    {data.title}
+                </span>
+                <span data-notify="message">
+                    {data.message}
+                </span>
+            </div>
+        ),
+        type: "danger",
+        icon: "ni ni-bell-55",
+        autoDismiss: 7,
+        };
+        notificationAlertRef.current.notificationAlert(options);
+    };
 
 
     const getLogMapData = (endpoint="/logisticMapFilter/", options={ loader: true }) => {
@@ -81,7 +103,12 @@ const BatchPage = () => {
         getWeeks();
     }
 
+    const getFilters = (filters) => {
+        setFilters([...filters]);
+    }
+
     const addOrders = (ordersSelected) => {
+        if (filters.length === 0) return notify({ message: "It is not possible to add orders without filters.", title: "Attention" });
         let ordersCopy = [...ordersAdded];
         let ordersCopyIDs = ordersCopy.map((orderCopy => orderCopy.id));
         const ordersFiltered = ordersSelected.filter((order) => ordersCopyIDs.indexOf(order.id) === -1);
@@ -94,7 +121,18 @@ const BatchPage = () => {
 
     }
 
+    const removeOrder = (index) => {
+        const ordersCopy = [...ordersAdded];
+        ordersCopy.splice(index, 1);
+        setOrdersAdded(ordersCopy);
+    }
+
     const addAllOrders = (e=null) => {
+        if (filters.length === 0 && e) {
+            notify({ message: "It is not possible to add orders without filters.", title: "Attention" });
+            return e.target.checked = false;
+        }
+        if (filters.length === 0) return notify({ message: "It is not possible to add orders without filters.", title: "Attention" });
         let ordersCopy = [...ordersAdded];
         const ordersCopyIDs = ordersCopy.map((order) => order.id);
         const logMapFiltered = logMapData.results.filter((order) => ordersCopyIDs.indexOf(order.id) === -1);
@@ -116,27 +154,6 @@ const BatchPage = () => {
         if (ordersAdded.length > 0 && changesList.length > 0) return true;
         return false;
     }
-
-    const notify = (data={title: "Attention", message: ""}) => {
-        let options = {
-        place: "tc",
-        message: (
-            <div className="alert-text">
-                <span className="alert-title" data-notify="title">
-                    {" "}
-                    {data.title}
-                </span>
-                <span data-notify="message">
-                    {data.message}
-                </span>
-            </div>
-        ),
-        type: "warning",
-        icon: "ni ni-bell-55",
-        autoDismiss: 7,
-        };
-        notificationAlertRef.current.notificationAlert(options);
-    };
 
     const openModal = () => {
         if (validateFields()) return setModalState(true);
@@ -192,11 +209,11 @@ const BatchPage = () => {
                     </Col>
                     </Row>
                 </CardHeader>
-                <DuelistFilter reload={executeAPIFunctions} endpoint={logMapData.nowEndpoint} orderStatus={logOrderStatus} isOpen={true}/>
+                <DuelistFilter reload={executeAPIFunctions} endpoint={logMapData.nowEndpoint} orderStatus={logOrderStatus} isOpen={true} getFilters={getFilters}/>
             </Card>
             <DuelistTableComponent data={logMapData.results} addOrders={addOrders} addAllOrders={addAllOrders}/>
             <DueListPagination data={[logMapData.count, logMapData.previous, logMapData.next, logMapData.now, logMapData.nowEndpoint]} reload={executeAPIFunctions}/>
-            <DuelistTablePreparedComponent data={ordersAdded} removeAllOrders={removeAllOrders} openModal={openModal}/>
+            <DuelistTablePreparedComponent data={ordersAdded} removeAllOrders={removeAllOrders} openModal={openModal} removeOrder={removeOrder}/>
             <ConfirmModal modalState={modalState} closeModal={closeModal} ordersAdded={ordersAdded} execute={executeMultipleUpdate}/>
         </div>
     )
