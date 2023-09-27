@@ -100,16 +100,17 @@ const RenderRowList = (props) => {
 }
 
 const RenderRowPreparedList = (props) => {
-    const { data, index } = props;
+    const { data, index, removeOrder } = props;
     
     return (
         <tr>
             <td>
                 <a
                 className="table-action table-action-delete"
-                href="#delete"
+                href="#"
                 onClick={(e) => {
                     e.preventDefault();
+                    removeOrder(index-1);
                 }}
                 >
                     <i className="fas fa-trash" />
@@ -210,7 +211,7 @@ const DuelistTableComponent = (props) => {
                                 className="custom-control-label"
                                 htmlFor="table-check-all"
                                 style={{width: "0px"}}>
-                                    Check All
+                                    Check Page
                                 </label>
                             </div>
                         </th>
@@ -243,7 +244,7 @@ const DuelistTableComponent = (props) => {
 }
 
 export const DuelistTablePreparedComponent = (props) => {
-    const { data, removeAllOrders, openModal } = props;
+    const { data, removeAllOrders, openModal, removeOrder } = props;
 
     const [ ordersSelected, setOrdersSelected ] = useState([]);
 
@@ -251,17 +252,6 @@ export const DuelistTablePreparedComponent = (props) => {
         return ordersSelected.indexOf(order) > -1 ? true : false
     }
 
-    const selectOrder = (order) => {
-        const ordersCopy = [...ordersSelected];
-
-        if (orderSelected(order)) {
-            const index = ordersCopy.indexOf(order);
-            ordersCopy.splice(index, 1);
-        } else {
-            ordersCopy.push(order);
-        }
-        return setOrdersSelected(ordersCopy);
-    }
 
     return (
         <>
@@ -301,7 +291,7 @@ export const DuelistTablePreparedComponent = (props) => {
                         <th>
                             <div>
                             <Button
-                            color="warning"
+                            color="default"
                             onClick={openModal}
                             >
                                 Change
@@ -312,7 +302,7 @@ export const DuelistTablePreparedComponent = (props) => {
                     </thead>
                     <tbody>
                         {data ? (
-                            data.map((order, index) => (<RenderRowPreparedList data={order} index={(index + 1)} key={`order-duelist-prepared-${order.id}`}/>))
+                            data.map((order, index) => (<RenderRowPreparedList data={order} index={(index + 1)} key={`order-duelist-prepared-${order.id}`} removeOrder={removeOrder}/>))
                         ) : null}
                     </tbody>
                 </Table>
