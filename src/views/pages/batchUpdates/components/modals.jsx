@@ -11,7 +11,7 @@ export const ConfirmModal = (props) => {
     return (
         <Modal
             className="modal-dialog-centered modal-danger"
-            contentClassName="bg-gradient-warning"
+            contentClassName="bg-gradient-default"
             isOpen={modalState}
             toggle={closeModal}
         >
