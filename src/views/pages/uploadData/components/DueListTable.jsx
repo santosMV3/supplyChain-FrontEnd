@@ -76,7 +76,7 @@ export const THeadList = () => {
                 <th scope="col">Sched. l. date</th>
                 <th scope="col">Material Descript.</th>
                 <th scope="col">Material Number</th>
-                <th scope="col">ETA Trianon</th>
+                <th scope="col">ETA WAREHOUSE</th>
                 <th scope='col'>Prevision Fat. (Week)</th>
                 <th scope="col">Status</th>
             </tr>
@@ -838,7 +838,7 @@ const TableModal = (props) => {
                                         SO - Linha
                                     </div>
                                     <div className='cell-title-list-duelist-modal clickable-duelist' onDoubleClick={modalEdit?closeEditMode:openEditMode}>
-                                        ETA Trianon
+                                        ETA WAREHOUSE
                                     </div>
                                     <div className='cell-title-list-duelist-modal'>
                                         Importation

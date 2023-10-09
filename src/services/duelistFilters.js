@@ -45,7 +45,7 @@ const filters = [
     ["situation","Color", "select"],
     ["deliveryFactory","Delivery Factory"],
     ["importation","Importation"],
-    ["previsionTrianom","ETA TRIANON", "date"],
+    ["previsionTrianom","ETA WAREHOUSE", "date"],
     ["previsionFatSystem","Est. NF. Date (sys)", "date"],
     ["materiaDays","Material Days"],
     ["deadLineFat","Dead Line Fat."],
@@ -60,7 +60,7 @@ const filters = [
 const filtersWithFieldToUpdate = [
     ['orderStatus', 'Status', 'select'],
     ["situation","Color", "select"],
-    ["previsionTrianom","ETA TRIANON", "date"],
+    ["previsionTrianom","ETA WAREHOUSE", "date"],
     ["previsionWeek","Prevision Fat. (Week)", "select"],
     ["supplier","Supplier"],
     ["returnDays","Return Days", "number"],
