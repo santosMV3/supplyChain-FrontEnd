@@ -435,7 +435,7 @@ const TableModal = (props) => {
 
     const handlerComment = (e) => {
         let comment = e.target.value;
-        if(comment.length > 500) return;
+        if(comment.length > 450) return;
         return setCommentState({...commentState, [e.target.name]: comment});
     }
 
@@ -1071,7 +1071,9 @@ const TableModal = (props) => {
 }
 
 const NoteItem = (props) => {
+    const containerRef = useRef(null);
     const noteTextRef = useRef(null);
+    const noteUserRef = useRef(null);
 
     const { note, endpoint, reload } = props;
 
@@ -1096,13 +1098,16 @@ const NoteItem = (props) => {
 
     useEffect(() => {
         const textElement = noteTextRef.current;
-        if (textElement) {
-            setIsTextOverflowing(textElement.scrollHeight > 100);
+        const containerElement = containerRef.current;
+        const userElement = noteUserRef.current;
+
+        if (textElement && containerElement && userElement) {
+            setIsTextOverflowing(textElement.scrollHeight > (containerElement.scrollHeight - userElement.scrollHeight));
         }
     }, []);
 
     const handleInput = (e) => {
-        if(e.target.value > 500) return;
+        if(e.target.value > 450) return;
         return setValueEdit({...valueEdit, [e.target.name]: e.target.value});
     }
 
@@ -1137,10 +1142,10 @@ const NoteItem = (props) => {
     }
 
     return (
-        <div className={`container-note-duelist-modal ${noteExpanded ? "container-note-duelist-modal-expanded" : ""}`} onMouseEnter={openActionButtons} onMouseLeave={closeActionButtons}>
+        <div className={`container-note-duelist-modal ${noteExpanded ? "container-note-duelist-modal-expanded" : ""}`} ref={containerRef} onMouseEnter={openActionButtons} onMouseLeave={closeActionButtons}>
             <div className="note-duelist-modal">
                 <div className='autor-note-duelist-modal'>
-                    <div className='text-note-duelist-modal'>
+                    <div ref={noteUserRef} className='text-note-duelist-modal'>
                         {note.user.first_name.length > 0?`${note.user.first_name} ${note.user.last_name}`:`${note.user.username}`}
                         {localStorage.getItem("AUTHOR_ID") === note.idUser.toString() ? " (you)" : null}
                     </div>
