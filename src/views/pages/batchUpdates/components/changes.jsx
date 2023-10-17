@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import classnames from 'classnames';
 import Select2 from "react-select2-wrapper";
 import DatePicker, { registerLocale } from "react-datepicker";
@@ -116,7 +116,7 @@ const ChangesComponent = (props) => {
 
         if((changesListCopy.filter((change) => change.field === changeState.changeField)).length > 0) return notify({message: "This change has already been added!", title: "Attention"})
 
-        if (inputType != "boolean") changesListCopy.push({ field: changeState.changeField, value: changeState.changeValue, type: inputType, fieldType: selectField });
+        if (inputType !== "boolean") changesListCopy.push({ field: changeState.changeField, value: changeState.changeValue, type: inputType, fieldType: selectField });
         if (inputType === "boolean") changesListCopy.push({ field: changeState.changeField, value: changeState.changeValue ? true : false, type: inputType, fieldType: selectField });
 
         setListState(changesListCopy);

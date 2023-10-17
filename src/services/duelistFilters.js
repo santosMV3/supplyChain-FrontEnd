@@ -69,8 +69,8 @@ const filtersWithFieldToUpdate = [
     ["orderNote", "Note"]
 ];
 
-filterFields = filterFields.concat(filters.sort((a, b) => a[1].toUpperCase() == b[1].toUpperCase() ? 0 : a[1].toUpperCase() > b[1].toUpperCase() ? 1 : -1));
-filterFieldsUpdate = filterFieldsUpdate.concat(filtersWithFieldToUpdate.sort((a, b) => a[1].toUpperCase() == b[1].toUpperCase() ? 0 : a[1].toUpperCase() > b[1].toUpperCase() ? 1 : -1));
+filterFields = filterFields.concat(filters.sort((a, b) => a[1].toUpperCase() === b[1].toUpperCase() ? 0 : a[1].toUpperCase() > b[1].toUpperCase() ? 1 : -1));
+filterFieldsUpdate = filterFieldsUpdate.concat(filtersWithFieldToUpdate.sort((a, b) => a[1].toUpperCase() === b[1].toUpperCase() ? 0 : a[1].toUpperCase() > b[1].toUpperCase() ? 1 : -1));
 
 export const filterOnlyFields = filters.map((fieldItem) => fieldItem[1]);
 

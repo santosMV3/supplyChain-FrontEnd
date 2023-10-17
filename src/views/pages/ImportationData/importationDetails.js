@@ -29,7 +29,7 @@ const ImportationLine = ({post, deleteFactory, getImp}) => {
     const closeEditMode = () => setEditMode(false);
 
     const handlerInput = (e) => {
-        if (Object.keys(e).length == 0) return setImpUpdate({...impUpdate, "prevChegadaTrianon": formatDateAmerican(e)});
+        if (Object.keys(e).length === 0) return setImpUpdate({...impUpdate, "prevChegadaTrianon": formatDateAmerican(e)});
         if(e.target.type=== "number"){
             if(e.target.value === "") e.target.value = 0;
             if(e.target.value > 99999) e.target.value = 99999;
@@ -234,9 +234,6 @@ const ImportationLine = ({post, deleteFactory, getImp}) => {
 
 const ImportationDetails = () => {
     const [impData, setImpData] = useState([]);
-    const [registerState, setRegisterState] = useState(false);
-    const openRegister = () => setRegisterState(true);
-    const closeRegister = () => setRegisterState(false);
     const [loader, setLoader] = useState(false);
 
     const getImp = (options={loader: true}) => {

@@ -151,7 +151,7 @@ function Sidebar({ toggleSidenav, sidenavOpen, routes, logo, rtlActive }) {
   const createLinks = (routes) => {
     return routes.map((prop, key) => {
 
-      if ((prop.redirect || prop.invisible || pageState.indexOf(prop.name.toLowerCase()) == -1) && !(prop.collapse)) {
+      if ((prop.redirect || prop.invisible || pageState.indexOf(prop.name.toLowerCase()) === -1) && !(prop.collapse)) {
         return null;
       }
 

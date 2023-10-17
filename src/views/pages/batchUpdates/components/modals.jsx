@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, CardHeader, Col, Row, Button, Modal } from 'reactstrap';
+import { Button, Modal } from 'reactstrap';
 
 export const ConfirmModal = (props) => {
     const { modalState, closeModal, ordersAdded, execute } = props;

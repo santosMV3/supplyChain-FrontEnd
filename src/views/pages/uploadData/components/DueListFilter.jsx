@@ -14,7 +14,7 @@ import {
     Modal,
 } from "reactstrap";
 import classnames from "classnames";
-import Select2 from "react-select2-wrapper";
+// import Select2 from "react-select2-wrapper";
 import DatePicker, { registerLocale } from "react-datepicker";
 import ptBR from 'date-fns/locale/pt-BR';
 import "react-datepicker/dist/react-datepicker.css";
@@ -148,7 +148,7 @@ export const DuelistFilter = (props) => {
     }
 
     const handlerInputFilter = (e) => {
-        if (Object.keys(e).length == 0) return setFilterValue({...filterValue, "value": formatDateAmerican(e)});
+        if (Object.keys(e).length === 0) return setFilterValue({...filterValue, "value": formatDateAmerican(e)});
 
         let filterObject = null;
         if(e.target.name === "field"){
@@ -203,7 +203,7 @@ export const DuelistFilter = (props) => {
 
         // const copyFilters = filters.filter((item) => item.field[0] === filterValue.field);
         // if (copyFilters.length > 0) return window.alert("Filter name has exist.");
-        let filterFiltered = filters.filter((filterItem) => filterItem.field[0].replace("@not@", "") == filterData.field[0]);
+        let filterFiltered = filters.filter((filterItem) => filterItem.field[0].replace("@not@", "") === filterData.field[0]);
         if(filterFiltered.length > 0) {
             filterFiltered = filterFiltered[0];
             const filtersCopy = [...filters];
@@ -242,7 +242,7 @@ export const DuelistFilter = (props) => {
         }
 
         setFilters(copyFilters);
-        getFilters(copyFilters);
+        if(getFilters) getFilters(copyFilters);
     }
 
     const editFilter = (index) => {

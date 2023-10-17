@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
     Button,
     Card,
@@ -245,13 +245,6 @@ const DuelistTableComponent = (props) => {
 
 export const DuelistTablePreparedComponent = (props) => {
     const { data, removeAllOrders, openModal, removeOrder } = props;
-
-    const [ ordersSelected, setOrdersSelected ] = useState([]);
-
-    const orderSelected = (order) => {
-        return ordersSelected.indexOf(order) > -1 ? true : false
-    }
-
 
     return (
         <>
