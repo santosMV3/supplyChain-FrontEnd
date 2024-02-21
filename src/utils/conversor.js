@@ -9,19 +9,20 @@ export const toReal = (value) => {
 
 export const formatDate = (date) => {
     if (date) {
-        if (date.indexOf('-') === -1) return false;
-        if (date.indexOf('T') === -1) {
-            date = date.split(' ');
-            date = date[0].split('-');
-        } else {
-            date = date.split('T');
-            date = date[0].split('-');
-            return `${date[2]}/${date[1]}/${date[0]}`;
-        }
-        return `${date[2]}/${date[1]}/${date[0]}`;
+        if (date.indexOf('-') > -1) {
+            if (date.indexOf('T') === -1) {
+                date = date.split(' ');
+                date = date[0].split('-');
+                date = `${date[2]}/${date[1]}/${date[0]}`;
+            } else {
+                date = date.split('T');
+                date = date[0].split('-');
+                date = `${date[2]}/${date[1]}/${date[0]}`;
+            }
+        };
     }
 
-    return false;
+    return date;
 }
 
 export const formatDateTime = (date) => {

@@ -22,7 +22,7 @@ const filters = [
     ["availabilityCustomerDelvDate","Customer Delv. Date", "date"],
     ["itemCategory","Categ"],
     ["purchNo","Purch. No."],
-    ["producingCompany","PC"],
+    ["producingCompany","Producing Company"],
     ["importNo","Import. No."],
     ["GRDate","GR. Date", "date"],
     ["GRQuantity","GR. Quantity"],

@@ -71,6 +71,7 @@ function Sidebar({ toggleSidenav, sidenavOpen, routes, logo, rtlActive }) {
   
         }).catch((error) => {
           console.error(error);
+          console.log(responses[0])
           window.alert("An error occurred while trying to collect your permissions. [1]");
           localStorage.clear();
           history.push("/auth/login");

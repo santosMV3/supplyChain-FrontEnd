@@ -35,6 +35,7 @@ import {
 } from "reactstrap";
 // core components
 import AuthHeader from "components/Headers/AuthHeader.js";
+import NotifyComponent, { showNotify } from "components/notifications/notify";
 
 import {
   Imagefigure,
@@ -50,6 +51,8 @@ import {api} from "../../../services/api";
 
 function Register() {
   const history = useHistory();
+  const notifyRef = React.useRef(null);
+
   const [focusedName, setfocusedName] = React.useState(false);
   const [focusedEmail, setfocusedEmail] = React.useState(false);
   const [focusedPassword, setfocusedPassword] = React.useState(false);
@@ -68,8 +71,8 @@ function Register() {
   const registerExecute = async (e) => {
     e.preventDefault();
     
-    api.post('/users/', userRegister).then((response) => {
-      return window.alert('usuario registrado com sucesso!');
+    api.post('/users/', userRegister).then(() => {
+      return showNotify(notifyRef, "Info", "User registered success.", "success");
     }).catch((error) => {
       if(error.response){
         const data = error.response.data;
@@ -83,9 +86,9 @@ function Register() {
           return history.push('/auth/login');
         }
         
-        window.alert(message);
+        showNotify(notifyRef, "Error", message, "danger");
       }else{
-        window.alert('Não foi possível se comunicar com o servidor...')
+        showNotify(notifyRef, "Error", "Failed to connect to the server.", "danger");
       }
     });
 
@@ -94,6 +97,7 @@ function Register() {
   return (
     <>
       <AuthHeader/>
+      <NotifyComponent notifyRef={notifyRef}/>
       <Container className="mt--8 pb-5">
         <Row className="justify-content-center">
           <Col lg="6" md="8">

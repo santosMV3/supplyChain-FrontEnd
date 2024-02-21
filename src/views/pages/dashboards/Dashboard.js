@@ -21,37 +21,42 @@ import { api } from "services/api";
 
 import LoaderBox from "../components/custom/loader/loaderBox";
 
-function Dashboard() {
-  const [billedOrders, setBilledOrders] = useState([]);
-  const [WEOrdersState, setWEOrdersState] = useState([]);
+var colors = {
+  gray: {
+    100: "#f6f9fc",
+    200: "#e9ecef",
+    300: "#dee2e6",
+    400: "#ced4da",
+    500: "#adb5bd",
+    600: "#8898aa",
+    700: "#525f7f",
+    800: "#32325d",
+    900: "#212529",
+  },
+  theme: {
+    default: "#172b4d",
+    primary: "#5e72e4",
+    secondary: "#f4f5f7",
+    info: "#11cdef",
+    success: "#2dce89",
+    danger: "#f5365c",
+    warning: "#fb6340",
+  },
+  black: "#12263F",
+  white: "#FFFFFF",
+  transparent: "transparent",
+};
 
-  const [kpiLoader, setKpiLoader] = useState(true);
+function Dashboard() {
+  const [billedOrders, setBilledOrders] = useState({});
+  const [WEOrdersState, setWEOrdersState] = useState([]);
+  const [WEOrdersUnvoicedsState, setWEOrdersUnvoicedsState] = useState([]);
+
+  const [kpiLoader, setKpiLoader] = useState(false);
   const openKPILoader = () => setKpiLoader(true);
   const closeKPILoader = () => setKpiLoader(false);
 
-  const [chartData, setChartData] = useState({
-    labels: ["Orders"],
-    totalQuatity: 0,
-    totalInvoiced: 0,
-    datasets: [
-      {
-        data: [0],
-        label: "Not Invoiced: ",
-        maxBarThickness: 10,
-        backgroundColor: 'rgba(255, 17, 0, 1)',
-        borderColor: 'rgba(255, 17, 0, 1)',
-        borderWidth: 1,
-      },
-      {
-        data: [0],
-        label: "Invoiced: ",
-        maxBarThickness: 10,
-        backgroundColor: 'rgba(0, 255, 51, 1)',
-        borderColor: 'rgba(0, 255, 51, 1))',
-        borderWidth: 1,
-      }
-    ]
-  });
+  const [ cardsData, setCardsData ] = useState({});
 
   const [statusValues, setStatusValues] = useState({
     labels: ["Orders"],
@@ -90,112 +95,40 @@ function Dashboard() {
     withTransporter: 0,
     noPrePayment: 0,
     totalOrders: 0
-  })
+  });
+
+  const [kpiOrderStatus, setKpiOrderStatus] = useState({});
 
   useEffect(() => {
     let abortController = new AbortController();
-    const getCompetences = () => {
-      openKPILoader();
-      Promise.all([
-        api.get(`/statusFirst`),
-        api.get('/logMapExternalServices/'),
-        api.get('/logMapKPIItens/'),
-        api.get('/logMapToInvoice/')
-      ]).then((response) => {
 
-                //REQUISITION #2
-                setExternalData(response[1].data);
+    const getDashboardData = async () => {
+      try {
+        openKPILoader()
+        const response = await api.get("/dashboard/")
 
-                //REQUISTION #3
-                setKpiData(response[2].data);
-        
-                //REQUISITION #4
-                setChartData({
-                  labels: ['Orders'],
-                  totalQuatity: parseInt(response[3].data.quantityInvoiced) + parseInt(response[3].data.quantityOrders),
-                  totalInvoiced: 0,
-                  datasets: [
-                    {
-                      data: [response[3].data.quantityOrders],
-                      label: "Not Invoiced: ",
-                      maxBarThickness: 10,
-                      backgroundColor: 'rgba(255, 17, 0, 1)',
-                      borderColor: 'rgba(255, 17, 0, 1)',
-                      borderWidth: 1,
-                    },
-                    {
-                      data: [response[3].data.quantityInvoiced],
-                      label: "Invoiced: ",
-                      maxBarThickness: 10,
-                      backgroundColor: 'rgba(0, 255, 51, 1)',
-                      borderColor: 'rgba(0, 255, 51, 1))',
-                      borderWidth: 1,
-                    }
-                  ]
-                });
-                setStatusValues({
-                  labels: ["Orders"],
-                  totalQuatity: parseFloat(response[3].data.valueInvoiced) + parseFloat(response[3].data.valueOrders),
-                  totalInvoiced: 0,
-                  datasets: [
-                    {
-                      data: [response[3].data.valueOrders],
-                      label: "Not Invoiced: ",
-                      maxBarThickness: 10,
-                      backgroundColor: 'rgba(255, 17, 0, 1)',
-                      borderColor: 'rgba(255, 17, 0, 1)',
-                      borderWidth: 1,
-                    },
-                    {
-                      data: [response[3].data.valueInvoiced],
-                      label: "Invoiced: ",
-                      maxBarThickness: 10,
-                      backgroundColor: 'rgba(0, 255, 51, 1)',
-                      borderColor: 'rgba(0, 255, 51, 1))',
-                      borderWidth: 1,
-                    }
-                  ]
-                });
+        const responseData = await response.data;
+        const invoicedData = await responseData.graphic_invoiced_orders
 
-        // REQUISITION #1
-        const idStatus = response[0].data.idStatus;
-        api.get(`/statusOrder?idStatus=${idStatus}`).then((orderStatus) => {
-          Promise.all(orderStatus.data.map((status) => api.get(`/logisticMap/${status.idOrder}`))).then((orders) => {
-            orders = orders.map((order) => order.data);
-            Promise.all([
-              api.get("/logMapCompetence"),
-              api.get(`/logisticMapWE`)
-            ]).then((multiData) => {
-              const competencesTotal = multiData[0].data;
-              orders.forEach((order) => {
-                const index = competencesTotal.competences.indexOf(order.competenceName);
-                const data = {
-                  nome: competencesTotal.competences[index],
-                  value: competencesTotal.values[index],
-                  quantity: competencesTotal.quantity[index],
-                }
+        setBilledOrders(responseData);
+        setWEOrdersState(responseData.graphic_prevision_week);
+        setWEOrdersUnvoicedsState(responseData.graphic_prevision_week_invoiceds);
+        setExternalData(responseData.graphic_external_services);
+        setKpiData(responseData.graphic_payment_transport);
+        setCardsData(responseData.graphic_cards_data);
+        setKpiOrderStatus(invoicedData);
 
-                order.total = data;
-              });
-              setBilledOrders(orders);
-              setWEOrdersState(multiData[1].data);
-              closeKPILoader();
-            }).catch((error) => {
-              console.error(error);
-              closeKPILoader();
-            });
-          });
-        }).catch((error) => {
-          console.error(error);
-          closeKPILoader();
-        });
-      }).catch((error) => {
+        setStatusValues();
+        closeKPILoader()
+      } catch (error) {
         console.error(error);
-        closeKPILoader();
-      });
+        closeKPILoader()
+        window.alert("Error to get the Dashboard Data");
+      }
     }
 
-    getCompetences();
+    // getCompetences();
+    getDashboardData();
     return () => abortController.abort();
   }, []);
 
@@ -214,7 +147,7 @@ function Dashboard() {
         },
         {
           data: [],
-          label: "Unvoiced: ",
+          label: "Not Invoiced: ",
           maxBarThickness: 10,
           backgroundColor: 'rgba(255, 17, 0, 1)',
           borderColor: 'rgba(255, 17, 0, 1)',
@@ -223,43 +156,22 @@ function Dashboard() {
       ]
     }
 
-    const competenceNames = [];
-    const competenceQuantity = [];
-    const unvoicedQuantity = [];
-    let totalUnvoiced = 0;
-    props.billedOrders.filter((order) => {
-
-      const index = competenceNames.indexOf(order.competenceName);
-
-      if(index === -1){
-        competenceNames.push(order.competenceName);
-        competenceQuantity.push(1);
-        return unvoicedQuantity.push(order.total.quantity);
-      } else {
-        return competenceQuantity[index] += 1;
-      }
-
-    });
-
-    unvoicedQuantity.forEach((value) => totalUnvoiced+=value);
-
-    chartData.labels = competenceNames;
-    chartData.datasets[0].data = competenceQuantity;
-    chartData.datasets[1].data = unvoicedQuantity;
-    chartData.totalUnvoiced = totalUnvoiced;
-
+    chartData.labels = props.billedOrders ? props.billedOrders.competences : [];
+    chartData.datasets[0].data = props.billedOrders ? props.billedOrders.invoiced_orders : [];
+    chartData.datasets[1].data = props.billedOrders ? props.billedOrders.unvoiced_orders : [];
+    chartData.totalUnvoiced = props.billedOrders ? props.billedOrders.totalUnvoiced : [];
 
     return (
       <div style={{
         width: "48%",
         boxShadow: "0px 0px 5px gray",
         borderRadius: "10px",
-        height: '445px',
+        height: '545px',
         overflow: 'hidden'
       }}>
         <div style={{
           width: "100%",
-          height: "400px",
+          height: "500px",
           overflow: 'hidden',
           boxShadow: "0px 0px 2px gray",
         }}>
@@ -275,7 +187,35 @@ function Dashboard() {
               <div className="chart">
                 <Bar
                   data={chartData}
-                  options={chartExample2.options}
+                  options={
+                    {
+                      tooltips: {
+                        callbacks: {
+                          label: function (item, data) {
+                            return " " + item.yLabel.toString().replace(/(\d)(?=(?:[0-9]{3})+\b)/g, "$1.");
+                          },
+                        },
+                      },
+                      scales: {
+                        yAxes: [
+                          {
+                            gridLines: {
+                              color: colors.gray[200],
+                              zeroLineColor: colors.gray[200],
+                            },
+                            ticks: {
+                              callback: function (value) {
+                                if (!(value % 10)) {
+                                  //return '$' + value + 'k'
+                                  return value.toString().replace(/(\d)(?=(?:[0-9]{3})+\b)/g, "$1.");
+                                }
+                              },
+                            },
+                          },
+                        ],
+                      },
+                    }
+                  }
                   className="chart-canvas"
                   id="chart-bars"
                 />
@@ -294,8 +234,8 @@ function Dashboard() {
           padding: '10px',
           justifyContent: "space-around"
         }}>
-          <h5 className="h4 mb-0">Total Invoiced: {props.billedOrders.length}</h5>
-          <h5 className="h4 mb-0">Total Unvoiced: {chartData.totalUnvoiced}</h5>
+          <h5 className="h4 mb-0">Total Invoiced: {props.billedOrders ? props.billedOrders.total_invoiced.toString().replace(/(\d)(?=(?:[0-9]{3})+\b)/g, "$1.") : 0}</h5>
+          <h5 className="h4 mb-0">Total Not Invoiced: {props.billedOrders ? props.billedOrders.total_unvoiced.toString().replace(/(\d)(?=(?:[0-9]{3})+\b)/g, "$1.") : 0}</h5>
         </div>
       </div>
     )
@@ -317,7 +257,7 @@ function Dashboard() {
         },
         {
           data: [],
-          label: "Unvoiced: ",
+          label: "Not Invoiced: ",
           maxBarThickness: 10,
           backgroundColor: 'rgba(255, 17, 0, 1)',
           borderColor: 'rgba(255, 17, 0, 1)',
@@ -326,36 +266,11 @@ function Dashboard() {
       ]
     }
 
-    const competenceNames = [];
-    const competenceValues = [];
-    const unvoicedValues = [];
-    let total = 0;
-    let totalUnvoiced = 0;
-    props.billedOrders.filter((order) => {
-
-      const index = competenceNames.indexOf(order.competenceName);
-      const value = parseFloat(order.openValueLocalCurrency);
-
-      if(index === -1){
-        competenceNames.push(order.competenceName);
-        competenceValues.push(value);
-        unvoicedValues.push(order.total.value);
-      } else {
-        competenceValues[index] += value;
-      }
-
-      return total+=value;
-    });
-
-    // totalUnvoiced = 
-    
-    unvoicedValues.forEach((value) => totalUnvoiced+=value);
-
-    chartData.labels = competenceNames;
-    chartData.datasets[0].data = competenceValues;
-    chartData.datasets[1].data = unvoicedValues;
-    chartData.total = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-    chartData.totalUnvoiced = totalUnvoiced.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+    chartData.labels = props.billedOrders ? props.billedOrders.competences : [];
+    chartData.datasets[0].data = props.billedOrders ? props.billedOrders.invoiced_values : [];
+    chartData.datasets[1].data = props.billedOrders ? props.billedOrders.unvoiced_values : [];
+    chartData.total = props.billedOrders ? props.billedOrders.total_invoiced_values.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : 0
+    chartData.totalUnvoiced = props.billedOrders ? props.billedOrders.total_unvoiced_values.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : 0
 
 
     return (
@@ -363,12 +278,12 @@ function Dashboard() {
         width: "48%",
         boxShadow: "0px 0px 5px gray",
         borderRadius: "10px",
-        height: '445px',
+        height: '545px',
         overflow: 'hidden'
       }}>
         <div style={{
           width: "100%",
-          height: "400px",
+          height: "500px",
           overflow: 'hidden',
           boxShadow: "0px 0px 2px gray",
         }}>
@@ -384,7 +299,35 @@ function Dashboard() {
               <div className="chart">
                 <Bar
                   data={chartData}
-                  options={chartExample2.options}
+                  options={
+                    {
+                      tooltips: {
+                        callbacks: {
+                          label: function (item, data) {
+                            return ' R$ ' + item.yLabel.toFixed(2).replace('.',',').replace(/\d(?=(\d{3})+\,)/g, '$&.');
+                          },
+                        },
+                      },
+                      scales: {
+                        yAxes: [
+                          {
+                            gridLines: {
+                              color: colors.gray[200],
+                              zeroLineColor: colors.gray[200],
+                            },
+                            ticks: {
+                              callback: function (value) {
+                                if (!(value % 10)) {
+                                  //return '$' + value + 'k'
+                                  return value.toString().replace(/(\d)(?=(?:[0-9]{3})+\b)/g, "$1.");
+                                }
+                              },
+                            },
+                          },
+                        ],
+                      },
+                    }
+                  }
                   className="chart-canvas"
                   id="chart-bars"
                 />
@@ -404,18 +347,62 @@ function Dashboard() {
           justifyContent: "space-around"
         }}>
           <h5 className="h4 mb-0">Total Invoiced: {chartData.total}</h5>
-          <h5 className="h4 mb-0">Total Unvoiced: {chartData.totalUnvoiced}</h5>
+          <h5 className="h4 mb-0">Total Not Invoiced: {chartData.totalUnvoiced}</h5>
         </div>
       </div>
     )
   }
 
-  const StatusValuesChart = () => {
-    const Chart = ({...props}) => {
+  const StatusValuesChart = (props) => {
+    const chartData = {
+      labels: props.data && props.data.status_names,
+      total_quantity:props.data && props.data.status_total_quantity,
+      total_values:props.data && props.data.status_total_values,
+      datasets: [
+        {
+          data: props.data && props.data.status_quantity,
+          label: "Unvoiced: ",
+          maxBarThickness: 10,
+          backgroundColor: 'rgba(255, 17, 0, 1)',
+          borderColor: 'rgba(255, 17, 0, 1)',
+          borderWidth: 1,
+        }
+      ]
+    }
+
+    const Chart = () => {
       return (
         <Bar
-          data={props.chartData}
-          options={chartExample2.options}
+          data={chartData}
+          options={
+            {
+              tooltips: {
+                callbacks: {
+                  label: function (item, data) {
+                    return " " + item.yLabel.toString().replace(/(\d)(?=(?:[0-9]{3})+\b)/g, "$1.");
+                  },
+                },
+              },
+              scales: {
+                yAxes: [
+                  {
+                    gridLines: {
+                      color: colors.gray[200],
+                      zeroLineColor: colors.gray[200],
+                    },
+                    ticks: {
+                      callback: function (value) {
+                        if (!(value % 10)) {
+                          //return '$' + value + 'k'
+                          return " " + value.toString().replace(/(\d)(?=(?:[0-9]{3})+\b)/g, "$1.");
+                        }
+                      },
+                    },
+                  },
+                ],
+              },
+            }
+          }
           className="chart-canvas"
           id="chart-bars"
         />
@@ -428,12 +415,12 @@ function Dashboard() {
         width: "48%",
         boxShadow: "0px 0px 5px gray",
         borderRadius: "10px",
-        height: '445px',
+        height: '545px',
         overflow: 'hidden'
       }}>
         <div style={{
           width: "100%",
-          height: "400px",
+          height: "500px",
           overflow: 'hidden',
           boxShadow: "0px 0px 2px gray",
         }}>
@@ -441,7 +428,7 @@ function Dashboard() {
             <CardHeader className="bg-transparent">
               <Row className="align-items-center">
                 <div className="col">
-                  <h5 className="h3 mb-0">Orders Status to Invoice (Quantity)</h5>
+                  <h5 className="h3 mb-0">Orders Status to Invoice (Quantity):</h5>
                 </div>
               </Row>
             </CardHeader>
@@ -463,19 +450,63 @@ function Dashboard() {
           padding: '10px',
           justifyContent: "space-around"
         }}>
-          <h5 className="h4 mb-0">Total: {chartData.totalQuatity}</h5>
+          <h5 className="h4 mb-0">Total: {chartData.total_quantity && chartData.total_quantity.toString().replace(/(\d)(?=(?:[0-9]{3})+\b)/g, "$1.")}</h5>
         </div>
       </div>
     </>
     );
   }
 
-  const StatusValuesChartNotInvoiced = () => {
-    const Chart = ({...props}) => {
+  const StatusValuesChartNotInvoiced = (props) => {
+    const chartData = {
+      labels: props.data && props.data.status_names,
+      total_quantity:props.data && props.data.status_total_quantity,
+      total_values:props.data && props.data.status_total_values,
+      datasets: [
+        {
+          data: props.data && props.data.status_values,
+          label: "Unvoiced: ",
+          maxBarThickness: 10,
+          backgroundColor: 'rgba(255, 17, 0, 1)',
+          borderColor: 'rgba(255, 17, 0, 1)',
+          borderWidth: 1,
+        }
+      ]
+    }
+
+    const Chart = () => {
       return (
         <Bar
-          data={props.chartData}
-          options={chartExample2.options}
+          data={chartData}
+          options={
+            {
+              tooltips: {
+                callbacks: {
+                  label: function (item, data) {
+                    return ' R$ ' + item.yLabel.toFixed(2).replace('.',',').replace(/\d(?=(\d{3})+\,)/g, '$&.');
+                  },
+                },
+              },
+              scales: {
+                yAxes: [
+                  {
+                    gridLines: {
+                      color: colors.gray[200],
+                      zeroLineColor: colors.gray[200],
+                    },
+                    ticks: {
+                      callback: function (value) {
+                        if (!(value % 10)) {
+                          //return '$' + value + 'k'
+                          return value.toString().replace(/(\d)(?=(?:[0-9]{3})+\b)/g, "$1.");
+                        }
+                      },
+                    },
+                  },
+                ],
+              },
+            }
+          }
           className="chart-canvas"
           id="chart-bars"
         />
@@ -488,12 +519,12 @@ function Dashboard() {
         width: "48%",
         boxShadow: "0px 0px 5px gray",
         borderRadius: "10px",
-        height: '445px',
+        height: '545px',
         overflow: 'hidden'
       }}>
         <div style={{
           width: "100%",
-          height: "400px",
+          height: "500px",
           overflow: 'hidden',
           boxShadow: "0px 0px 2px gray",
         }}>
@@ -501,7 +532,7 @@ function Dashboard() {
             <CardHeader className="bg-transparent">
               <Row className="align-items-center">
                 <div className="col">
-                  <h5 className="h3 mb-0">Orders Status to Invoice (Values)</h5>
+                  <h5 className="h3 mb-0">Orders Status to Invoice (Values):</h5>
                 </div>
               </Row>
             </CardHeader>
@@ -523,14 +554,14 @@ function Dashboard() {
           padding: '10px',
           justifyContent: "space-around"
         }}>
-          <h5 className="h4 mb-0">Total: {statusValues.totalQuatity.toLocaleString("pt-BR", { minimumFractionDigits: 2 , style: 'currency', currency: 'BRL' })}</h5>
+          <h5 className="h4 mb-0">Total: R$ {chartData.total_values && chartData.total_values.toFixed(2).replace('.',',').replace(/\d(?=(\d{3})+\,)/g, '$&.')}</h5>
         </div>
       </div>
     </>
     );
   }
 
-  const PrevisonWEChart = () => {
+  const PrevisonWEChart = (props) => {
     const [totalWEChart, setTotalWEChart] = useState("R$ 0,00");
     const Chart = ({...props}) => {
       const data = {
@@ -553,7 +584,11 @@ function Dashboard() {
         if(index === -1) weNames.push(order.previsionWeek);
       });
 
-      function comparaNumeros(a,b) { if (a === b) return 0; if (a < b) return -1; if (a > b) return 1; }
+      function comparaNumeros(a,b) { 
+        if (a === b) return 0;
+        if (a < b) return -1;
+        if (a > b) return 1;
+       }
 
       const colorGen = (index, opacity=1) => {
         const colors = [];
@@ -571,7 +606,6 @@ function Dashboard() {
 
       let values = weNames.map((name) => parseInt(name.replace("WE", "")));
       values.sort(comparaNumeros);
-      weNames = values.map((name) => `WE${name}`);
 
       props.data.forEach((order) => {
         const index = weNames.indexOf(order.previsionWeek);
@@ -591,13 +625,27 @@ function Dashboard() {
       return (
         <Card>
             <CardHeader>
-              <h5 className="h3 mb-0">Prevision Weekly (R$)</h5>
+              <h5 className="h3 mb-0">{props.title}:</h5>
             </CardHeader>
             <CardBody>
               <div className="chart">
                 <Pie
                   data={data}
-                  options={props.options}
+                  options={{
+                    tooltips: {
+                      callbacks: {
+                        // this callback is used to create the tooltip label
+                        label: function(tooltipItem, data) {
+                          let dataLabel = " " + data.labels[tooltipItem.index];
+                          const value = ": R$ " + data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].toFixed(2).replace('.',',').replace(/\d(?=(\d{3})+\,)/g, '$&.')
+  
+                          dataLabel += value
+  
+                          return dataLabel;
+                        }
+                      }
+                    }
+                  }}
                   className="chart-canvas"
                   id="chart-pie"
                 />
@@ -611,16 +659,16 @@ function Dashboard() {
         width: "48%",
         boxShadow: "0px 0px 5px gray",
         borderRadius: "10px",
-        height: '445px',
+        height: '545px',
         overflow: 'hidden'
       }}>
         <div style={{
           width: "100%",
-          height: "400px",
+          height: "500px",
           overflow: 'hidden',
           boxShadow: "0px 0px 2px gray",
         }}>
-          {WEOrdersState.length>0?(<Chart data={WEOrdersState} options={chartExample6.options}/>):(
+          {props.data.length>0?(<Chart data={props.data ? props.data : []} title={props.title} />):(
             <>
               <Card>
                 <CardHeader>
@@ -643,7 +691,8 @@ function Dashboard() {
           alignItems: 'center',
           flexDirection: 'row',
           boxSizing: 'border-box',
-          padding: '10px'
+          padding: '10px',
+          justifyContent: "space-around"
         }}>
           <h5 className="h4 mb-0">Total: {totalWEChart}</h5>
         </div>
@@ -671,13 +720,27 @@ function Dashboard() {
       return (
         <Card>
           <CardHeader>
-            <h5 className="h3 mb-0">Prevision External Services Date</h5>
+            <h5 className="h3 mb-0">Prevision External Services Date (Not Invoiced):</h5>
           </CardHeader>
           <CardBody>
             <div className="chart">
               <Pie
                 data={data}
-                options={chartExample6.options}
+                options={{
+                  tooltips: {
+                    callbacks: {
+                      // this callback is used to create the tooltip label
+                      label: function(tooltipItem, data) {
+                        let dataLabel = " " + data.labels[tooltipItem.index];
+                        const value = ": " + data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].toString().replace(/(\d)(?=(?:[0-9]{3})+\b)/g, "$1.")
+
+                        dataLabel += value
+
+                        return dataLabel;
+                      }
+                    }
+                  }
+                }}
                 className="chart-canvas"
                 id="chart-pie"
               />
@@ -693,12 +756,12 @@ function Dashboard() {
         width: "48%",
         boxShadow: "0px 0px 5px gray",
         borderRadius: "10px",
-        height: '445px',
+        height: '545px',
         overflow: 'hidden'
       }}>
         <div style={{
           width: "100%",
-          height: "400px",
+          height: "500px",
           overflow: 'hidden',
           boxShadow: "0px 0px 2px gray",
         }}>
@@ -723,9 +786,10 @@ function Dashboard() {
           alignItems: 'center',
           flexDirection: 'row',
           boxSizing: 'border-box',
-          padding: '10px'
+          padding: '10px',
+          justifyContent: "space-around"
         }}>
-          <h5 className="h4 mb-0">Total: {externalData.total}</h5>
+          <h5 className="h4 mb-0">Total: {externalData.total && externalData.total.toString().replace(/(\d)(?=(?:[0-9]{3})+\b)/g, "$1.")}</h5>
         </div>
       </div>
     </>)
@@ -750,13 +814,27 @@ function Dashboard() {
       return (
         <Card>
           <CardHeader>
-            <h5 className="h3 mb-0">No Carrier Orders:</h5>
+            <h5 className="h3 mb-0">No Carrier Orders (Not Invoiced):</h5>
           </CardHeader>
           <CardBody>
             <div className="chart">
               <Pie
                 data={data}
-                options={chartExample6.options}
+                options={{
+                  tooltips: {
+                    callbacks: {
+                      // this callback is used to create the tooltip label
+                      label: function(tooltipItem, data) {
+                        let dataLabel = " " + data.labels[tooltipItem.index];
+                        const value = ": " + data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].toString().replace(/(\d)(?=(?:[0-9]{3})+\b)/g, "$1.")
+
+                        dataLabel += value
+
+                        return dataLabel;
+                      }
+                    }
+                  }
+                }}
                 className="chart-canvas"
                 id="chart-pie"
               />
@@ -772,12 +850,12 @@ function Dashboard() {
         width: "48%",
         boxShadow: "0px 0px 5px gray",
         borderRadius: "10px",
-        height: '445px',
+        height: '545px',
         overflow: 'hidden'
       }}>
         <div style={{
           width: "100%",
-          height: "400px",
+          height: "500px",
           overflow: 'hidden',
           boxShadow: "0px 0px 2px gray",
         }}>
@@ -791,9 +869,10 @@ function Dashboard() {
           alignItems: 'center',
           flexDirection: 'row',
           boxSizing: 'border-box',
-          padding: '10px'
+          padding: '10px',
+          justifyContent: "space-around"
         }}>
-          <h5 className="h4 mb-0">Total: {kpiData.totalOrders}</h5>
+          <h5 className="h4 mb-0">Total: {kpiData.totalOrders && kpiData.totalOrders.toString().replace(/(\d)(?=(?:[0-9]{3})+\b)/g, "$1.")}</h5>
         </div>
       </div>
     </>)
@@ -818,13 +897,27 @@ function Dashboard() {
       return (
         <Card>
           <CardHeader>
-            <h5 className="h3 mb-0">Prepayment Orders:</h5>
+            <h5 className="h3 mb-0">Prepayment Orders (Not Invoiced):</h5>
           </CardHeader>
           <CardBody>
             <div className="chart">
               <Pie
                 data={data}
-                options={chartExample6.options}
+                options={{
+                  tooltips: {
+                    callbacks: {
+                      // this callback is used to create the tooltip label
+                      label: function(tooltipItem, data) {
+                        let dataLabel = " " + data.labels[tooltipItem.index];
+                        const value = ": " + data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].toString().replace(/(\d)(?=(?:[0-9]{3})+\b)/g, "$1.")
+
+                        dataLabel += value
+
+                        return dataLabel;
+                      }
+                    }
+                  }
+                }}
                 className="chart-canvas"
                 id="chart-pie"
               />
@@ -840,12 +933,12 @@ function Dashboard() {
         width: "48%",
         boxShadow: "0px 0px 5px gray",
         borderRadius: "10px",
-        height: '445px',
+        height: '545px',
         overflow: 'hidden'
       }}>
         <div style={{
           width: "100%",
-          height: "400px",
+          height: "500px",
           overflow: 'hidden',
           boxShadow: "0px 0px 2px gray",
         }}>
@@ -859,9 +952,10 @@ function Dashboard() {
           alignItems: 'center',
           flexDirection: 'row',
           boxSizing: 'border-box',
-          padding: '10px'
+          padding: '10px',
+          justifyContent: "space-around"
         }}>
-          <h5 className="h4 mb-0">Total: {kpiData.totalOrders}</h5>
+          <h5 className="h4 mb-0">Total: {kpiData.totalOrders && kpiData.totalOrders.toString().replace(/(\d)(?=(?:[0-9]{3})+\b)/g, "$1.")}</h5>
         </div>
       </div>
     </>)
@@ -869,11 +963,11 @@ function Dashboard() {
 
   return (
     <>
+      <CardsHeader name="Default" parentName="Dashboards" cardsData={cardsData} loader={kpiLoader}/>
       {kpiLoader?(
         <LoaderBox message="Loading KPIs. Please wait..."/>
       ):(
         <>
-          <CardsHeader name="Default" parentName="Dashboards" />
           <Container className="mt--6" fluid style={{
             display: 'flex',
             flexDirection: 'row',
@@ -886,12 +980,12 @@ function Dashboard() {
                 width: "48%",
                 boxShadow: "0px 0px 5px gray",
                 borderRadius: "10px",
-                height: '445px',
+                height: '545px',
                 overflow: 'hidden'
               }}>
                 <div style={{
                   width: "100%",
-                  height: "400px",
+                  height: "500px",
                   overflow: 'hidden',
                   boxShadow: "0px 0px 2px gray",
                 }}>
@@ -929,12 +1023,12 @@ function Dashboard() {
                 width: "48%",
                 boxShadow: "0px 0px 5px gray",
                 borderRadius: "10px",
-                height: '445px',
+                height: '545px',
                 overflow: 'hidden'
               }}>
                 <div style={{
                   width: "100%",
-                  height: "400px",
+                  height: "500px",
                   overflow: 'hidden',
                   boxShadow: "0px 0px 2px gray",
                 }}>
@@ -970,8 +1064,8 @@ function Dashboard() {
               </div>
             </>:(
               <>
-                <BilledGraphicQuantity billedOrders={billedOrders}/>
-                <BilledGraphicValues billedOrders={billedOrders}/>
+                <BilledGraphicQuantity billedOrders={billedOrders?.graphic_invoiceds}/>
+                <BilledGraphicValues billedOrders={billedOrders?.graphic_invoiceds}/>
               </>
             )}
           </Container>
@@ -981,8 +1075,8 @@ function Dashboard() {
             justifyContent: 'space-around',
             marginBottom: '20px'
           }}>
-            <StatusValuesChart/>
-            <StatusValuesChartNotInvoiced/>
+            <StatusValuesChart data={kpiOrderStatus}/>
+            <StatusValuesChartNotInvoiced data={kpiOrderStatus}/>
           </Container>
           <Container fluid style={{
             display: 'flex',
@@ -999,9 +1093,26 @@ function Dashboard() {
             justifyContent: 'space-around',
             marginBottom: '20px'
           }}>
-            <PrePaymentOrders/>
-            <PrevisonWEChart/>
+            <PrevisonWEChart title="Prevision Weekly (R$) (Not Invoiceds)" data={WEOrdersState}/>
+            <PrevisonWEChart title="Prevision Weekly (R$) (Invoiceds)" data={WEOrdersUnvoicedsState}/>
         </Container>
+        <Container fluid style={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'space-around',
+            marginBottom: '20px'
+          }}>
+            <ExternalServicesChart/>
+            <TransporterOrders/>
+          </Container>
+          <Container fluid style={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'space-around',
+            marginBottom: '20px'
+          }}>
+            <PrePaymentOrders/>
+          </Container>
         </>
       )}
     </>

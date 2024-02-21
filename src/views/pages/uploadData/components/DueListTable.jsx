@@ -45,15 +45,14 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const weaklyDays = [
-    'Domingo',
     'Segunda-Feira',
     'Terça-Feira',
-    'Quarqua-Feira',
+    'Quarta-Feira',
     'Quinta-Feira',
     'Sexta-Feira',
     'Sábado',
-    'Undefined'
-]
+    'Domingo',
+];
 
 export const TableList = (props) => {
     return (
@@ -799,10 +798,10 @@ const TableModal = (props) => {
                                         Confirm. SC.
                                     </div>
                                     <div className='cell-title-list-duelist-modal'>
-                                        Date of notification
+                                        Full. Delivery
                                     </div>
                                     <div className='cell-title-list-duelist-modal'>
-                                        Full. Delivery
+                                        Producing Company
                                     </div>
                                     <div className='cell-title-list-duelist-modal'>
                                         PC. Invoice
@@ -816,13 +815,13 @@ const TableModal = (props) => {
                                         {order.confirmationTypeSC}
                                     </div>
                                     <div className='cell-value-list-duelist-modal'>
-                                        {order.dateOfNotification ? order.dateOfNotification : "N/A"}
-                                    </div>
-                                    <div className='cell-value-list-duelist-modal'>
                                         {order.fullDelivery}
                                     </div>
                                     <div className='cell-value-list-duelist-modal'>
                                         {order.producingCompany}
+                                    </div>
+                                    <div className='cell-value-list-duelist-modal'>
+                                        {order.PCInvoice}
                                     </div>
                                     <div className='cell-value-list-duelist-modal'>
                                         {formatDate(order.PCInvoiceDate)}
@@ -916,6 +915,9 @@ const TableModal = (props) => {
                             <div className='row-list-duelist-modal'>
                                 <div className='column-list-duelist-modal'>
                                     <div className='cell-title-list-duelist-modal'>
+                                        Date of notification
+                                    </div>
+                                    <div className='cell-title-list-duelist-modal'>
                                         Route
                                     </div>
                                     <div className='cell-title-list-duelist-modal'>
@@ -927,11 +929,11 @@ const TableModal = (props) => {
                                     <div className='cell-title-list-duelist-modal'>
                                         GR. Date
                                     </div>
-                                    <div className='cell-title-list-duelist-modal'>
-                                        External Service
-                                    </div>
                                 </div>
                                 <div className='column-list-duelist-modal'>
+                                    <div className='cell-value-list-duelist-modal'>
+                                        {order.dateOfNotification ? order.dateOfNotification : "N/A"}
+                                    </div>
                                     <div className='cell-value-list-duelist-modal'>
                                         {order.route}
                                     </div>
@@ -944,13 +946,13 @@ const TableModal = (props) => {
                                     <div className='cell-value-list-duelist-modal'>
                                         {formatDate(order.GRDate)}
                                     </div>
-                                    <div className='cell-value-list-duelist-modal'>
-                                        {order.externalService ? "Yes" : "No"}
-                                    </div>
                                 </div>
                             </div>
                             <div className='row-list-duelist-modal'>
                                 <div className='column-list-duelist-modal'>
+                                    <div className='cell-title-list-duelist-modal'>
+                                        External Service
+                                    </div>
                                     <div className='cell-title-list-duelist-modal'>
                                         Prevision Fat. (Week)
                                     </div>
@@ -965,6 +967,9 @@ const TableModal = (props) => {
                                     </div>
                                 </div>
                                 <div className='column-list-duelist-modal'>
+                                    <div className='cell-value-list-duelist-modal'>
+                                        {order.externalService ? "Yes" : "No"}
+                                    </div>
                                     <div className='cell-value-list-duelist-modal'>
                                         {order.previsionWeek ? order.previsionWeek : "N/A"}
                                     </div>
@@ -1082,8 +1087,14 @@ const NoteItem = (props) => {
     const closeActionButtons = () => setButtonState(false);
 
     const [editMode, setEditMode] = useState(false);
-    const openEditMode = () => setEditMode(true);
-    const closeEditMode = () => setEditMode(false);
+    const openEditMode = () => { 
+        setEditMode(true);
+        handleExpanded();
+    }
+    const closeEditMode = () => {
+        setEditMode(false);
+        handleExpanded();
+    }
 
     const [confirmDelete, setConfirmDelete] = useState(false);
     const openConfirmDelete = () => setConfirmDelete(true);

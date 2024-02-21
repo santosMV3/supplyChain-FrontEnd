@@ -42,6 +42,7 @@ import {
     BodyInfo,
 } from './components'
 import LoaderBox from "../components/custom/loader/loaderBox";
+import NotifyComponent, { showNotify } from "components/notifications/notify";
 import ManageUsers from ".";
 
 const createStyles = makeStyles((theme) => ({
@@ -76,6 +77,8 @@ const useStyles = makeStyles((theme) => ({
 
 const ListUsers = () => {
     const history = useHistory();
+    const notifyRef = React.useRef(null);
+
     const [usersData, setUsersData] = useState([]);
 
     const [createModalState, setCreateModal] = useState(false);
@@ -101,7 +104,7 @@ const ListUsers = () => {
                 >
                 <Fade in={props.open}>
                     <div className={classes.paper}>
-                        <ManageUsers refresh={reloadData} close={props.handleClose}/>
+                        <ManageUsers refresh={reloadData} close={props.handleClose} showNotify={showNotify} notifyRef={notifyRef}/>
                     </div>
                 </Fade>
                 </Modal>
@@ -118,7 +121,7 @@ const ListUsers = () => {
                 setLoader(false);
             }).catch((error) => {
                 if(error.response){
-                    window.alert(error.response.data.detail);
+                    showNotify(notifyRef, "Auth Error", error.response.data.detail, "danger");
                     history.push('/auth/login');
                 }
                 setLoader(false);
@@ -134,11 +137,12 @@ const ListUsers = () => {
             setUsersData(data.data);
             setLoader(false);
         }).catch((error) => {
+            setLoader(false);
             if(error.response){
-                window.alert(error.response.data.detail);
+                showNotify(notifyRef, "Auth Error", error.response.data.detail, "danger");
                 history.push('/auth/login');
             }
-            setLoader(false);
+            console.error(error);
         });
 
         if(modal) closeCreateModal();
@@ -460,7 +464,7 @@ const ListUsers = () => {
                         }
 
                         api.post(`/history/`, historicData).then(() => {
-                            window.alert("Update Succesfully!");
+                            showNotify(notifyRef, "Update Success", "Success to update this user.", "success");
                             closeModalEdit();
                             reloadData();
                         });
@@ -559,16 +563,16 @@ const ListUsers = () => {
 
         const disableUser = (e) => {
             e.target.disabled = true;
-            api.patch(`/users/${post.id}/`, {is_active: "false"}).then((response) => {
-                window.alert("User disabled success!");
+            api.patch(`/users/${post.id}/`, {is_active: "false"}).then(() => {
+                showNotify(notifyRef, "User Disable", "Success to disable this user.", "success");
                 reloadData();
             }).catch(console.error);
         }
 
         const enableUser = (e) => {
             e.target.disabled = true;
-            api.patch(`/users/${post.id}/`, {is_active: "true"}).then((response) => {
-                window.alert("User enabled success!");
+            api.patch(`/users/${post.id}/`, {is_active: "true"}).then(() => {
+                showNotify(notifyRef, "User Enable", "Success to enable this user.", "success");
                 reloadData();
             }).catch(console.error);
         }
@@ -684,7 +688,7 @@ const ListUsers = () => {
             height: "450px",
             display: "block",
         }}>
-            
+            <NotifyComponent notifyRef={notifyRef}/>
             <div style={{
                 width: '100%',
                 minHeight: '50px',

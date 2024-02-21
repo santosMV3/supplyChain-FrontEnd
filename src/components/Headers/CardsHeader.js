@@ -14,84 +14,8 @@ import { api } from "services/api";
 
 import InlineLoader from "views/pages/components/custom/loader/inlineLoader";
 
-function CardsHeader() {
-  const [billedOrders, setBilledOrders] = React.useState(0);
-  const [billedOrdersLoged, setBilledOrdersLoged] = React.useState(0);
-  const [billedValues, setBilledValues] = React.useState("R$ 0,00");
-  const [billedValuesLogged, setBilledValuesLogged] = React.useState("R$ 0,00");
-  const [loaderState, setLoaderState] = React.useState(true);
-
-  const getKPIsData = () => {
-    const loggedUserID = localStorage.getItem('AUTHOR_ID');
-    Promise.all([
-      api.get('/statusFirst/'),
-      api.get(`/users/${loggedUserID}/`),
-      api.get('/statusOrder/'),
-      api.get('/logMapAnalitic/')
-    ])
-        .then((response) => {
-          const fullName = `${response[1].data.first_name} ${response[1].data.last_name}`;
-          let idOrdersStatus = response[2].data.filter((orderStatus) => orderStatus.idStatus === response[0].data.idStatus);
-          idOrdersStatus = idOrdersStatus.map((orderStatus) => orderStatus.idOrder);
-          Promise.all(idOrdersStatus.map((order) => api.get(`/logisticMap/${order}/`)))
-              .then((orders) => {
-                let values = 0;
-                orders.forEach((order) => values+=parseFloat(order.data.openValueLocalCurrency));
-
-                // #2 KPI
-                setBilledValues(values.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'}));
-
-                // #4 KPI
-                setBilledOrders(parseInt(response[3].data.total) - parseInt(response[2].data.length));
-
-                let loggedStatusOrders = response[2].data.filter((orderStatus) => orderStatus.idUser === response[1].data.id);
-                loggedStatusOrders = loggedStatusOrders.filter((orderStatus) => orderStatus.idStatus === response[0].data.idStatus);
-
-                Promise.all(loggedStatusOrders.map((orderStatus) => api.get(`/logisticMap/${orderStatus.idOrder}/`)))
-                    .then((loggedOrders) => {
-
-                      // #1 KPI
-                      let loggedValues = 0;
-                      loggedOrders.forEach((order) => loggedValues+=parseFloat(order.data.openValueLocalCurrency));
-                      setBilledValuesLogged(loggedValues.toLocaleString('pt-BR', {style: 'currency', currency: "BRL"}));
-
-                      // #3 KPI
-                      api.get(`/logisticMap?competenceName=${fullName}`)
-                          .then((orders) => {
-                            setBilledOrdersLoged(parseInt(orders.data.count) - parseInt(loggedStatusOrders.length));
-                            setLoaderState(false);
-                          })
-                          .catch((error) => {
-                            console.error(error);
-                            setLoaderState(false);
-                          });
-
-                    })
-                    .catch((error) => {
-                      console.error(error);
-                      setLoaderState(false);
-                    });
-              })
-              .catch((error) => {
-                console.error(error);
-                setLoaderState(false);
-              });
-
-        })
-        .catch((error) => {
-          console.error(error);
-          setLoaderState(false);
-        });
-  }
-
-  React.useEffect(() => {
-    let abortController = new AbortController();
-    getKPIsData();
-    return () => {
-      abortController.abort();
-    }
-  }, []);
-
+function CardsHeader(props) {
+  const { cardsData, loader } = props;
   const ContainerInlineLoader = () => {
     return (
       <div style={{
@@ -125,7 +49,7 @@ function CardsHeader() {
                         <span className="h1 font-weight-bold mb-0" style={{
                           fontSize: '1.0em'
                         }}>
-                          {loaderState?(<ContainerInlineLoader/>):billedValuesLogged}
+                          {loader?(<ContainerInlineLoader/>):cardsData.user_invoiced_values && cardsData.user_invoiced_values.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                         </span>
                       </div>
                       <Col className="col-auto">
@@ -135,7 +59,7 @@ function CardsHeader() {
                       </Col>
                     </Row>
                     <p className="mt-3 mb-0 text-sm">
-                      <span className="text-nowrap">Total invoiced values by you</span>
+                      <span className="text-nowrap">Your values invoiceds</span>
                     </p>
                   </CardBody>
                 </Card>
@@ -154,7 +78,7 @@ function CardsHeader() {
                         <span className="h2 font-weight-bold mb-0" style={{
                           fontSize: '1.0em'
                         }}>
-                          {loaderState?(<ContainerInlineLoader/>):billedValues}
+                          {loader?(<ContainerInlineLoader/>): cardsData.total_invoiceds_values && cardsData.total_invoiceds_values.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                         </span>
                       </div>
                       <Col className="col-auto">
@@ -181,7 +105,7 @@ function CardsHeader() {
                           Orders to Invoice
                         </CardTitle>
                         <span className="h2 font-weight-bold mb-0">
-                          {loaderState?(<ContainerInlineLoader/>):billedOrdersLoged}
+                          {loader?(<ContainerInlineLoader/>):cardsData.user_unvoiced_orders && String(cardsData.user_unvoiced_orders).replace(/(\d)(?=(?:[0-9]{3})+\b)/g, "$1.")}
                           </span>
                       </div>
                       <Col className="col-auto">
@@ -208,10 +132,10 @@ function CardsHeader() {
                           tag="h5"
                           className="text-uppercase text-muted mb-0"
                         >
-                          Unvoiced Orders
+                          Not Invoiced Orders
                         </CardTitle>
                         <span className="h2 font-weight-bold mb-0">
-                          {loaderState?(<ContainerInlineLoader/>):billedOrders}
+                          {loader?(<ContainerInlineLoader/>):cardsData.total_unvoiceds && String(cardsData.total_unvoiceds).replace(/(\d)(?=(?:[0-9]{3})+\b)/g, "$1.")}
                           </span>
                       </div>
                       <Col className="col-auto">

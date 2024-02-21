@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useState, useRef} from "react";
 import {useHistory} from "react-router-dom";
 // nodejs library that concatenates classes
 import classnames from "classnames";
@@ -21,6 +21,8 @@ import {
 // core components
 import AuthHeader from "components/Headers/AuthHeader.js";
 
+import NotifyComponent, { showNotify } from "components/notifications/notify";
+
 import endressLogo from "../../../assets/img/brand/ehLogo_400x400.png";
 import mv3Logo from "../../../assets/img/brand/LogoMV3.png";
 
@@ -37,6 +39,8 @@ import {signIn, isSignedIn} from "../../../services/security";
 
 function Login() {
   const history = useHistory();
+  const notifyRef = useRef(null);
+
 
   const [usuarioLogin, setUsuarioLogin] = useState({
     username: "",
@@ -53,9 +57,10 @@ function Login() {
       signIn(response.data);
       setLoader(false);
       return history.push('/admin/dashboard');
-    }).catch(() => {
+    }).catch((error) => {
+      const errorList = Object.entries(error.response.data)[0];
       setLoader(false);
-      window.alert('falha ao executar o login do usuario');
+      showNotify(notifyRef, "Error", errorList[1] ? errorList[1] : "Undefined error", "danger");
     })
   }
 
@@ -68,6 +73,7 @@ function Login() {
   return (
     <>
       <AuthHeader/>
+      <NotifyComponent notifyRef={notifyRef}/>
       <Container className="mt--9 pb-5">
         {loader ? (
           <LoaderBox/>
