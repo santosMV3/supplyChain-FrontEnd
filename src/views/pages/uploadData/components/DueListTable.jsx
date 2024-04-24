@@ -834,7 +834,7 @@ const TableModal = (props) => {
                                         Delivery Factory
                                     </div>
                                     <div className='cell-title-list-duelist-modal'>
-                                        SO - Linha
+                                        SSK
                                     </div>
                                     <div className='cell-title-list-duelist-modal clickable-duelist' onDoubleClick={modalEdit?closeEditMode:openEditMode}>
                                         ETA WAREHOUSE
@@ -851,7 +851,7 @@ const TableModal = (props) => {
                                         {weaklyDays[order.deliveryFactory]}
                                     </div>
                                     <div className='cell-value-list-duelist-modal'>
-                                        {order.soLine}
+                                        {order.SSK}
                                     </div>
                                     {modalEdit ? (
                                         <div className='cell-value-list-duelist-modal clickable-duelist' onDoubleClick={() => clearInputWe("previsionTrianom")}>
