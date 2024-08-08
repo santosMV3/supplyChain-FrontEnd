@@ -24,6 +24,9 @@ export const UploadCard = () => {
 
     const handlerInputFile = async (e) => {
         setLoader({status: true, message: "Getting sheet names..."});
+        setUploadTime({ time: 0, message: null, color: "default" });
+        setSheetName("");
+        setImportState(false);
         if(e.target.files.length > 0){
             const file = e.target.files[0];
             file.format = file.name.split('.');
@@ -57,7 +60,7 @@ export const UploadCard = () => {
             time: 0,
             message: null,
             color: "default"
-        })
+        });
 
         api.post(endpoint, fileData, {
             onUploadProgress: (event) => {
