@@ -218,14 +218,14 @@ export const DuelistFilter = (props) => {
         }
         
         setFilterValue({
-            field: "",
+            field: filterValue.field,
             value: "",
             values: []
         });
         openLikeMode();
         closeColorMode();
         closeStatusMode();
-        setFilterType(null);
+        // setFilterType(null);
     }
 
     const deleteFilter = (e) => {
@@ -311,11 +311,14 @@ export const DuelistFilter = (props) => {
     }
 
     const handleKeyPress = (e) => {
-        if (e.key === "Control") setKeyMore('Control');
+        console.log(e.key)
+        if (e.key === "Control") return setKeyMore(e.key);
+        if (keyMore === e.key) return setKeyMore(null);
         if (e.key === "Enter" && !keyMore) return addFilter();
-        if (e.key === "Enter" && keyMore === "Control") {
-            setKeyMore(null);
-            return searchFilters();
+        if (keyMore === "Control") {
+            if (e.key === "Enter" ) searchFilters();
+            if (e.key === "Shift" ) setLikeMode(!likeMode);
+            return setKeyMore(null);
         }
     }
 
@@ -405,7 +408,7 @@ export const DuelistFilter = (props) => {
                     )}
                     <div id="duelist-filter-container-buttons">
                         <Button id="duelist-filter-button-like" className='duelist-filter-button' color={likeMode ? "info":"danger"} onClick={likeMode ? closeLikeMode:openLikeMode} size="sm" type="button">
-                            {likeMode?"Have":"Don't Have"}
+                            {likeMode?"Like":"Don't Like"}
                         </Button>
                         <Button id="duelist-filter-button-add" className="duelist-filter-button" onClick={addFilter} color="info" size="sm" type="button">
                             Add
@@ -426,6 +429,13 @@ export const DuelistFilter = (props) => {
                             target="duelist-filter-button-search"
                         >
                             Press <b>"CTRL + ENTER"</b> to search.
+                        </UncontrolledTooltip>
+                        <UncontrolledTooltip
+                            delay={0}
+                            placement="bottom"
+                            target="duelist-filter-button-like"
+                        >
+                            Press <b>"CTRL + SHIFT"</b> to change.
                         </UncontrolledTooltip>
                     </div>
                 </div>
