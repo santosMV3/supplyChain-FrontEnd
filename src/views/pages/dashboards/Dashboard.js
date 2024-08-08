@@ -708,8 +708,8 @@ function Dashboard() {
         label: 'Prevision',
         data: [externalData.returnPeriodExceeded, externalData.returnPeriod, externalData.noneValues],
         backgroundColor: [
-          'rgba(0, 255, 51, 1)',
           'rgba(255, 17, 0, 1)',
+          'rgba(0, 255, 51, 1)',
           'rgb(47,79,79)'
         ],
         hoverOffset: 4
@@ -1097,22 +1097,13 @@ function Dashboard() {
             <PrevisonWEChart title="Prevision Weekly (R$) (Invoiceds)" data={WEOrdersUnvoicedsState}/>
         </Container>
         <Container fluid style={{
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-around',
-            marginBottom: '20px'
-          }}>
-            <ExternalServicesChart/>
-            <TransporterOrders/>
-          </Container>
-          <Container fluid style={{
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-around',
-            marginBottom: '20px'
-          }}>
-            <PrePaymentOrders/>
-          </Container>
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'space-around',
+          marginBottom: '20px'
+        }}>
+          <PrePaymentOrders/>
+        </Container>
         </>
       )}
     </>
