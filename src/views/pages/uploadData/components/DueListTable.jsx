@@ -260,31 +260,31 @@ const RowList = (props) => {
                     </Media>
                 </td>
                 <td>
-                    <RenderMediaList index={i} id={(Math.random() * 1000000).toFixed()} data={order.custName}/>
+                    <RenderMediaList index={i} id="cust-name" data={order.custName}/>
                 </td>
                 <td>
-                    <RenderMediaList index={i} id={(Math.random() * 1000000).toFixed()} data={order.documentNumber}/>
+                    <RenderMediaList index={i} id="document-number" data={order.documentNumber}/>
                 </td>
                 <td>
-                    <RenderMediaList index={i} id={(Math.random() * 1000000).toFixed()} data={order.item}/>
+                    <RenderMediaList index={i} id="item" data={order.item}/>
                 </td>
                 <td>
-                    <RenderMediaList index={i} id={(Math.random() * 1000000).toFixed()} data={toReal(order.openValueLocalCurrency)}/>
+                    <RenderMediaList index={i} id="value" data={toReal(order.openValueLocalCurrency)}/>
                 </td>
                 <td>
-                    <RenderMediaList index={i} id={(Math.random() * 1000000).toFixed()} data={order.itemCategory}/>
+                    <RenderMediaList index={i} id="item-category" data={order.itemCategory}/>
                 </td>
                 <td>
-                    <RenderMediaList index={i} id={(Math.random() * 1000000).toFixed()} data={formatDate(order.schedIDate)}/>
+                    <RenderMediaList index={i} id="sched-date" data={formatDate(order.schedIDate)}/>
                 </td>
                 <td>
-                    <RenderMediaList index={i} id={(Math.random() * 1000000).toFixed()} data={order.materialDescript}/>
+                    <RenderMediaList index={i} id="material-descript" data={order.materialDescript}/>
                 </td>
                 <td>
-                    <RenderMediaList index={i} id={(Math.random() * 1000000).toFixed()} data={order.materialNumber}/>
+                    <RenderMediaList index={i} id="material-number" data={order.materialNumber}/>
                 </td>
                 <td>
-                    <RenderMediaList index={i} id={(Math.random() * 1000000).toFixed()} data={formatDate(order.previsionTrianom)}/>
+                    <RenderMediaList index={i} id="prevision-trianom" data={formatDate(order.previsionTrianom)}/>
                 </td>
                 <td>
                     {weEditMode ? (
@@ -495,7 +495,11 @@ const TableModal = (props) => {
 
     const updateOrder = () => {
         if(order.externalService) {
-            if ((!weState.supplier || weState.supplier.length === 0) || (!weState.returnDays || weState.returnDays.length === 0) || (!weState.releaseDate || weState.releaseDate.length === 0)) return window.alert("Required fields cannot be empty.");
+            if ((weState.supplier && weState.supplier > 0) || (weState.returnDays && weState.returnDays.length > 0) || (weState.releaseDate && weState.releaseDate > 0)){
+                if ((!weState.supplier || weState.supplier.length === 0) || (!weState.returnDays || weState.returnDays.length === 0) || (!weState.releaseDate || weState.releaseDate.length === 0)){
+                    return window.alert("Required fields cannot be empty.");
+                }
+            }
             api.patch(`/logMapExternalCalc/${order.id}/`, weState).then(() => {
                 let historicData = {
                     page: "DueList",
@@ -506,7 +510,7 @@ const TableModal = (props) => {
                     so: []
                 }
 
-                if (parseInt(order.returnDays) !== parseInt(weState.returnDays)) {
+                if (String(order.returnDays) !== String(weState.returnDays)) {
                     historicData.so.push({
                         before: `Old Return Days value: "${order.returnDays}"`,
                         after: `New Return Days value: "${weState.returnDays}"`,
@@ -528,11 +532,11 @@ const TableModal = (props) => {
                     action: "update"
                 });
 
-                if(order.previsionTrianom !== weState.previsionTrianom) historicData.so.push({
-                    before: `Old Prevision Trianom value: "${order.previsionTrianom}"`,
-                    after: `New Prevision Trianom value: "${weState.previsionTrianom}"`,
-                    action: "update"
-                });
+                // if(order.previsionTrianom !== weState.previsionTrianom) historicData.so.push({
+                //     before: `Old Prevision Trianom value: "${order.previsionTrianom}"`,
+                //     after: `New Prevision Trianom value: "${weState.previsionTrianom}"`,
+                //     action: "update"
+                // });
 
                 const historicItem = historicData.so.shift();
                 if (historicItem) {
@@ -546,6 +550,10 @@ const TableModal = (props) => {
                         closeEditMode();
                     });
                 } else {
+                    if (order.previsionTrianom !== weState.previsionTrianom){
+                        window.alert("Order update success!");
+                        reload(endpoint, {loader: false});
+                    }
                     closeEditMode();
                 }
             }).catch((error) => {
@@ -554,38 +562,12 @@ const TableModal = (props) => {
                 console.log(weState);
             });
         } else {
-            api.patch(`/logisticMap/${order.id}/`, {
+            api.patch(`/logMapExternalCalc/${order.id}/`, {
                 previsionTrianom: weState.previsionTrianom
             }).then(() => {
-                let historicData = {
-                    page: "DueList",
-                    after: null,
-                    action: null,
-                    before: null,
-                    SO: order.soLine,
-                    so: []
-                }
-
-                if(order.previsionTrianom !== weState.previsionTrianom) historicData.so.push({
-                    before: `Old Prevision Trianom value: "${order.previsionTrianom}"`,
-                    after: `New Prevision Trianom value: "${weState.previsionTrianom}"`,
-                    action: "update"
-                });
-
-                const historicItem = historicData.so.shift();
-                if(historicItem){
-                    historicData.after = historicItem.after;
-                    historicData.before = historicItem.before;
-                    historicData.action = historicItem.action;
-
-                    api.post(`/history/`, historicData).then(() => {
-                        window.alert("Order update success!");
-                        reload(endpoint, {loader: false});
-                        closeEditMode();
-                    })
-                } else {
-                    closeEditMode();
-                }
+                window.alert("Order update success!");
+                reload(endpoint, {loader: false});
+                closeEditMode()
             }).catch((error) => {
                 window.alert("Error to update this order.");
                 console.error(error);
