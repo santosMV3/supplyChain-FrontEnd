@@ -54,6 +54,58 @@ const weaklyDays = [
     'Domingo',
 ];
 
+export const InfoElement = (props) => {
+    const [ isOpenInfo, setOpenInfo ] = useState(false);
+    const handleInfoState = () => setOpenInfo(!isOpenInfo);
+    const classes = useStyles();
+
+    return (
+        <>
+            <div className="fa fa-info-circle info-button"
+            onClick={handleInfoState}
+            id={`info-${props.field}`}
+            />
+            <UncontrolledTooltip
+                delay={0}
+                placement="bottom"
+                target={`info-${props.field}`}
+            >
+                Click to obtain more info...
+            </UncontrolledTooltip>
+            <Modal
+                aria-labelledby="transition-modal-title"
+                aria-describedby="transition-modal-description"
+                className={classes.modal}
+                open={isOpenInfo}
+                onClose={handleInfoState}
+                closeAfterTransition
+                BackdropComponent={Backdrop}
+                BackdropProps={{
+                    timeout: 500,
+                }}
+            >
+                <Fade in={isOpenInfo}>
+                    <div className={classes.paper}>
+                        <div className='header-duelist-modal'>
+                            <h2 id="modal-modal-title" className='header-title-duelist-modal'>
+                                Help information:
+                            </h2>
+                            <div className='buttons-header-duelist-modal'>
+                                <Button size="sm" className='action-button-duelist-modal' color="danger" outline onClick={handleInfoState}>
+                                    Close
+                                </Button>
+                            </div>
+                        </div>
+                        <div className='info-content-component'>
+                            {props.children}
+                        </div>
+                    </div>
+                </Fade>
+            </Modal>
+        </>
+    )
+} 
+
 export const TableList = (props) => {
     return (
         <Table id="custom-duelist-table" className="align-items-center" responsive>
@@ -66,7 +118,29 @@ export const THeadList = () => {
     return (
         <thead className="thead-light">
             <tr>
-                <th scope="col">Nº</th>
+                <th scope="col">
+                    Nº&nbsp;
+                    <InfoElement field="order-color">
+                        <h1>Order color status:</h1>
+                        <h2>
+                            Color&nbsp;
+                            <span style={{ color: "#25ccc1" }}>Green:</span>
+                        </h2>
+                        <p>Importation of the order are <span style={{fontWeight:"bold"}}>"Released to Invoice"</span>.</p>
+                        <h2>
+                            Color&nbsp;
+                            <span style={{ color: "#ffc559" }}>Yellow:</span>
+                        </h2>
+                        <p><span style={{fontWeight:"bold"}}>Import No.</span> of the order is equal to <span style={{fontWeight:"bold"}}>"0"</span>.</p>
+                        <h2>
+                            Color&nbsp;
+                            <span style={{ color: "#000", fontWeight: "bold" }}>White:</span>
+                        </h2>
+                        <p>
+                            If the <span style={{fontWeight:"bold"}}>Import No.</span> is not equal to "0" and importation not are <span style={{fontWeight:"bold"}}>"Released to Invoice"</span>.
+                        </p>
+                    </InfoElement>
+                </th>
                 <th scope="col">Cust. Name</th>
                 <th scope="col">SO</th>
                 <th scope="col">Item</th>
@@ -75,7 +149,44 @@ export const THeadList = () => {
                 <th scope="col">Sched. l. date</th>
                 <th scope="col">Material Descript.</th>
                 <th scope="col">Material Number</th>
-                <th scope="col">ETA WAREHOUSE</th>
+                <th scope="col">
+                    ETA WAREHOUSE&nbsp;
+                    <InfoElement field="order-trianom-date-header">
+                        <h1>Method to calculate the ETA Warehouse date:</h1>
+                        <h2>If the Producing Company of the order is equal to "0052":</h2>
+                        <p>
+                            The <span style={{fontWeight:"bold"}}>ETA Warehouse</span> will be equal to the <span style={{fontWeight:"bold"}}>Delivery Date</span> of the order, but, if the order doesn't have a <span style={{fontWeight:"bold"}}>Delivery Date</span>, the value will be <span style={{fontWeight:"bold"}}>"Not Prevision".</span>
+                            <div>
+                                <span>
+                                <span style={{fontWeight:"bold"}}>(If the order has a manual date value for ETA Warehouse, the ETA Warehouse date will aways be this value unless it is removed)</span>
+                                </span>
+                            </div>
+                        </p>
+
+                        <h2>If the Import No. of the order is equal to "0":</h2>
+                        <p>If the order has a <span style={{fontWeight:"bold"}}>Delay</span> value, the <span style={{fontWeight:"bold"}}>ETA Warehouse</span> will be <span style={{fontWeight:"bold"}}>"Order Delayed".</span></p>
+                        <p>If the order doesn't have a <span style={{fontWeight:"bold"}}>Conf. Delivery Date</span>, the ETA Warehouse will be <span style={{fontWeight:"bold"}}>"Not Prevision".</span></p>
+                        <p>
+                            If none of the above cases apply, the ETA Warehouse value will be the value of the <span style={{fontWeight:"bold"}}>Factory (in Boarding Date PC)</span> whitch is equal to the <span style={{fontWeight:"bold"}}>Producing Company</span> of the order, in which the day of the <span style={{fontWeight:"bold"}}>week</span> of the <span style={{fontWeight:"bold"}}>Conf. Delivery Date</span> added in days to <span style={{fontWeight:"bold"}}>Conf. Delivery Date.</span>
+                            <div>
+                                <span style={{fontWeight:"bold"}}>
+                                    (If the order has a manual date value for ETA Warehouse, the ETA Warehouse date will aways be this value unless it is removed)
+                                </span>
+                            </div>
+                        </p>
+
+                        <h2>If the order have a Import No. different "0":</h2>
+                        <p>
+                            If the <span style={{fontWeight:"bold"}}>importation</span> (in <span style={{fontWeight:"bold"}}>Importation Details</span> equal to the <span style={{fontWeight:"bold"}}>Import No.</span>) of the order have a ETA Warehouse value, <span style={{fontWeight:"bold"}}>the ETA Warehouse will be equal this.</span>
+Else, the ETA Warehouse value will be the value of the <span style={{fontWeight:"bold"}}>Factory (in Boarding Date PC)</span> whitch is equal to the <span style={{fontWeight:"bold"}}>Producing Company</span> of the order, in which the day of the <span style={{fontWeight:"bold"}}>week of the Conf. Delivery Date</span> added in days to <span style={{fontWeight:"bold"}}>Conf. Delivery Date.</span>
+                            <div>
+                                <span style={{fontWeight:"bold"}}>
+                                (If the order has a manual date value for ETA Warehouse, the ETA Warehouse date will aways be this value unless it is removed or the importation of the order have a ETA Warehouse)
+                                </span>
+                            </div>
+                        </p>
+                    </InfoElement>
+                </th>
                 <th scope='col'>Prevision Fat. (Week)</th>
                 <th scope="col">Status</th>
             </tr>
@@ -520,8 +631,8 @@ const TableModal = (props) => {
 
                 if (order.releaseDate !== weState.releaseDate) {
                     historicData.so.push({
-                        before: `Old Release Date value: "${order.releaseDate}"`,
-                        after: `New Release Date value: "${weState.releaseDate}"`,
+                        before: `Old 3rd Party Sent Date value: "${order.releaseDate}"`,
+                        after: `New 3rd Party Sent Date value: "${weState.releaseDate}"`,
                         action: "update"
                     });
                 }
@@ -800,7 +911,7 @@ const TableModal = (props) => {
                                         {order.fullDelivery}
                                     </div>
                                     <div className='cell-value-list-duelist-modal'>
-                                        {order.producingCompany}
+                                        {String(order.producingCompany).padStart(4,0)}
                                     </div>
                                     <div className='cell-value-list-duelist-modal'>
                                         {order.PCInvoice}
@@ -819,10 +930,45 @@ const TableModal = (props) => {
                                         SSK
                                     </div>
                                     <div className='cell-title-list-duelist-modal clickable-duelist' onDoubleClick={modalEdit?closeEditMode:openEditMode}>
-                                        ETA WAREHOUSE
+                                        ETA WAREHOUSE&nbsp;
+                                        <InfoElement field="order-trianom-date-details">
+                                        <h1>Method to calculate the ETA Warehouse date:</h1>
+                                        <h2>If the Producing Company of the order is equal to "0052":</h2>
+                                        <p>
+                                            The <span style={{fontWeight:"bold"}}>ETA Warehouse</span> will be equal to the <span style={{fontWeight:"bold"}}>Delivery Date</span> of the order, but, if the order doesn't have a <span style={{fontWeight:"bold"}}>Delivery Date</span>, the value will be <span style={{fontWeight:"bold"}}>"Not Prevision".</span>
+                                            <div>
+                                                <span>
+                                                <span style={{fontWeight:"bold"}}>(If the order has a manual date value for ETA Warehouse, the ETA Warehouse date will aways be this value unless it is removed)</span>
+                                                </span>
+                                            </div>
+                                        </p>
+
+                                        <h2>If the Import No. of the order is equal to "0":</h2>
+                                        <p>If the order has a <span style={{fontWeight:"bold"}}>Delay</span> value, the <span style={{fontWeight:"bold"}}>ETA Warehouse</span> will be <span style={{fontWeight:"bold"}}>"Order Delayed".</span></p>
+                                        <p>If the order doesn't have a <span style={{fontWeight:"bold"}}>Conf. Delivery Date</span>, the ETA Warehouse will be <span style={{fontWeight:"bold"}}>"Not Prevision".</span></p>
+                                        <p>
+                                            If none of the above cases apply, the ETA Warehouse value will be the value of the <span style={{fontWeight:"bold"}}>Factory (in Boarding Date PC)</span> whitch is equal to the <span style={{fontWeight:"bold"}}>Producing Company</span> of the order, in which the day of the <span style={{fontWeight:"bold"}}>week</span> of the <span style={{fontWeight:"bold"}}>Conf. Delivery Date</span> added in days to <span style={{fontWeight:"bold"}}>Conf. Delivery Date.</span>
+                                            <div>
+                                                <span style={{fontWeight:"bold"}}>
+                                                    (If the order has a manual date value for ETA Warehouse, the ETA Warehouse date will aways be this value unless it is removed)
+                                                </span>
+                                            </div>
+                                        </p>
+
+                                        <h2>If the order have a Import No. different "0":</h2>
+                                        <p>
+                                            If the <span style={{fontWeight:"bold"}}>importation</span> (in <span style={{fontWeight:"bold"}}>Importation Details</span> equal to the <span style={{fontWeight:"bold"}}>Import No.</span>) of the order have a ETA Warehouse value, <span style={{fontWeight:"bold"}}>the ETA Warehouse will be equal this.</span>
+                Else, the ETA Warehouse value will be the value of the <span style={{fontWeight:"bold"}}>Factory (in Boarding Date PC)</span> whitch is equal to the <span style={{fontWeight:"bold"}}>Producing Company</span> of the order, in which the day of the <span style={{fontWeight:"bold"}}>week of the Conf. Delivery Date</span> added in days to <span style={{fontWeight:"bold"}}>Conf. Delivery Date.</span>
+                                            <div>
+                                                <span style={{fontWeight:"bold"}}>
+                                                (If the order has a manual date value for ETA Warehouse, the ETA Warehouse date will aways be this value unless it is removed or the importation of the order have a ETA Warehouse)
+                                                </span>
+                                            </div>
+                                        </p>
+                                        </InfoElement>
                                     </div>
                                     <div className='cell-title-list-duelist-modal'>
-                                        Importation
+                                        PO. Number
                                     </div>
                                     <div className='cell-title-list-duelist-modal'>
                                         Import No.
@@ -851,7 +997,7 @@ const TableModal = (props) => {
                                         </div>
                                     )}
                                     <div className='cell-value-list-duelist-modal'>
-                                        {order.importation}
+                                        {order.PONumber}
                                     </div>
                                     <div className='cell-value-list-duelist-modal'>
                                         {order.importNo}
@@ -900,9 +1046,6 @@ const TableModal = (props) => {
                                         Date of notification
                                     </div>
                                     <div className='cell-title-list-duelist-modal'>
-                                        Route
-                                    </div>
-                                    <div className='cell-title-list-duelist-modal'>
                                         First Date
                                     </div>
                                     <div className='cell-title-list-duelist-modal'>
@@ -915,9 +1058,6 @@ const TableModal = (props) => {
                                 <div className='column-list-duelist-modal'>
                                     <div className='cell-value-list-duelist-modal'>
                                         {order.dateOfNotification ? order.dateOfNotification : "N/A"}
-                                    </div>
-                                    <div className='cell-value-list-duelist-modal'>
-                                        {order.route}
                                     </div>
                                     <div className='cell-value-list-duelist-modal'>
                                         {formatDate(order.firstDate)}
@@ -938,14 +1078,14 @@ const TableModal = (props) => {
                                     <div className='cell-title-list-duelist-modal'>
                                         Prevision Fat. (Week)
                                     </div>
-                                    <div className='cell-title-list-duelist-modal clickable-duelist' onDoubleClick={modalEdit?closeEditMode:openEditMode}>
-                                        Supplier
+                                    <div className='cell-title-list-duelist-modal'>
+                                        Delivery Date
                                     </div>
-                                    <div className='cell-title-list-duelist-modal clickable-duelist' onDoubleClick={modalEdit?closeEditMode:openEditMode}>
-                                        Return Days
+                                    <div className='cell-title-list-duelist-modal'>
+                                        Customer Delv. Date
                                     </div>
-                                    <div className='cell-title-list-duelist-modal clickable-duelist' onDoubleClick={modalEdit?closeEditMode:openEditMode}>
-                                        Release Date
+                                    <div className='cell-title-list-duelist-modal'>
+                                        Delay
                                     </div>
                                 </div>
                                 <div className='column-list-duelist-modal'>
@@ -955,60 +1095,82 @@ const TableModal = (props) => {
                                     <div className='cell-value-list-duelist-modal'>
                                         {order.previsionWeek ? order.previsionWeek : "N/A"}
                                     </div>
-                                    {modalEdit && order.externalService ? (
-                                        <>
-                                            <div className='cell-value-list-duelist-modal clickable-duelist' onDoubleClick={closeEditMode}>
-                                                <Input id="supplierExternal"
-                                                bsSize='sm'
-                                                placeholder="Supplier"
-                                                defaultValue={order.supplier}
-                                                type="text"
-                                                onChange={handlerInput}
-                                                name="supplier"/>
-                                            </div>
-                                            <div className='cell-value-list-duelist-modal input-number clickable-duelist' onDoubleClick={closeEditMode}>
-                                                <Input id="daysExternal"
-                                                bsSize='sm'
-                                                placeholder="Return Days"
-                                                defaultValue={order.returnDays}
-                                                type="number"
-                                                min="0"
-                                                onChange={handlerInput}
-                                                name="returnDays"/>
-                                            </div>
-                                            <div className='cell-value-list-duelist-modal clickable-duelist' onDoubleClick={() => clearInputWe("releaseDate")}>
-                                                <DatePicker
-                                                    type="date"
-                                                    locale="pt-br"
-                                                    onChange={(e) => handlerInput(e, "releaseDate")}
-                                                    value={formatDate(weState.releaseDate)}
-                                                    name="releaseDate"
-                                                    dateFormat="dd/MM/yyyy"/>
-                                            </div>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <div className='cell-value-list-duelist-modal clickable-duelist' onDoubleClick={openEditMode}>
-                                                {order.supplier ? order.supplier : "N/A"}
-                                            </div>
-                                            <div className='cell-value-list-duelist-modal clickable-duelist' onDoubleClick={openEditMode}>
-                                                {order.returnDays ? order.returnDays : "N/A"}
-                                            </div>
-                                            <div className='cell-value-list-duelist-modal clickable-duelist' onDoubleClick={openEditMode}>
-                                                {order.releaseDate ? formatDate(order.releaseDate) : "N/A"}
-                                            </div>
-                                        </>
-                                    )}
+                                    <div className='cell-value-list-duelist-modal'>
+                                        {formatDate(order.deliveryDate)}
+                                    </div>
+                                    <div className='cell-value-list-duelist-modal'>
+                                        {formatDate(order.availabilityCustomerDelvDate)}
+                                    </div>
+                                    <div className='cell-value-list-duelist-modal'>
+                                        {order.delay ? "Yes" : "No"}
+                                    </div>
                                 </div>
                             </div>
                             {order.externalService ? (
                                 <div className='row-list-duelist-modal'>
                                     <div className='column-list-duelist-modal'>
+                                        <div className='cell-title-list-duelist-modal clickable-duelist' onDoubleClick={modalEdit?closeEditMode:openEditMode}>
+                                            Supplier
+                                        </div>
+                                        <div className='cell-title-list-duelist-modal clickable-duelist' onDoubleClick={modalEdit?closeEditMode:openEditMode}>
+                                            Return Days
+                                        </div>
+                                        <div className='cell-title-list-duelist-modal clickable-duelist' onDoubleClick={modalEdit?closeEditMode:openEditMode}>
+                                            3rd Party Sent Date
+                                        </div>
                                         <div className='cell-title-list-duelist-modal'>
-                                            Prevision Date
+                                            Prevision Date&nbsp;
+                                            <InfoElement field={`${order.id}-info-element`}>
+                                                <h1>Method to calculate the Prevision Date:</h1>
+                                                <p>The Value of the <span style={{ fontWeight: "bold" }}>Prevision Date</span> is determined by adding the value of the <span style={{ fontWeight: "bold" }}>Return Days</span> in days to the <span style={{ fontWeight: "bold" }}>3rd Party Sent Date.</span></p>
+                                            </InfoElement>
                                         </div>
                                     </div>
                                     <div className='column-list-duelist-modal'>
+                                        {modalEdit && order.externalService ? (
+                                            <>
+                                                <div className='cell-value-list-duelist-modal clickable-duelist' onDoubleClick={closeEditMode}>
+                                                    <Input id="supplierExternal"
+                                                    bsSize='sm'
+                                                    placeholder="Supplier"
+                                                    defaultValue={order.supplier}
+                                                    type="text"
+                                                    onChange={handlerInput}
+                                                    name="supplier"/>
+                                                </div>
+                                                <div className='cell-value-list-duelist-modal input-number clickable-duelist' onDoubleClick={closeEditMode}>
+                                                    <Input id="daysExternal"
+                                                    bsSize='sm'
+                                                    placeholder="Return Days"
+                                                    defaultValue={order.returnDays}
+                                                    type="number"
+                                                    min="0"
+                                                    onChange={handlerInput}
+                                                    name="returnDays"/>
+                                                </div>
+                                                <div className='cell-value-list-duelist-modal clickable-duelist' onDoubleClick={() => clearInputWe("releaseDate")}>
+                                                    <DatePicker
+                                                        type="date"
+                                                        locale="pt-br"
+                                                        onChange={(e) => handlerInput(e, "releaseDate")}
+                                                        value={formatDate(weState.releaseDate)}
+                                                        name="releaseDate"
+                                                        dateFormat="dd/MM/yyyy"/>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <div className='cell-value-list-duelist-modal clickable-duelist' onDoubleClick={openEditMode}>
+                                                    {order.supplier ? order.supplier : "N/A"}
+                                                </div>
+                                                <div className='cell-value-list-duelist-modal clickable-duelist' onDoubleClick={openEditMode}>
+                                                    {order.returnDays ? order.returnDays : "N/A"}
+                                                </div>
+                                                <div className='cell-value-list-duelist-modal clickable-duelist' onDoubleClick={openEditMode}>
+                                                    {order.releaseDate ? formatDate(order.releaseDate) : "N/A"}
+                                                </div>
+                                            </>
+                                        )}
                                         <div className='cell-value-list-duelist-modal'>
                                             {order.previsionDate ? formatDate(order.previsionDate) : "N/A"}
                                         </div>

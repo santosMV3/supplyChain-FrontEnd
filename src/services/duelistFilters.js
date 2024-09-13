@@ -53,7 +53,7 @@ const filters = [
     ["externalService","Ext. Service", "boolean"],
     ["supplier","Supplier"],
     ["returnDays","Return Days"],
-    ["releaseDate","Release Date", "date"],
+    ["releaseDate","3rd Party Sent Date", "date"],
     ["previsionDate","Prevision Date", "date"],
 ];
 
