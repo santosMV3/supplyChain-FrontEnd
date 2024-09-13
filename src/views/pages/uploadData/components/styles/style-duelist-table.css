@@ -329,3 +329,16 @@ input::-webkit-inner-spin-button {
     height: 100%;
     box-shadow: 0 0 0 1px gray;
 }
+
+.info-button {
+    cursor: pointer;
+}
+
+.info-content-component {
+    min-width: 300px;
+    width: auto;
+    max-width: 70vw;
+    height: auto;
+    max-height: 60vh;
+    overflow: auto;
+}

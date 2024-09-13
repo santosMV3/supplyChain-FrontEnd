@@ -103,7 +103,7 @@ const FactoryItem = ({deleteFactory, post, getFactory}) => {
                         boxShadow: '0px 0px 1px black',
                         textAlign: 'center'
                     }}>
-                        {post.PC}
+                        {String(post.PC).padStart(4, '0')}
                     </td>
                     <td style={{
                         boxSizing: 'border-box',
