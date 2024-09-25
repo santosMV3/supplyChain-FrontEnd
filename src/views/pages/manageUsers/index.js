@@ -57,6 +57,10 @@ const ManageUsers = ({...props}) => {
     const classes = useStyles();
     const [permission, setPermission] = useState([]);
     const [selected, setSelect] = useState('');
+
+    const [ showPassValid, setShowPassValid ] = useState(false);
+    const handleShowPassValid = () => setShowPassValid(!showPassValid);
+
     const [ passValid, setPassValid ] = useState({
       upperCase: false,
       lowerCase: false,
@@ -246,13 +250,30 @@ const ManageUsers = ({...props}) => {
                   justifyContent: "space-between",
                   marginBottom: "10px"
                 }}>
+                  <InputGroup className="input-group-merge input-group-alternative">
+                    <InputGroupAddon addonType="prepend">
+                      <InputGroupText>
+                        <i className="ni ni-lock-circle-open" />
+                      </InputGroupText>
+                    </InputGroupAddon>
+                    <Input
+                      placeholder="Password"
+                      type="password"
+                      id="password"
+                      onChange={handlerInput}
+                      onFocus={handleShowPassValid}
+                      onBlur={handleShowPassValid}
+                    />
+                  </InputGroup>
                   <div style={{
+                    transition: "0.5s",
                     width: "100%",
                     boxShadow: "0px 0px 2px gray",
                     padding: "5px",
                     borderRadius: "4px",
                     backgroundColor: "#FFF",
-                    marginBottom: "5px"
+                    marginBottom: "5px",
+                    opacity: showPassValid ? "1" : "0"
                   }}>
                     <div style={{ color: passValid.upperCase ? "#2dce89" :"#f5365c" }}>
                       { passValid.upperCase ? (
@@ -295,19 +316,6 @@ const ManageUsers = ({...props}) => {
                       &nbsp;More than 8 characters
                     </div>
                   </div>
-                  <InputGroup className="input-group-merge input-group-alternative">
-                    <InputGroupAddon addonType="prepend">
-                      <InputGroupText>
-                        <i className="ni ni-lock-circle-open" />
-                      </InputGroupText>
-                    </InputGroupAddon>
-                    <Input
-                      placeholder="Password"
-                      type="password"
-                      id="password"
-                      onChange={handlerInput}
-                    />
-                  </InputGroup>
                 </FormGroup>
                 <div style={{
                   width: '100%',
