@@ -57,10 +57,35 @@ const ManageUsers = ({...props}) => {
     const classes = useStyles();
     const [permission, setPermission] = useState([]);
     const [selected, setSelect] = useState('');
+    const [ passValid, setPassValid ] = useState({
+      upperCase: false,
+      lowerCase: false,
+      number: false,
+      special: false,
+      minChar: false,
+    });
+
     const handleChange = (event) => {
       setSelect(event.target.value);
     };
     const handlerInput = (e) => {
+      if (e.target.id == "password") {
+        const passwordValue = e.target.value;
+
+        const hasUppercase = /[A-Z]/.test(passwordValue); // Verifica letras maiúsculas
+        const hasLowercase = /[a-z]/.test(passwordValue); // Verifica letras minúsculas
+        const hasSpecialChar = /[\W_]/.test(passwordValue); // Verifica caracteres especiais
+        const hasMinLength = passwordValue.length > 8; // Verifica comprimento mínimo
+        const hasNumber = /\d/.test(passwordValue); // Verifica números
+
+        setPassValid({
+          upperCase: hasUppercase,
+          lowerCase: hasLowercase,
+          number: hasNumber,
+          special: hasSpecialChar,
+          minChar: hasMinLength,
+        });
+      }
       setUserRegister({...userRegister, [e.target.id]: e.target.value});
     };
 
@@ -82,6 +107,23 @@ const ManageUsers = ({...props}) => {
       // if (groupValue === "") return window.alert('Por favor, selecione um grupo de usuário!');
       // userRegister.groups = [groupValue];
       userRegister.is_superuser = superuser;
+
+      if (!passValid.upperCase) return showNotify(
+          notifyRef,
+          "Password Validation Failed",
+          "Password must be have at one uppercase letter.",
+          "danger"
+        );
+      if (!passValid.lowerCase) return showNotify(notifyRef,
+        "Password Validation Failed",
+        "Password must be have at one lowercase letter.",
+        "danger");
+      if (!passValid.number) return showNotify(notifyRef, "Password Validation Failed", 
+      "Password must be have at one number.", "danger");
+      if (!passValid.special) return showNotify(notifyRef, "Password Validation Failed", 
+      "Password must be have at one special charácter.", "danger");
+      if (!passValid.minChar) return showNotify(notifyRef, "Password Validation Failed", 
+      "Password must be have at least 8 characters long.", "danger");
 
       api.post('/users/', userRegister).then((response) => {
         api.post('/user-permission/', {idUser: response.data.id, idPermission: selected})
@@ -197,7 +239,62 @@ const ManageUsers = ({...props}) => {
                     />
                   </InputGroup>
                 </FormGroup>
-                <FormGroup>
+                <FormGroup style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  marginBottom: "10px"
+                }}>
+                  <div style={{
+                    width: "100%",
+                    boxShadow: "0px 0px 2px gray",
+                    padding: "5px",
+                    borderRadius: "4px",
+                    backgroundColor: "#FFF",
+                    marginBottom: "5px"
+                  }}>
+                    <div style={{ color: passValid.upperCase ? "#2dce89" :"#f5365c" }}>
+                      { passValid.upperCase ? (
+                        <i class="fa fa-thumbs-up"/>
+                      ) : (
+                        <i class="fa fa-thumbs-down"/>
+                      ) }
+                      &nbsp;Upper-Case
+                    </div>
+                    <div style={{ color: passValid.lowerCase ? "#2dce89" :"#f5365c" }}>
+                      { passValid.lowerCase ? (
+                        <i class="fa fa-thumbs-up"/>
+                      ) : (
+                        <i class="fa fa-thumbs-down"/>
+                      ) }
+                      &nbsp;Lower-Case
+                    </div>
+                    <div style={{ color: passValid.number ? "#2dce89" :"#f5365c" }}>
+                      { passValid.number ? (
+                        <i class="fa fa-thumbs-up"/>
+                      ) : (
+                        <i class="fa fa-thumbs-down"/>
+                      ) }
+                      &nbsp;Number
+                    </div>
+                    <div style={{ color: passValid.special ? "#2dce89" :"#f5365c" }}>
+                      { passValid.special ? (
+                        <i class="fa fa-thumbs-up"/>
+                      ) : (
+                        <i class="fa fa-thumbs-down"/>
+                      ) }
+                      &nbsp;Special Character
+                    </div>
+                    <div style={{ color: passValid.minChar ? "#2dce89" :"#f5365c" }}>
+                      { passValid.minChar ? (
+                        <i class="fa fa-thumbs-up"/>
+                      ) : (
+                        <i class="fa fa-thumbs-down"/>
+                      ) }
+                      &nbsp;More than 8 characters
+                    </div>
+                  </div>
                   <InputGroup className="input-group-merge input-group-alternative">
                     <InputGroupAddon addonType="prepend">
                       <InputGroupText>
