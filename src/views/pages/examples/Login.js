@@ -64,6 +64,24 @@ function Login() {
     })
   }
 
+  const recoverExecute = (e) => {
+    e.target.disabled = true;
+    if (usuarioLogin.username === "") {
+      e.target.disabled = false;
+      return showNotify(notifyRef, "Error", "Username is required", "danger");
+    }
+    e.preventDefault();
+    e.target.disabled = false;
+    setLoader(true);
+    api.post('/recover/', {username: usuarioLogin.username}).then(() => {
+      setLoader(false);
+      showNotify(notifyRef, "Info", "If have a user with this username a email are sended. Please check your inbox", "success");
+    }).catch((error) => {
+      setLoader(false);
+      showNotify(notifyRef, "Error", "Failed to recover your password", "danger");
+    });
+  }
+
   const [focusedEmail, setfocusedEmail] = React.useState(false);
   const setFocusedEmailTrue = () => setfocusedEmail(true);
   // const setFocusedEmailFalse = () => setfocusedEmail(false);
@@ -143,6 +161,9 @@ function Login() {
                     <div className="text-center">
                       <Button className="my-4" color="info" type="submit">
                         Sign in
+                      </Button>
+                      <Button className="my-4" color="info" type="button" onClick={recoverExecute}>
+                        Recover Password
                       </Button>
                     </div>
                   </Form>

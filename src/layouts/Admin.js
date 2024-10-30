@@ -26,12 +26,14 @@ import {api} from "../services/api";
 import { useHistory } from "react-router-dom";
 import routes from "routes.js";
 import Unauthorized from "./components/unauthorized";
+import NotifyComponent, { showNotify } from "../components/notifications/notify";
 
 function Admin({...props}) {
   const [sidenavOpen, setSidenavOpen] = React.useState(true);
   const [pageState, setPageState] = useState([]);
   const location = useLocation();
   const mainContentRef = React.useRef(null);
+  const notifyRef = React.useRef(null);
   const history = useHistory();
 
   if(isSignedIn()){
@@ -51,47 +53,70 @@ function Admin({...props}) {
     history.push('/auth/login');
   }
 
-  const getPagePermissions = () => {
-    Promise.all([
-      api.get(`user-permission?idUser=${localStorage.getItem("AUTHOR_ID")}`),
-      api.get(`/users/${localStorage.getItem("AUTHOR_ID")}`),
-      api.get("/pages")
-    ]).then((responses) => {
+  const getPagePermissions = async () => {
+    try {
+      const responses = await Promise.all([
+        api.get(`user-permission?idUser=${localStorage.getItem("AUTHOR_ID")}`),
+        api.get(`/users/${localStorage.getItem("AUTHOR_ID")}`),
+        api.get("/pages"),
+        api.get("/permissions/")
+      ]);
+      
       if ((responses[0].data.length === 0) && !(responses[1].data.is_superuser)) {
         localStorage.clear();
         history.push("/auth/login");
       }
-
+  
       let pagesAllowed = [];
       if(responses[1].data.is_superuser) {
         const pageNames = responses[2].data.map((page) => page.name);
         pagesAllowed = pagesAllowed.concat(pageNames);
         return setPageState(pagesAllowed);
       } else {
-        api.get(`/permissions/${responses[0].data[0].idPermission}`).then((permission) => {
-
-          responses[2].data.forEach((page) => {
-            if (permission.data.idPages.indexOf(page.idPage) > -1){
-              pagesAllowed.push(page.name);
-            }
-          });
+        const permissionId = responses[0].data[0].idPermission;
+        const permission = responses[3].data.find((permission) => permission.idPermission === permissionId);
+  
+        responses[2].data.forEach((page) => {
+          if (permission.idPages.indexOf(page.idPage) > -1){
+            pagesAllowed.push(page.name);
+          }
+        });
   
           setPageState(pagesAllowed);
-  
-        }).catch((error) => {
-          console.error(error);
-          window.alert("An error occurred while trying to collect your permissions. [1]");
-          localStorage.clear();
-          history.push("/auth/login");
-        }); 
       }
-
-    }).catch((error) => {
+    } catch (error) {
       console.error(error);
-      window.alert("An error occurred while trying to collect your permissions. [0]");
+      window.alert("An error occurred while trying to collect your permissions.");
       localStorage.clear();
       history.push("/auth/login");
-    })
+    }
+  }
+
+  const verifyNextDaysExpiration = (expirationDate, daysToExpire=7) => {
+    const today = new Date();
+    const next7Days = new Date();
+    next7Days.setDate(today.getDate() + daysToExpire);
+    const diffTime = next7Days - expirationDate;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+    if ((diffDays >= 0) && (diffDays <= daysToExpire)) {
+      return `Your password will expire in ${diffDays} days.`
+    }
+    return false;
+  };
+
+  const passExpiredVerify = async () => {
+    try {
+      const response = await api.get("/api-token-verify");
+      if (response.data.password_expired) return history.push("/auth/reset");
+      console.log(verifyNextDaysExpiration(new Date(response.data.password_expire_date)))
+
+      const expirationStatus = verifyNextDaysExpiration(new Date(response.data.password_expire_date));
+
+      if (expirationStatus) showNotify(notifyRef, "Warning", expirationStatus, "warning");
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   React.useEffect(() => {
@@ -101,7 +126,10 @@ function Admin({...props}) {
   }, [location]);
 
   React.useEffect(() => {
-    getPagePermissions();
+    Promise.all([
+      getPagePermissions(),
+      passExpiredVerify()
+    ]);
   }, [])
 
   const getRoutes = (routes) => {
@@ -158,6 +186,7 @@ function Admin({...props}) {
 
   return (
     <>
+      <NotifyComponent notifyRef={notifyRef}/>
       <Sidebar
         routes={routes}
         toggleSidenav={toggleSidenav}

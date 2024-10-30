@@ -277,41 +277,41 @@ const ManageUsers = ({...props}) => {
                   }}>
                     <div style={{ color: passValid.upperCase ? "#2dce89" :"#f5365c" }}>
                       { passValid.upperCase ? (
-                        <i class="fa fa-thumbs-up"/>
+                        <i className="fa fa-thumbs-up"/>
                       ) : (
-                        <i class="fa fa-thumbs-down"/>
+                        <i className="fa fa-thumbs-down"/>
                       ) }
                       &nbsp;Upper-Case
                     </div>
                     <div style={{ color: passValid.lowerCase ? "#2dce89" :"#f5365c" }}>
                       { passValid.lowerCase ? (
-                        <i class="fa fa-thumbs-up"/>
+                        <i className="fa fa-thumbs-up"/>
                       ) : (
-                        <i class="fa fa-thumbs-down"/>
+                        <i className="fa fa-thumbs-down"/>
                       ) }
                       &nbsp;Lower-Case
                     </div>
                     <div style={{ color: passValid.number ? "#2dce89" :"#f5365c" }}>
                       { passValid.number ? (
-                        <i class="fa fa-thumbs-up"/>
+                        <i className="fa fa-thumbs-up"/>
                       ) : (
-                        <i class="fa fa-thumbs-down"/>
+                        <i className="fa fa-thumbs-down"/>
                       ) }
                       &nbsp;Number
                     </div>
                     <div style={{ color: passValid.special ? "#2dce89" :"#f5365c" }}>
                       { passValid.special ? (
-                        <i class="fa fa-thumbs-up"/>
+                        <i className="fa fa-thumbs-up"/>
                       ) : (
-                        <i class="fa fa-thumbs-down"/>
+                        <i className="fa fa-thumbs-down"/>
                       ) }
                       &nbsp;Special Character
                     </div>
                     <div style={{ color: passValid.minChar ? "#2dce89" :"#f5365c" }}>
                       { passValid.minChar ? (
-                        <i class="fa fa-thumbs-up"/>
+                        <i className="fa fa-thumbs-up"/>
                       ) : (
-                        <i class="fa fa-thumbs-down"/>
+                        <i className="fa fa-thumbs-down"/>
                       ) }
                       &nbsp;More than 8 characters
                     </div>

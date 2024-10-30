@@ -29,6 +29,7 @@ import HistoryPage from "views/pages/history";
 import Duelist from "views/pages/uploadData/duelist";
 import DuelistUpload from "views/pages/uploadData/uploadPage";
 import BatchPage from "views/pages/batchUpdates";
+import ResetPassword from "views/pages/manageUsers/resetPassword";
 
 const routes = [
   {
@@ -74,6 +75,20 @@ const routes = [
         component: Login,
         layout: "/auth",
       },
+      {
+        path: "/reset/:code",
+        name: "Reset Password",
+        miniName: "L",
+        component: ResetPassword,
+        layout: "/auth",
+      },
+      {
+        path: "/reset/",
+        name: "Reset Password",
+        miniName: "L",
+        component: ResetPassword,
+        layout: "/auth",
+      }
     ],
   },
   {
