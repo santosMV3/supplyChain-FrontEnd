@@ -39,7 +39,7 @@ export const ConfirmModal = (props) => {
                         This action needs your confirmation!
                     </h4>
                     <p>
-                        This action will modify {ordersAdded.length} orders. Confirm to continue. 
+                        This action will modify {ordersAdded.length} lines. Confirm to continue. 
                     </p>
                 </div>
             </div>
