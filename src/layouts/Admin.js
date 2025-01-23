@@ -92,15 +92,13 @@ function Admin({...props}) {
     }
   }
 
-  const verifyNextDaysExpiration = (expirationDate, daysToExpire=7) => {
-    const today = new Date();
-    const next7Days = new Date();
-    next7Days.setDate(today.getDate() + daysToExpire);
-    const diffTime = next7Days - expirationDate;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  
-    if ((diffDays >= 0) && (diffDays <= daysToExpire)) {
-      return `Your password will expire in ${diffDays} days.`
+  const verifyNextDaysExpiration = (expirationDate, daysToExpire = 7) => {
+    const today = Date.now();
+    const diffTime = expirationDate.getTime() - today;
+    const diffDays = Math.ceil(diffTime / 86400000);
+
+    if (diffDays >= 0 && diffDays <= daysToExpire) {
+      return `Your password will expire in ${diffDays} days.`;
     }
     return false;
   };
