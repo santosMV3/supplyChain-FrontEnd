@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { forwardRef, useState } from 'react';
 import classnames from 'classnames';
 import Select2 from "react-select2-wrapper";
 import DatePicker, { registerLocale } from "react-datepicker";
@@ -22,6 +22,7 @@ import {
     UncontrolledTooltip,
     Table
 } from "reactstrap";
+import { parseAmericanDate } from 'views/pages/uploadData/components/DueListTable';
 
 registerLocale('pt-br', ptBR);
 
@@ -145,6 +146,28 @@ const ChangesComponent = (props) => {
         deleteChange(index);
     }
 
+    const DateCustomInput = forwardRef(({ value, onClick }, ref) => (
+        <InputGroup
+            className={classnames("input-group-merge", {
+            focused: changeValueFocus,
+            })}
+        >
+            <InputGroupAddon addonType="prepend">
+            <InputGroupText>
+                <i className="ni ni-bold-right" />
+            </InputGroupText>
+            </InputGroupAddon>
+            <Input
+            type="text"
+            onFocus={() => setChangeValueFocus(true)}
+            onBlur={() => setChangeValueFocus(false)}
+            onClick={onClick}
+            ref={ref}
+            defaultValue={value}
+            />
+        </InputGroup>
+    ))
+
     return (
         <>
         <Card>
@@ -230,10 +253,15 @@ const ChangesComponent = (props) => {
                                             <DatePicker
                                             type="date"
                                             locale="pt-br"
-                                            onChange={handlerInput}
-                                            value={formatDate(changeState.changeValue)}
+                                            onChange={
+                                                (date) => setChangeState({...changeState, "changeValue": date ? formatDateAmerican(date) : date})
+                                            }
+                                            selected={parseAmericanDate(changeState.changeValue)}
                                             dateFormat="dd/MM/yyyy"
-                                            isClearable={true}
+                                            isClearable
+                                            customInput={
+                                                <DateCustomInput/>
+                                            }
                                             />
                                         </InputGroup>
                                     </div>

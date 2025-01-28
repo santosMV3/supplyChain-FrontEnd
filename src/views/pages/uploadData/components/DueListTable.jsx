@@ -54,6 +54,13 @@ const weaklyDays = [
     'Domingo',
 ];
 
+export function parseAmericanDate(dateString) {
+    if (!dateString) return null;
+    const [year, month, day] = dateString.split('-').map(Number);
+    if (isNaN(year) || isNaN(month) || isNaN(day)) return null;
+    return new Date(year, month - 1, day); // Ajuste do mês: 0-11
+}
+
 export const InfoElement = (props) => {
     const [ isOpenInfo, setOpenInfo ] = useState(false);
     const handleInfoState = () => setOpenInfo(!isOpenInfo);
@@ -550,7 +557,7 @@ const TableModal = (props) => {
     }
 
     const handlerInput = (e, input=null) => {
-        if(input && typeof(input) === "string") return setWeState({...weState, [input]: formatDateAmerican(e)});
+        if(input && typeof(input) === "string") return setWeState({...weState, [input]: e ? formatDateAmerican(e) : e});
         setWeState({...weState, [e.target.name]: e.target.value});
     }
 
@@ -594,7 +601,6 @@ const TableModal = (props) => {
                 api.post("/history/", { page: "DueList", before: `Old status ${oldStatusName}`, after: `Added the status ${statusName} for this order.`, action: "update", SO: order.soLine }).then(() => {
                     closeStatusMode();
                     window.alert("Success to update status.");
-                    console.log(selectedStatusName)
                     reload(endpoint, {loader: false});
                 }).catch(console.error);
             }).catch((error) => {
@@ -987,9 +993,16 @@ const TableModal = (props) => {
                                                 type="date"
                                                 locale="pt-br"
                                                 onChange={(e) => handlerInput(e, "previsionTrianom")}
-                                                value={formatDate(weState.previsionTrianom)}
+                                                selected={parseAmericanDate(weState.previsionTrianom)}
                                                 name="previsionTrianom"
-                                                dateFormat="dd/MM/yyyy"/>
+                                                dateFormat="dd/MM/yyyy"
+                                                isClearable
+                                                customInput={
+                                                    <Input
+                                                    bsSize='sm'
+                                                    type="text"
+                                                    />
+                                                }/>
                                         </div>
                                     ) : (
                                         <div className='cell-value-list-duelist-modal clickable-duelist' onDoubleClick={modalEdit?closeEditMode:openEditMode}>
@@ -1153,9 +1166,16 @@ const TableModal = (props) => {
                                                         type="date"
                                                         locale="pt-br"
                                                         onChange={(e) => handlerInput(e, "releaseDate")}
-                                                        value={formatDate(weState.releaseDate)}
+                                                        selected={parseAmericanDate(weState.releaseDate)}
                                                         name="releaseDate"
-                                                        dateFormat="dd/MM/yyyy"/>
+                                                        dateFormat="dd/MM/yyyy"
+                                                        isClearable
+                                                        customInput={
+                                                            <Input
+                                                            bsSize='sm'
+                                                            type="text"
+                                                            />
+                                                        }/>
                                                 </div>
                                             </>
                                         ) : (

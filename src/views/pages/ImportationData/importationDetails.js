@@ -11,6 +11,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { formatDateAmerican, formatDate } from "utils/conversor";
 import LoaderBox from "../components/custom/loader/loaderBox";
 import { api } from "services/api";
+import { parseAmericanDate } from "../uploadData/components/DueListTable";
 
 registerLocale('pt-br', ptBR);
 
@@ -187,14 +188,16 @@ const ImportationLine = ({post, deleteFactory, getImp}) => {
                         <DatePicker
                             type="date"
                             locale="pt-br"
-                            onChange={handlerInput}
-                            value={formatDate(impUpdate.prevChegadaTrianon)}
+                            onChange={(date) => setImpUpdate(
+                                {
+                                    ...impUpdate,
+                                    "prevChegadaTrianon": date ? formatDateAmerican(date) : null
+                                })}
+                            selected={parseAmericanDate(impUpdate.prevChegadaTrianon)}
                             name="releaseDate"
                             dateFormat="dd/MM/yyyy"
-                            style={{
-                                width: '150px',
-                                margin: '0 auto'
-                            }}
+                            customInput={<Input bsSize="sm" type="text" style={{width: '150px', margin: '0 auto'}}/>}
+                            isClearable
                         />
                         <UncontrolledTooltip
                             delay={0}
