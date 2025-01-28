@@ -118,9 +118,10 @@ export const DuelistFilter = (props) => {
 
     const [filterValue, setFilterValue] = useState({
         field: "",
-        value: "",
+        value: null,
         values: []
     });
+    const [endDate, setEndDate] = useState(null);
     const [filters, setFilters] = useState([]);
     const [filterState, setFilterState] = useState(isOpen);
     const openFilterState = () => setFilterState(true);
@@ -147,9 +148,11 @@ export const DuelistFilter = (props) => {
         setFormModal(true);
     }
 
-    const handlerInputFilter = (e) => {
-        if (Object.keys(e).length === 0) return setFilterValue({...filterValue, "value": formatDateAmerican(e)});
+    const clearFilterInputValue = (field="") => {
+        setFilterValue({...filterValue, field, "value": null});
+    }
 
+    const handlerInputFilter = (e) => {
         let filterObject = null;
         if(e.target.name === "field"){
             filterObject = filterFields.filter((filterItem) => filterItem[1] === e.target.value);
@@ -167,14 +170,11 @@ export const DuelistFilter = (props) => {
         }
         else if(e.target.name === "field"){
             closeColorMode();
-            closeStatusMode();   
+            closeStatusMode();
+            return clearFilterInputValue(e.target.value);
         }
         if (e.target.type === "checkbox") return setFilterValue({...filterValue, [e.target.name]: e.target.checked});
-        return setFilterValue({...filterValue, [e.target.name]: String(e.target.value).replace("@not@", "")});
-    }
-
-    const clearFilterInputValue = () => {
-        setFilterValue({...filterValue, "value": ""});
+        setFilterValue({...filterValue, [e.target.name]: String(e.target.value).replace("@not@", "")});
     }
 
     const addFilter = () => {
@@ -184,7 +184,14 @@ export const DuelistFilter = (props) => {
         filterField = filterField[0];
 
         let filterData = {...filterValue};
-        filterData.value = filterType === "boolean" && filterData.value === "" ? false : filterData.value;
+        if (filterType === "date") {
+            const startDateString = formatDateAmerican(filterData.value);
+            const endDateString = endDate ? formatDateAmerican(endDate) : null;
+            filterData.value = endDateString ? `${startDateString}__${endDateString}` : startDateString;
+            setEndDate(null);
+        } else {
+            filterData.value = filterType === "boolean" && filterData.value === "" ? false : filterData.value;
+        }
 
         if (filterField[0] !== "orderStatus" && filterField[0] !== "excludeStatus"){
             if (filterType !== "boolean"){
@@ -219,7 +226,7 @@ export const DuelistFilter = (props) => {
         
         setFilterValue({
             field: filterValue.field,
-            value: "",
+            value: null,
             values: []
         });
         openLikeMode();
@@ -249,11 +256,34 @@ export const DuelistFilter = (props) => {
         let filterItem = filters[index[0]];
         setFilterType(filterItem.type);
         
-        if ( filterItem.type !== "boolean" ){
+        if ( filterItem.type !== "boolean" && filterItem.type !== "date" ){
             setFilterValue({
                 field: filterItem.field[1],
                 value: String(filterItem.values[index[1]]).replace("@not@", "")
             });
+        } else if (filterItem.type === "date") {
+            const filterFieldData = filterItem.field[1];
+            const filterValueData = filterItem.values[index[1]].replace("@not@", "");
+
+            if (filterValueData.search("__") > -1) {
+                const startDate = filterValueData.split("__")[0];
+                const endDate = filterValueData.split("__")[1];
+
+                const [startYear, startMonth, startDay] = startDate.split('-').map(Number);
+                const [endYear, endMonth, endDay] = endDate.split('-').map(Number);
+
+                setFilterValue({
+                    field: filterFieldData,
+                    value: new Date(startYear, startMonth - 1, startDay),
+                });
+                setEndDate(new Date(endYear, endMonth - 1, endDay));
+            } else {
+                setFilterValue({
+                    field: filterFieldData,
+                    value: filterValueData
+                });
+            }
+
         } else {
             setFilterValue({
                 field: filterItem.field[1],
@@ -311,7 +341,6 @@ export const DuelistFilter = (props) => {
     }
 
     const handleKeyPress = (e) => {
-        console.log(e.key)
         if (e.key === "Control") return setKeyMore(e.key);
         if (keyMore === e.key) return setKeyMore(null);
         if (e.key === "Enter" && !keyMore) return addFilter();
@@ -371,15 +400,24 @@ export const DuelistFilter = (props) => {
                                 Value
                             </label>
                         </div>
-                    ): filterType === "date" ? (
-                        <div id='duelist-filter-input-select-status' onDoubleClick={clearFilterInputValue}>
+                    ): (filterType === "date") ? (
+                        <div id='duelist-filter-input-select-status' style={{display: 'flex', flexDirection: 'row', gap: '0.50rem'}} onDoubleClick={clearFilterInputValue}>
                             <DatePicker
                             type="date"
                             locale="pt-br"
-                            onChange={handlerInputFilter}
-                            value={formatDate(filterValue.value)}
+                            onChange={(date) => setFilterValue({...filterValue, value: date})}
+                            selected={filterValue.value}
                             dateFormat="dd/MM/yyyy"
-                            isClearable={true}/>
+                            isClearable={true}
+                            customInput={<Input id="duelist-filter-input-text" name="value" type="text" bsSize="sm"/>}/>
+                            <DatePicker
+                            type="date"
+                            locale="pt-br"
+                            onChange={(date) => setEndDate(date)}
+                            selected={endDate}
+                            dateFormat="dd/MM/yyyy"
+                            isClearable={true}
+                            customInput={<Input id="duelist-filter-input-text" name="value" type="text" bsSize="sm"/>}/>
                         </div>
                     ) : filterType === "string" ? (
                         <Input id="duelist-filter-input-text" onChange={handlerInputFilter} value={filterValue.value} name='value' type="text" bsSize="sm"/>
@@ -451,7 +489,8 @@ export const DuelistFilter = (props) => {
                                         filterItemValue.length === 0 ? "Empty":
                                         filterItem.type === "string" ? filterItemValue.replace("@not@", "") :
                                         filterItem.type === "boolean" ? filterItemValue ? "Yes" : "No":
-                                        filterItem.type === "date" ? String(formatDate(filterItemValue)).replace("@not@", ""):
+                                        (filterItem.type === "date" && filterItemValue.search("__") > -1) ? `${formatDate(filterItemValue.split("__")[0]).replace("@not@", "")} - ${formatDate(filterItemValue.split("__")[1]).replace("@not@", "")}`:
+                                        (filterItem.type === "date" && !filterItemValue.search("__") > -1) ? `${formatDate(filterItemValue).replace("@not@", "")}`:
                                         filterItem.type === "select" && filterItemValue.replace("billed", "Green").replace("undefined", "White").replace("transport", "Yellow").replace("@not@", "")
                                     }
                                     &nbsp;
