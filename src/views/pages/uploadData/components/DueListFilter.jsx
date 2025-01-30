@@ -224,11 +224,7 @@ export const DuelistFilter = (props) => {
             setFilters([...filters, filterData]);
         }
         
-        setFilterValue({
-            field: filterValue.field,
-            value: null,
-            values: []
-        });
+        setFilterValue({...filterValue, value: null, values: []});
         openLikeMode();
         closeColorMode();
         closeStatusMode();
@@ -420,12 +416,12 @@ export const DuelistFilter = (props) => {
                             customInput={<Input id="duelist-filter-input-text" name="value" type="text" bsSize="sm"/>}/>
                         </div>
                     ) : filterType === "string" ? (
-                        <Input id="duelist-filter-input-text" onChange={handlerInputFilter} value={filterValue.value} name='value' type="text" bsSize="sm"/>
+                        <Input id="duelist-filter-input-text" onChange={handlerInputFilter} value={filterValue.value || ""} name='value' type="text" bsSize="sm"/>
                     ) : filterType === "select" && (
                         <>
                             {statusMode ? (
                                 <>
-                                    <Input id="duelist-filter-input-select-status" name='value' value={filterValue.value} onChange={handlerInputFilter} bsSize="sm" type="select">
+                                    <Input id="duelist-filter-input-select-status" name='value' value={filterValue.value || ""} onChange={handlerInputFilter} bsSize="sm" type="select">
                                         <option value="">Orders status</option>
                                         {orderStatus.sort((a, b) => a.name - b.name).map((item, index) => (<option key={`filter-status-${index}`} value={item.name}>{item.name}</option>))}
                                     </Input>
@@ -433,7 +429,7 @@ export const DuelistFilter = (props) => {
                             ):(
                                 <>
                                     {colorMode && (
-                                        <Input id="duelist-filter-input-select-status" name='value' value={filterValue.value} onChange={handlerInputFilter} bsSize="sm" type="select">
+                                        <Input id="duelist-filter-input-select-status" name='value' value={filterValue.value || ""} onChange={handlerInputFilter} bsSize="sm" type="select">
                                             <option value="">Colors</option>
                                             <option value="billed">Green</option>
                                             <option value="transport">Yellow</option>
@@ -486,7 +482,7 @@ export const DuelistFilter = (props) => {
                                 </div>
                                 <div>
                                     {
-                                        filterItemValue.length === 0 ? "Empty":
+                                        ((!filterItemValue && filterItem.type != "boolean") || filterItemValue.length === 0) ? "Empty":
                                         filterItem.type === "string" ? filterItemValue.replace("@not@", "") :
                                         filterItem.type === "boolean" ? filterItemValue ? "Yes" : "No":
                                         (filterItem.type === "date" && filterItemValue.search("__") > -1) ? `${formatDate(filterItemValue.split("__")[0]).replace("@not@", "")} - ${formatDate(filterItemValue.split("__")[1]).replace("@not@", "")}`:

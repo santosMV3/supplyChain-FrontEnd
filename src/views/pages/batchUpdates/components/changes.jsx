@@ -225,7 +225,7 @@ const ChangesComponent = (props) => {
                                         onFocus={() => setChangeValueFocus(true)}
                                         onBlur={() => setChangeValueFocus(false)}
                                         onChange={handlerInput}
-                                        value={changeState.changeValue}
+                                        value={changeState.changeValue || ""}
                                         />
                                     </InputGroup>
                                 ) : inputType === "boolean" ? (
@@ -278,7 +278,7 @@ const ChangesComponent = (props) => {
                                                     'Yellow',
                                                     'White'
                                                 ]}
-                                                value={changeState.changeValue}
+                                                value={changeState.changeValue || ""}
                                                 onOpen={() => {
                                                     const select2 = document.getElementsByClassName('select2-search__field');
                                                     select2[0].focus();
@@ -297,7 +297,7 @@ const ChangesComponent = (props) => {
                                                 options={{ placeholder: "Select a order week:" }}
                                                 onSelect={handlerInput}
                                                 data={weList}
-                                                value={changeState.changeValue}
+                                                value={changeState.changeValue || ""}
                                                 onOpen={() => {
                                                     const select2 = document.getElementsByClassName('select2-search__field');
                                                     select2[0].focus();
@@ -316,7 +316,7 @@ const ChangesComponent = (props) => {
                                                 options={{ placeholder: "Select a order status:" }}
                                                 onSelect={handlerInput}
                                                 data={statusNames}
-                                                value={changeState.changeValue}
+                                                value={changeState.changeValue || ""}
                                                 onOpen={() => {
                                                     const select2 = document.getElementsByClassName('select2-search__field');
                                                     select2[0].focus();
@@ -347,7 +347,7 @@ const ChangesComponent = (props) => {
                                         onFocus={() => setChangeValueFocus(true)}
                                         onBlur={() => setChangeValueFocus(false)}
                                         onChange={handlerInput}
-                                        value={changeState.changeValue}
+                                        value={changeState.changeValue || ""}
                                         />
                                     </InputGroup>
                                 )}
