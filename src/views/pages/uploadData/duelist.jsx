@@ -48,7 +48,12 @@ const Duelist = () => {
 
     function getStatus() {
         api.get("/status/?is_active=true").then((res) => {
-            setOrderStatus(res.data);
+            const orderedStatusData = res.data.sort((a, b) => {
+                if (a.name.toLowerCase() < b.name.toLowerCase()) return -1;
+                if (a.name.toLowerCase() > b.name.toLowerCase()) return 1;
+                return 0;
+            });
+            setOrderStatus(orderedStatusData);
         }).catch(console.error);
     }
 
